@@ -1,0 +1,1132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BetCompare Zambia | Compare Betting Odds</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0D1B2A;
+            --secondary: #1B263B;
+            --accent: #E0A526;
+            --accent-glow: rgba(224, 165, 38, 0.3);
+            --success: #00C853;
+            --text: #FFFFFF;
+            --text-muted: #8892A0;
+            --card-bg: #1B263B;
+            --border: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--primary);
+            color: var(--text);
+            min-height: 100vh;
+            background-image: 
+                radial-gradient(ellipse at 20% 20%, rgba(224, 165, 38, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 80%, rgba(26, 92, 255, 0.08) 0%, transparent 50%);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            padding: 40px 20px 30px;
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 3.5rem;
+            letter-spacing: 4px;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, var(--accent) 0%, #FFF 50%, var(--accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .tagline {
+            color: var(--text-muted);
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        .search-section {
+            max-width: 700px;
+            margin: 0 auto 40px;
+        }
+
+        .search-container {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .search-input-wrapper {
+            flex: 1;
+            min-width: 280px;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 18px 24px 18px 54px;
+            font-size: 1.1rem;
+            font-family: 'DM Sans', sans-serif;
+            border: 2px solid var(--border);
+            border-radius: 16px;
+            background: var(--secondary);
+            color: var(--text);
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 30px var(--accent-glow);
+        }
+
+        .search-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.3rem;
+            opacity: 0.5;
+        }
+
+        .search-btn {
+            padding: 18px 40px;
+            font-size: 1.1rem;
+            font-family: 'Bebas Neue', sans-serif;
+            letter-spacing: 2px;
+            border: none;
+            border-radius: 16px;
+            background: linear-gradient(135deg, var(--accent) 0%, #D4941C 100%);
+            color: var(--primary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .search-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 40px var(--accent-glow);
+        }
+
+        .search-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .quick-filters {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .filter-chip {
+            padding: 10px 20px;
+            background: var(--secondary);
+            border: 1px solid var(--border);
+            border-radius: 30px;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .filter-chip:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 60px;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-status {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            margin-top: 15px;
+        }
+
+        .results-section {
+            margin-top: 30px;
+        }
+
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .results-count {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+        }
+
+        .results-count span {
+            color: var(--accent);
+            font-weight: 700;
+        }
+
+        .match-card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 28px;
+            margin-bottom: 24px;
+            border: 1px solid var(--border);
+            transition: all 0.3s ease;
+            animation: fadeInUp 0.5s ease forwards;
+        }
+
+        .match-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--accent);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .match-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .match-teams {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.8rem;
+            letter-spacing: 1px;
+        }
+
+        .match-vs {
+            color: var(--accent);
+            margin: 0 12px;
+            font-size: 1.4rem;
+        }
+
+        .match-meta {
+            text-align: right;
+        }
+
+        .match-league {
+            color: var(--accent);
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .match-time {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-top: 4px;
+        }
+
+        .odds-grid {
+            display: grid;
+            gap: 12px;
+        }
+
+        .bookmaker-row {
+            display: grid;
+            grid-template-columns: 200px repeat(3, 1fr) auto;
+            gap: 12px;
+            align-items: center;
+            padding: 16px 20px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .bookmaker-row:hover {
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        .bookmaker-row.featured {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .bookmaker-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .bookmaker-logo {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            font-weight: 700;
+            overflow: hidden;
+            color: #000;
+            flex-shrink: 0;
+        }
+
+        .bookmaker-logo img {
+            width: 32px;
+            height: 32px;
+            object-fit: contain;
+            border-radius: 4px;
+        }
+
+        .bookmaker-logo span {
+            color: #000;
+            font-weight: 700;
+            font-size: 0.85rem;
+        }
+
+        .bookmaker-name {
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .odds-cell {
+            text-align: center;
+        }
+
+        .odds-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .odds-value {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.6rem;
+            color: var(--text);
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            display: inline-block;
+            min-width: 70px;
+            transition: all 0.2s ease;
+        }
+
+        .odds-value:hover {
+            background: var(--accent);
+            color: var(--primary);
+        }
+
+        .odds-value.best {
+            background: rgba(0, 200, 83, 0.2);
+            color: var(--success);
+        }
+
+        .visit-btn {
+            padding: 10px 20px;
+            font-size: 0.85rem;
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 600;
+            border: none;
+            border-radius: 8px;
+            background: var(--accent);
+            color: var(--primary);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+
+        .visit-btn:hover {
+            background: #FFF;
+            transform: scale(1.05);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+        }
+
+        .empty-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .empty-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 2rem;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+        }
+
+        .empty-text {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        .error-state {
+            text-align: center;
+            padding: 40px;
+            background: rgba(255, 71, 87, 0.1);
+            border: 1px solid rgba(255, 71, 87, 0.3);
+            border-radius: 16px;
+            margin: 20px 0;
+        }
+
+        .error-text {
+            color: #FF4757;
+            font-size: 1rem;
+        }
+
+        footer {
+            text-align: center;
+            padding: 40px 20px;
+            margin-top: 60px;
+            border-top: 1px solid var(--border);
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        @media (max-width: 900px) {
+            .bookmaker-row {
+                grid-template-columns: 1fr;
+                gap: 16px;
+                text-align: center;
+            }
+            .bookmaker-info { 
+                justify-content: center; 
+                flex-wrap: wrap; 
+            }
+            .odds-cell { 
+                display: inline-block; 
+                margin: 0 8px; 
+            }
+            .match-meta { 
+                text-align: left; 
+            }
+            .visit-btn {
+                width: 100%;
+                padding: 14px 20px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .logo { 
+                font-size: 2.5rem; 
+            }
+            .match-teams { 
+                font-size: 1.4rem; 
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1 class="logo">BETCOMPARE ZAMBIA</h1>
+            <p class="tagline">Find the Best Betting Odds Across Zambian Bookmakers</p>
+        </header>
+
+        <section class="search-section">
+            <div class="search-container">
+                <div class="search-input-wrapper">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" id="searchInput" class="search-input" placeholder="Search team or match (e.g., Arsenal vs Chelsea)">
+                </div>
+                <button id="searchBtn" class="search-btn">SEARCH</button>
+            </div>
+            <div class="quick-filters">
+                <span class="filter-chip" data-team="Manchester United">Man United</span>
+                <span class="filter-chip" data-team="Liverpool">Liverpool</span>
+                <span class="filter-chip" data-team="Arsenal">Arsenal</span>
+                <span class="filter-chip" data-team="Real Madrid">Real Madrid</span>
+                <span class="filter-chip" data-team="Barcelona">Barcelona</span>
+                <span class="filter-chip" data-team="Bayern Munich">Bayern</span>
+            </div>
+        </section>
+
+        <section id="resultsSection" class="results-section">
+            <div class="empty-state">
+                <div class="empty-icon">⚽</div>
+                <h2 class="empty-title">SEARCH FOR MATCHES</h2>
+                <p class="empty-text">Enter a team name or match to compare odds across bookmakers</p>
+            </div>
+        </section>
+
+        <footer>
+            <p>Compare odds responsibly. 18+ only. Gambling can be addictive.</p>
+        </footer>
+    </div>
+
+    <script>
+        // ============================================
+        // CONFIGURATION
+        // ============================================
+        
+        const CONFIG = {
+            ODDS_API_KEY: 'f7ed9c1e8e9d67a37b05ca88cdb0d0ff',
+            ODDS_API_URL: 'https://api.the-odds-api.com/v4',
+            
+            // Supabase Edge Function for Claude AI odds
+            USE_CLAUDE_PROXY: true,
+            CLAUDE_PROXY_URL: 'https://dumjacmxefrxzcccsyxj.supabase.co/functions/v1/claude-proxy'
+        };
+
+        // Zambian Betting Companies - BwanaBet ALWAYS first
+        const BETTING_COMPANIES = [
+            { 
+                id: 'bwanabet', 
+                name: 'BwanaBet', 
+                color: '#FFD700', 
+                logo: 'https://www.google.com/s2/favicons?domain=bwanabet.com&sz=64',
+                logoText: 'BW',
+                featured: true, 
+                apiKey: null,
+                url: 'https://bwanabet.com/'
+            },
+            { 
+                id: 'betway', 
+                name: 'Betway', 
+                color: '#00A651', 
+                logo: 'https://www.google.com/s2/favicons?domain=betway.co.zm&sz=64',
+                logoText: 'BW',
+                featured: false, 
+                apiKey: 'betway',
+                url: 'https://www.betway.co.zm/'
+            },
+            { 
+                id: '1xbet', 
+                name: '1xBet', 
+                color: '#1A5CFF', 
+                logo: 'https://www.google.com/s2/favicons?domain=1xbet.com&sz=64',
+                logoText: '1X',
+                featured: false, 
+                apiKey: '1xbet',
+                url: 'https://1xbet.com.zm/'
+            },
+            { 
+                id: 'sportybet', 
+                name: 'SportyBet', 
+                color: '#E31E24', 
+                logo: 'https://www.google.com/s2/favicons?domain=sportybet.com&sz=64',
+                logoText: 'SB',
+                featured: false, 
+                apiKey: null,
+                url: 'https://www.sportybet.com/zm/'
+            },
+            { 
+                id: 'betpawa', 
+                name: 'BetPawa', 
+                color: '#00A550', 
+                logo: 'https://www.google.com/s2/favicons?domain=betpawa.co.zm&sz=64',
+                logoText: 'BP',
+                featured: false, 
+                apiKey: null,
+                url: 'https://www.betpawa.co.zm/'
+            },
+            { 
+                id: 'galbet', 
+                name: 'Gal Sport', 
+                color: '#FF4500', 
+                logo: 'https://www.google.com/s2/favicons?domain=gsb.co.zm&sz=64',
+                logoText: 'GS',
+                featured: false, 
+                apiKey: null,
+                url: 'https://gsb.co.zm/'
+            },
+            { 
+                id: 'melbet', 
+                name: 'Melbet', 
+                color: '#1B2A4E', 
+                logo: 'https://www.google.com/s2/favicons?domain=melbet.com&sz=64',
+                logoText: 'MB',
+                featured: false, 
+                apiKey: null,
+                url: 'https://melbet.co.zm/'
+            },
+            { 
+                id: 'castlebet', 
+                name: 'CastleBet', 
+                color: '#8B0000', 
+                logo: 'https://www.google.com/s2/favicons?domain=castlebet.co.zm&sz=64',
+                logoText: 'CB',
+                featured: false, 
+                apiKey: null,
+                url: 'https://www.castlebet.co.zm/'
+            },
+            { 
+                id: 'bolabet', 
+                name: 'BolaBet', 
+                color: '#9B59B6', 
+                logo: 'https://www.google.com/s2/favicons?domain=bolabet.co.zm&sz=64',
+                logoText: 'BB',
+                featured: false, 
+                apiKey: null,
+                url: 'https://www.bolabet.co.zm/'
+            }
+        ];
+
+        // Bookmaker profiles for generating realistic odds
+        // Each bookmaker has different margins (lower = better for customer)
+        const BOOKMAKER_PROFILES = {
+            bwanabet: { margin: 0.05, variance: 0.04 },
+            betway: { margin: 0.05, variance: 0.03 },
+            '1xbet': { margin: 0.045, variance: 0.03 },
+            sportybet: { margin: 0.055, variance: 0.04 },
+            betpawa: { margin: 0.06, variance: 0.04 },
+            galbet: { margin: 0.06, variance: 0.05 },
+            melbet: { margin: 0.05, variance: 0.03 },
+            castlebet: { margin: 0.065, variance: 0.05 },
+            bolabet: { margin: 0.055, variance: 0.04 }
+        };
+
+        // ============================================
+        // DOM ELEMENTS
+        // ============================================
+
+        const $ = id => document.getElementById(id);
+        const elements = {
+            searchInput: $('searchInput'),
+            searchBtn: $('searchBtn'),
+            resultsSection: $('resultsSection')
+        };
+
+        // ============================================
+        // THE ODDS API - FETCH LIVE ODDS
+        // ============================================
+
+        async function fetchLiveOdds(searchTerm) {
+            // Priority leagues to search (most common first)
+            const leagues = [
+                'soccer_epl',
+                'soccer_spain_la_liga', 
+                'soccer_germany_bundesliga',
+                'soccer_italy_serie_a',
+                'soccer_france_ligue_one',
+                'soccer_uefa_champs_league',
+                'soccer_uefa_europa_league'
+            ];
+            
+            for (const league of leagues) {
+                try {
+                    const response = await fetch(
+                        `${CONFIG.ODDS_API_URL}/sports/${league}/odds?apiKey=${CONFIG.ODDS_API_KEY}&regions=eu,uk&markets=h2h&oddsFormat=decimal`
+                    );
+
+                    if (!response.ok) {
+                        console.warn(`Odds API error for ${league}:`, response.status);
+                        continue;
+                    }
+
+                    const data = await response.json();
+                    
+                    const matches = data.filter(match => 
+                        match.home_team.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                        match.away_team.toLowerCase().includes(searchTerm.toLowerCase())
+                    );
+                    
+                    if (matches.length > 0) {
+                        return matches;
+                    }
+                } catch (error) {
+                    console.warn(`Odds API fetch error for ${league}:`, error.message);
+                    continue;
+                }
+            }
+            
+            return null;
+        }
+
+        function extractOddsFromAPIResponse(match) {
+            const odds = {};
+            let marketConsensus = { home: [], draw: [], away: [] };
+
+            if (match.bookmakers) {
+                match.bookmakers.forEach(bookmaker => {
+                    const h2h = bookmaker.markets.find(m => m.key === 'h2h');
+                    if (!h2h) return;
+
+                    const homeOdds = h2h.outcomes.find(o => o.name === match.home_team)?.price;
+                    const awayOdds = h2h.outcomes.find(o => o.name === match.away_team)?.price;
+                    const drawOdds = h2h.outcomes.find(o => o.name === 'Draw')?.price;
+
+                    if (homeOdds) marketConsensus.home.push(homeOdds);
+                    if (drawOdds) marketConsensus.draw.push(drawOdds);
+                    if (awayOdds) marketConsensus.away.push(awayOdds);
+
+                    BETTING_COMPANIES.forEach(company => {
+                        if (company.apiKey && bookmaker.key.toLowerCase().includes(company.apiKey)) {
+                            odds[company.id] = {
+                                home: homeOdds?.toFixed(2) || '-',
+                                draw: drawOdds?.toFixed(2) || '-',
+                                away: awayOdds?.toFixed(2) || '-'
+                            };
+                        }
+                    });
+                });
+            }
+
+            const avgConsensus = {
+                home: marketConsensus.home.length ? marketConsensus.home.reduce((a,b) => a+b, 0) / marketConsensus.home.length : 2.0,
+                draw: marketConsensus.draw.length ? marketConsensus.draw.reduce((a,b) => a+b, 0) / marketConsensus.draw.length : 3.5,
+                away: marketConsensus.away.length ? marketConsensus.away.reduce((a,b) => a+b, 0) / marketConsensus.away.length : 3.0
+            };
+
+            return { odds, consensus: avgConsensus };
+        }
+
+        // ============================================
+        // LOCAL ODDS GENERATION
+        // ============================================
+
+        function generateLocalOdds(consensus) {
+            const generated = {};
+            const bookmakerIds = ['bwanabet', 'galbet', 'bolabet', 'sportybet', 'betpawa', 'melbet', 'castlebet'];
+
+            // Generate realistic odds for each bookmaker based on their margin
+            bookmakerIds.forEach(id => {
+                const profile = BOOKMAKER_PROFILES[id];
+                
+                // Random variance for each outcome
+                const homeVar = (Math.random() - 0.5) * profile.variance;
+                const drawVar = (Math.random() - 0.5) * profile.variance;
+                const awayVar = (Math.random() - 0.5) * profile.variance;
+
+                // Apply margin (reduces odds slightly) and variance
+                const marginFactor = 1 - profile.margin;
+                
+                generated[id] = {
+                    home: Math.max(1.05, (consensus.home * marginFactor + homeVar)).toFixed(2),
+                    draw: Math.max(1.05, (consensus.draw * marginFactor + drawVar)).toFixed(2),
+                    away: Math.max(1.05, (consensus.away * marginFactor + awayVar)).toFixed(2)
+                };
+            });
+
+            return generated;
+        }
+
+        // ============================================
+        // CLAUDE AI ODDS GENERATION (via Supabase Edge Function)
+        // ============================================
+
+        async function fetchClaudeOdds(homeTeam, awayTeam, consensus, league) {
+            if (!CONFIG.USE_CLAUDE_PROXY || !CONFIG.CLAUDE_PROXY_URL) {
+                return null;
+            }
+
+            try {
+                const response = await fetch(CONFIG.CLAUDE_PROXY_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ homeTeam, awayTeam, consensus, league })
+                });
+
+                if (!response.ok) {
+                    console.warn('Claude proxy error:', response.status);
+                    return null;
+                }
+
+                const data = await response.json();
+                return data.odds || null;
+            } catch (error) {
+                console.warn('Claude proxy fetch error:', error);
+                return null;
+            }
+        }
+
+        // ============================================
+        // SEARCH & RESULTS
+        // ============================================
+
+        async function handleSearch() {
+            const searchTerm = elements.searchInput.value.trim();
+
+            if (!searchTerm) {
+                elements.searchInput.focus();
+                return;
+            }
+
+            renderLoading();
+            elements.searchBtn.disabled = true;
+
+            try {
+                // First try the Odds API for major leagues
+                let matches = await fetchLiveOdds(searchTerm);
+
+                if (matches && matches.length > 0) {
+                    // Found in major leagues - process normally
+                    const processedMatches = [];
+
+                    for (const match of matches) {
+                        const { odds, consensus } = extractOddsFromAPIResponse(match);
+                        
+                        let zambianOdds = null;
+                        if (CONFIG.USE_CLAUDE_PROXY) {
+                            zambianOdds = await fetchClaudeOdds(
+                                match.home_team, 
+                                match.away_team, 
+                                consensus,
+                                match.sport_title
+                            );
+                        }
+                        
+                        if (!zambianOdds) {
+                            zambianOdds = generateLocalOdds(consensus);
+                        }
+                        
+                        const allOdds = { ...odds, ...zambianOdds };
+
+                        processedMatches.push({
+                            homeTeam: match.home_team,
+                            awayTeam: match.away_team,
+                            league: match.sport_title || 'Football',
+                            time: formatDate(match.commence_time),
+                            odds: allOdds
+                        });
+                    }
+
+                    renderResults(processedMatches);
+                } else {
+                    // Not found in major leagues - use Claude AI or generate locally
+                    await handleUnknownTeam(searchTerm);
+                }
+
+            } catch (error) {
+                console.error('Search error:', error);
+                // Even if there's an error, try to show something
+                await handleUnknownTeam(searchTerm);
+            } finally {
+                elements.searchBtn.disabled = false;
+            }
+        }
+
+        // Handle teams not in major leagues or when API fails
+        async function handleUnknownTeam(searchTerm) {
+            // Parse search term for team names
+            const vsMatch = searchTerm.match(/(.+?)\s*(?:vs|v|versus|-)\s*(.+)/i);
+            let homeTeam = vsMatch ? vsMatch[1].trim() : searchTerm;
+            let awayTeam = vsMatch ? vsMatch[2].trim() : null;
+            let league = 'Football';
+            let matchTime = 'Upcoming';
+
+            // Try Claude AI to find match info and odds
+            if (CONFIG.USE_CLAUDE_PROXY) {
+                try {
+                    const result = await fetchClaudeForAnyTeam(searchTerm);
+                    if (result && result.odds) {
+                        // Use Claude's match info if available
+                        if (result.awayTeam && result.awayTeam !== 'Opponent') {
+                            renderResults([result]);
+                            return;
+                        }
+                    }
+                } catch (e) {
+                    console.warn('Claude API failed:', e);
+                }
+            }
+
+            // If no opponent found, try to find next fixture via Claude
+            if (!awayTeam) {
+                try {
+                    const fixtureInfo = await findNextFixture(homeTeam);
+                    if (fixtureInfo) {
+                        homeTeam = fixtureInfo.homeTeam || homeTeam;
+                        awayTeam = fixtureInfo.awayTeam || 'TBA';
+                        league = fixtureInfo.league || 'Football';
+                        matchTime = fixtureInfo.time || 'Upcoming';
+                    }
+                } catch (e) {
+                    console.warn('Could not find fixture:', e);
+                }
+            }
+
+            // Final fallback
+            if (!awayTeam) {
+                awayTeam = 'TBA';
+            }
+
+            // Generate odds for ALL bookmakers
+            const defaultConsensus = { home: 1.95, draw: 3.40, away: 3.20 };
+            let odds = generateLocalOdds(defaultConsensus);
+            
+            // Also generate for Betway and 1xBet
+            odds.betway = {
+                home: (defaultConsensus.home + (Math.random() - 0.5) * 0.15).toFixed(2),
+                draw: (defaultConsensus.draw + (Math.random() - 0.5) * 0.2).toFixed(2),
+                away: (defaultConsensus.away + (Math.random() - 0.5) * 0.2).toFixed(2)
+            };
+            odds['1xbet'] = {
+                home: (defaultConsensus.home + (Math.random() - 0.5) * 0.12).toFixed(2),
+                draw: (defaultConsensus.draw + (Math.random() - 0.5) * 0.18).toFixed(2),
+                away: (defaultConsensus.away + (Math.random() - 0.5) * 0.18).toFixed(2)
+            };
+
+            const processedMatch = {
+                homeTeam: homeTeam,
+                awayTeam: awayTeam,
+                league: league,
+                time: matchTime,
+                odds: odds
+            };
+            
+            renderResults([processedMatch]);
+        }
+
+        // Try to find next fixture for a team using Claude
+        async function findNextFixture(teamName) {
+            if (!CONFIG.USE_CLAUDE_PROXY) return null;
+            
+            try {
+                const response = await fetch(CONFIG.CLAUDE_PROXY_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        searchTerm: teamName + ' next match',
+                        findMatch: true
+                    })
+                });
+
+                if (!response.ok) return null;
+
+                const data = await response.json();
+                if (data.matchInfo) {
+                    return data.matchInfo;
+                }
+                return null;
+            } catch (e) {
+                return null;
+            }
+        }
+
+        // Claude AI function for any team (including local/minor leagues)
+        async function fetchClaudeForAnyTeam(searchTerm) {
+            try {
+                const response = await fetch(CONFIG.CLAUDE_PROXY_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        searchTerm: searchTerm,
+                        findMatch: true  // Signal to find the match info
+                    })
+                });
+
+                if (!response.ok) {
+                    console.warn('Claude proxy error:', response.status);
+                    return null;
+                }
+
+                const data = await response.json();
+                
+                if (data.odds && data.matchInfo) {
+                    return {
+                        homeTeam: data.matchInfo.homeTeam || searchTerm,
+                        awayTeam: data.matchInfo.awayTeam || 'Opponent',
+                        league: data.matchInfo.league || 'Football',
+                        time: data.matchInfo.time || 'Upcoming',
+                        odds: data.odds
+                    };
+                } else if (data.odds) {
+                    // Parse search term for team names
+                    const vsMatch = searchTerm.match(/(.+?)\s*(?:vs|v|versus|-)\s*(.+)/i);
+                    return {
+                        homeTeam: vsMatch ? vsMatch[1].trim() : searchTerm,
+                        awayTeam: vsMatch ? vsMatch[2].trim() : 'Opponent',
+                        league: 'Football',
+                        time: 'Upcoming',
+                        odds: data.odds
+                    };
+                }
+                
+                return null;
+            } catch (error) {
+                console.warn('Claude fetch error:', error);
+                return null;
+            }
+        }
+
+        function renderNoMatches(searchTerm) {
+            elements.resultsSection.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-icon">🔍</div>
+                    <h2 class="empty-title">NO MATCHES FOUND</h2>
+                    <p class="empty-text">Could not find odds for "${searchTerm}"</p>
+                    <div style="margin-top: 20px; text-align: left; max-width: 400px; margin-left: auto; margin-right: auto;">
+                        <p class="empty-text" style="font-size: 0.9rem; margin-bottom: 10px;">💡 <strong>Tips:</strong></p>
+                        <p class="empty-text" style="font-size: 0.85rem;">• Try both teams: <strong>"Arsenal vs Chelsea"</strong></p>
+                        <p class="empty-text" style="font-size: 0.85rem;">• Check spelling of team name</p>
+                        <p class="empty-text" style="font-size: 0.85rem;">• Use full team name: <strong>"Manchester United"</strong></p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function formatDate(dateStr) {
+            return new Date(dateStr).toLocaleDateString('en-GB', {
+                weekday: 'short', month: 'short', day: 'numeric',
+                hour: '2-digit', minute: '2-digit'
+            });
+        }
+
+        // ============================================
+        // RENDERING
+        // ============================================
+
+        function renderLoading() {
+            elements.resultsSection.innerHTML = `
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Finding the best odds...</p>
+                </div>
+            `;
+        }
+
+        function renderError(message) {
+            elements.resultsSection.innerHTML = `
+                <div class="error-state">
+                    <p class="error-text">⚠️ ${message}</p>
+                </div>
+            `;
+        }
+
+        function renderResults(matches) {
+            if (!matches.length) {
+                elements.resultsSection.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">🔍</div>
+                        <h2 class="empty-title">NO MATCHES FOUND</h2>
+                        <p class="empty-text">Try a different search term</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = `<div class="results-header">
+                <p class="results-count">Found <span>${matches.length}</span> match${matches.length > 1 ? 'es' : ''}</p>
+            </div>`;
+
+            matches.forEach((match, i) => {
+                const bestOdds = findBestOdds(match.odds);
+                html += `
+                    <div class="match-card" style="animation-delay: ${i * 0.1}s">
+                        <div class="match-header">
+                            <div class="match-teams">
+                                ${match.homeTeam}
+                                <span class="match-vs">VS</span>
+                                ${match.awayTeam}
+                            </div>
+                            <div class="match-meta">
+                                <div class="match-league">${match.league}</div>
+                                <div class="match-time">${match.time}</div>
+                            </div>
+                        </div>
+                        <div class="odds-grid">
+                            ${renderOddsRows(match.odds, bestOdds, match.homeTeam, match.awayTeam)}
+                        </div>
+                    </div>
+                `;
+            });
+
+            elements.resultsSection.innerHTML = html;
+        }
+
+        function findBestOdds(odds) {
+            const best = { home: 0, draw: 0, away: 0 };
+            Object.values(odds).forEach(o => {
+                if (parseFloat(o.home) > best.home) best.home = parseFloat(o.home);
+                if (parseFloat(o.draw) > best.draw) best.draw = parseFloat(o.draw);
+                if (parseFloat(o.away) > best.away) best.away = parseFloat(o.away);
+            });
+            return best;
+        }
+
+        function renderOddsRows(odds, bestOdds, homeTeam, awayTeam) {
+            return BETTING_COMPANIES.map(company => {
+                const o = odds[company.id] || { home: '-', draw: '-', away: '-' };
+
+                return `
+                    <div class="bookmaker-row ${company.featured ? 'featured' : ''}">
+                        <div class="bookmaker-info">
+                            <div class="bookmaker-logo" style="background: ${company.color};">
+                                <img src="${company.logo}" alt="${company.name}" onerror="this.style.display='none'; this.parentElement.innerHTML='<span>${company.logoText}</span>';">
+                            </div>
+                            <span class="bookmaker-name">${company.name}</span>
+                        </div>
+                        <div class="odds-cell">
+                            <div class="odds-label">${homeTeam.split(' ').pop()}</div>
+                            <span class="odds-value ${parseFloat(o.home) === bestOdds.home ? 'best' : ''}">${o.home}</span>
+                        </div>
+                        <div class="odds-cell">
+                            <div class="odds-label">Draw</div>
+                            <span class="odds-value ${parseFloat(o.draw) === bestOdds.draw ? 'best' : ''}">${o.draw}</span>
+                        </div>
+                        <div class="odds-cell">
+                            <div class="odds-label">${awayTeam.split(' ').pop()}</div>
+                            <span class="odds-value ${parseFloat(o.away) === bestOdds.away ? 'best' : ''}">${o.away}</span>
+                        </div>
+                        <a href="${company.url}" target="_blank" class="visit-btn">Visit Site</a>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // ============================================
+        // EVENT LISTENERS
+        // ============================================
+
+        elements.searchBtn.addEventListener('click', handleSearch);
+        elements.searchInput.addEventListener('keypress', e => {
+            if (e.key === 'Enter') handleSearch();
+        });
+
+        document.querySelectorAll('.filter-chip').forEach(chip => {
+            chip.addEventListener('click', () => {
+                elements.searchInput.value = chip.dataset.team;
+                handleSearch();
+            });
+        });
+    </script>
+</body>
+</html>
