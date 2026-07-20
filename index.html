@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BetCompare Zambia | Compare Betting Odds</title>
+    <title>OddsZone Zambia | Live Football Odds</title>
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -29,7 +29,7 @@
             background: var(--primary);
             color: var(--text);
             min-height: 100vh;
-            background-image: 
+            background-image:
                 radial-gradient(ellipse at 20% 20%, rgba(224, 165, 38, 0.08) 0%, transparent 50%),
                 radial-gradient(ellipse at 80% 80%, rgba(26, 92, 255, 0.08) 0%, transparent 50%);
         }
@@ -61,6 +61,34 @@
             color: var(--text-muted);
             font-size: 1rem;
             font-weight: 500;
+        }
+
+        .live-badge {
+            display: inline-block;
+            margin-top: 12px;
+            padding: 6px 14px;
+            border-radius: 20px;
+            background: rgba(0, 200, 83, 0.12);
+            border: 1px solid rgba(0, 200, 83, 0.4);
+            color: var(--success);
+            font-size: 0.8rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+
+        .live-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--success);
+            margin-right: 8px;
+            animation: pulse 1.5s ease infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
         }
 
         .search-section {
@@ -160,6 +188,11 @@
             color: var(--accent);
         }
 
+        .filter-chip.featured-chip {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
         .loading {
             text-align: center;
             padding: 60px;
@@ -206,6 +239,11 @@
         .results-count span {
             color: var(--accent);
             font-weight: 700;
+        }
+
+        .results-updated {
+            font-size: 0.85rem;
+            color: var(--text-muted);
         }
 
         .match-card {
@@ -266,6 +304,21 @@
             color: var(--text-muted);
             font-size: 0.9rem;
             margin-top: 4px;
+        }
+
+        .top-tag {
+            display: inline-block;
+            padding: 3px 10px;
+            margin-left: 10px;
+            border-radius: 12px;
+            background: rgba(224, 165, 38, 0.15);
+            border: 1px solid rgba(224, 165, 38, 0.4);
+            color: var(--accent);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            vertical-align: middle;
         }
 
         .odds-grid {
@@ -360,8 +413,8 @@
         }
 
         .odds-value.best {
-            background: rgba(0, 200, 83, 0.2);
-            color: var(--success);
+            background: rgba(224, 165, 38, 0.18);
+            color: var(--accent);
         }
 
         .visit-btn {
@@ -436,16 +489,16 @@
                 gap: 16px;
                 text-align: center;
             }
-            .bookmaker-info { 
-                justify-content: center; 
-                flex-wrap: wrap; 
+            .bookmaker-info {
+                justify-content: center;
+                flex-wrap: wrap;
             }
-            .odds-cell { 
-                display: inline-block; 
-                margin: 0 8px; 
+            .odds-cell {
+                display: inline-block;
+                margin: 0 8px;
             }
-            .match-meta { 
-                text-align: left; 
+            .match-meta {
+                text-align: left;
             }
             .visit-btn {
                 width: 100%;
@@ -453,12 +506,95 @@
             }
         }
 
+        .comparison {
+            margin-top: 16px;
+        }
+
+        .compare-toggle {
+            width: 100%;
+            padding: 12px 20px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px dashed var(--border);
+            border-radius: 12px;
+            color: var(--text-muted);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .compare-toggle:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: rgba(224, 165, 38, 0.06);
+        }
+
+        .compare-toggle.open {
+            color: var(--accent);
+            border-style: solid;
+            border-color: rgba(224, 165, 38, 0.3);
+        }
+
+        .compare-toggle .chev {
+            font-size: 0.8rem;
+        }
+
+        .best-badge {
+            padding: 3px 10px;
+            border-radius: 12px;
+            background: rgba(0, 200, 83, 0.15);
+            border: 1px solid rgba(0, 200, 83, 0.4);
+            color: var(--success);
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .comparison-rows {
+            display: grid;
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        .comparison-rows .bookmaker-row {
+            animation: fadeInUp 0.35s ease forwards;
+        }
+
+        .compare-loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            padding: 20px;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .spinner.small {
+            width: 22px;
+            height: 22px;
+            border-width: 2px;
+            margin: 0;
+        }
+
+        .compare-empty {
+            text-align: center;
+            padding: 16px;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
         @media (max-width: 768px) {
-            .logo { 
-                font-size: 2.5rem; 
+            .logo {
+                font-size: 2.5rem;
             }
-            .match-teams { 
-                font-size: 1.4rem; 
+            .match-teams {
+                font-size: 1.4rem;
             }
         }
     </style>
@@ -466,8 +602,9 @@
 <body>
     <div class="container">
         <header>
-            <h1 class="logo">BETCOMPARE ZAMBIA</h1>
-            <p class="tagline">Find the Best Betting Odds Across Zambian Bookmakers</p>
+            <h1 class="logo">ODDSZONE ZAMBIA</h1>
+            <p class="tagline">Live Football Odds &amp; Fixtures</p>
+            <div class="live-badge"><span class="live-dot"></span>LIVE ODDS</div>
         </header>
 
         <section class="search-section">
@@ -478,26 +615,21 @@
                 </div>
                 <button id="searchBtn" class="search-btn">SEARCH</button>
             </div>
-            <div class="quick-filters">
-                <span class="filter-chip" data-team="Manchester United">Man United</span>
-                <span class="filter-chip" data-team="Liverpool">Liverpool</span>
-                <span class="filter-chip" data-team="Arsenal">Arsenal</span>
-                <span class="filter-chip" data-team="Real Madrid">Real Madrid</span>
-                <span class="filter-chip" data-team="Barcelona">Barcelona</span>
-                <span class="filter-chip" data-team="Bayern Munich">Bayern</span>
+            <div class="quick-filters" id="quickFilters">
+                <span class="filter-chip featured-chip" id="topMatchesChip">🔥 Top Matches</span>
             </div>
         </section>
 
         <section id="resultsSection" class="results-section">
             <div class="empty-state">
                 <div class="empty-icon">⚽</div>
-                <h2 class="empty-title">SEARCH FOR MATCHES</h2>
-                <p class="empty-text">Enter a team name or match to compare odds across bookmakers</p>
+                <h2 class="empty-title">LOADING TOP MATCHES…</h2>
+                <p class="empty-text">Or search a team to find its next fixtures</p>
             </div>
         </section>
 
         <footer>
-            <p>Compare odds responsibly. 18+ only. Gambling can be addictive.</p>
+            <p>Odds are provided live by the listed bookmakers and may change at any time. 18+ only. Bet responsibly — gambling can be addictive.</p>
         </footer>
     </div>
 
@@ -505,123 +637,43 @@
         // ============================================
         // CONFIGURATION
         // ============================================
-        
+
         const CONFIG = {
-            ODDS_API_KEY: 'f7ed9c1e8e9d67a37b05ca88cdb0d0ff',
-            ODDS_API_URL: 'https://api.the-odds-api.com/v4',
-            
-            // Supabase Edge Function for Claude AI odds
-            USE_CLAUDE_PROXY: true,
-            CLAUDE_PROXY_URL: 'https://dumjacmxefrxzcccsyxj.supabase.co/functions/v1/claude-proxy'
+            // BwanaBet's Altenar sportsbook feed (public GraphQL-over-multi endpoint,
+            // CORS-open, no auth). Same feed the bwanabet.co.zm site itself uses.
+            ALTENAR_API: 'https://api.bwanabet.co.zm/api/v2/multi',
+            SPORT_FOOTBALL: 501,
+            REQUEST_TIMEOUT_MS: 10000,
+            FEED_CACHE_TTL_MS: 60 * 1000,   // re-fetch feed pages after 60s so odds stay fresh
+            SEARCH_MAX_PAGES: 6,
+            PAGE_LIMIT: 100,
+            MAX_RESULTS: 8,
+
+            // Competitor-odds proxy (Cloudflare Worker in /worker). Competitor feeds
+            // are CORS-locked, so the proxy fetches them server-side and re-serves
+            // with CORS. For local testing point this at the dev-server
+            // (http://localhost:8787).
+            PROXY_URL: 'https://oddszone-odds-proxy.oddszone.workers.dev',
+            PROXY_CACHE_TTL_MS: 45 * 1000
         };
 
-        // Zambian Betting Companies - BwanaBet ALWAYS first
-        const BETTING_COMPANIES = [
-            { 
-                id: 'bwanabet', 
-                name: 'BwanaBet', 
-                color: '#FFD700', 
-                logo: 'https://www.google.com/s2/favicons?domain=bwanabet.com&sz=64',
-                logoText: 'BW',
-                featured: true, 
-                apiKey: null,
-                url: 'https://bwanabet.com/'
-            },
-            { 
-                id: 'betway', 
-                name: 'Betway', 
-                color: '#00A651', 
-                logo: 'https://www.google.com/s2/favicons?domain=betway.co.zm&sz=64',
-                logoText: 'BW',
-                featured: false, 
-                apiKey: 'betway',
-                url: 'https://www.betway.co.zm/'
-            },
-            { 
-                id: '1xbet', 
-                name: '1xBet', 
-                color: '#1A5CFF', 
-                logo: 'https://www.google.com/s2/favicons?domain=1xbet.com&sz=64',
-                logoText: '1X',
-                featured: false, 
-                apiKey: '1xbet',
-                url: 'https://1xbet.com.zm/'
-            },
-            { 
-                id: 'sportybet', 
-                name: 'SportyBet', 
-                color: '#E31E24', 
-                logo: 'https://www.google.com/s2/favicons?domain=sportybet.com&sz=64',
-                logoText: 'SB',
-                featured: false, 
-                apiKey: null,
-                url: 'https://www.sportybet.com/zm/'
-            },
-            { 
-                id: 'betpawa', 
-                name: 'BetPawa', 
-                color: '#00A550', 
-                logo: 'https://www.google.com/s2/favicons?domain=betpawa.co.zm&sz=64',
-                logoText: 'BP',
-                featured: false, 
-                apiKey: null,
-                url: 'https://www.betpawa.co.zm/'
-            },
-            { 
-                id: 'galbet', 
-                name: 'Gal Sport', 
-                color: '#FF4500', 
-                logo: 'https://www.google.com/s2/favicons?domain=gsb.co.zm&sz=64',
-                logoText: 'GS',
-                featured: false, 
-                apiKey: null,
-                url: 'https://gsb.co.zm/'
-            },
-            { 
-                id: 'melbet', 
-                name: 'Melbet', 
-                color: '#1B2A4E', 
-                logo: 'https://www.google.com/s2/favicons?domain=melbet.com&sz=64',
-                logoText: 'MB',
-                featured: false, 
-                apiKey: null,
-                url: 'https://melbet.co.zm/'
-            },
-            { 
-                id: 'castlebet', 
-                name: 'CastleBet', 
-                color: '#8B0000', 
-                logo: 'https://www.google.com/s2/favicons?domain=castlebet.co.zm&sz=64',
-                logoText: 'CB',
-                featured: false, 
-                apiKey: null,
-                url: 'https://www.castlebet.co.zm/'
-            },
-            { 
-                id: 'bolabet', 
-                name: 'BolaBet', 
-                color: '#9B59B6', 
-                logo: 'https://www.google.com/s2/favicons?domain=bolabet.co.zm&sz=64',
-                logoText: 'BB',
-                featured: false, 
-                apiKey: null,
-                url: 'https://www.bolabet.co.zm/'
-            }
+        // Bookmaker display metadata. BwanaBet is always first and featured; the
+        // rest are shown only when the proxy actually has that bookmaker's real odds
+        // for the fixture. `key` matches the proxy's per-book field name.
+        const BWANABET = {
+            key: 'bwanabet',
+            name: 'BwanaBet',
+            color: '#FFD700',
+            logo: 'https://www.google.com/s2/favicons?domain=bwanabet.co.zm&sz=64',
+            logoText: 'BW',
+            url: 'https://bwanabet.co.zm/'
+        };
+
+        const COMPETITORS = [
+            { key: 'sportybet', name: 'SportyBet', color: '#E31E24', logo: 'https://www.google.com/s2/favicons?domain=sportybet.com&sz=64', logoText: 'SB', url: 'https://www.sportybet.com/zm/' },
+            { key: 'onexbet', name: '1xBet', color: '#1A5CFF', logo: 'https://www.google.com/s2/favicons?domain=1xbet.com.zm&sz=64', logoText: '1X', url: 'https://1xbet.com.zm/' },
+            { key: 'betway', name: 'Betway', color: '#00A651', logo: 'https://www.google.com/s2/favicons?domain=betway.co.zm&sz=64', logoText: 'BW', url: 'https://www.betway.co.zm/' }
         ];
-
-        // Bookmaker profiles for generating realistic odds
-        // Each bookmaker has different margins (lower = better for customer)
-        const BOOKMAKER_PROFILES = {
-            bwanabet: { margin: 0.05, variance: 0.04 },
-            betway: { margin: 0.05, variance: 0.03 },
-            '1xbet': { margin: 0.045, variance: 0.03 },
-            sportybet: { margin: 0.055, variance: 0.04 },
-            betpawa: { margin: 0.06, variance: 0.04 },
-            galbet: { margin: 0.06, variance: 0.05 },
-            melbet: { margin: 0.05, variance: 0.03 },
-            castlebet: { margin: 0.065, variance: 0.05 },
-            bolabet: { margin: 0.055, variance: 0.04 }
-        };
 
         // ============================================
         // DOM ELEMENTS
@@ -635,376 +687,414 @@
         };
 
         // ============================================
-        // THE ODDS API - FETCH LIVE ODDS
+        // ALTENAR CLIENT (browser port of the bot's lib/altenar-client.js)
         // ============================================
 
-        async function fetchLiveOdds(searchTerm) {
-            // Priority leagues to search (most common first)
-            const leagues = [
-                'soccer_epl',
-                'soccer_spain_la_liga', 
-                'soccer_germany_bundesliga',
-                'soccer_italy_serie_a',
-                'soccer_france_ligue_one',
-                'soccer_uefa_champs_league',
-                'soccer_uefa_europa_league'
-            ];
-            
-            for (const league of leagues) {
-                try {
-                    const response = await fetch(
-                        `${CONFIG.ODDS_API_URL}/sports/${league}/odds?apiKey=${CONFIG.ODDS_API_KEY}&regions=eu,uk&markets=h2h&oddsFormat=decimal`
-                    );
-
-                    if (!response.ok) {
-                        console.warn(`Odds API error for ${league}:`, response.status);
-                        continue;
-                    }
-
-                    const data = await response.json();
-                    
-                    const matches = data.filter(match => 
-                        match.home_team.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                        match.away_team.toLowerCase().includes(searchTerm.toLowerCase())
-                    );
-                    
-                    if (matches.length > 0) {
-                        return matches;
-                    }
-                } catch (error) {
-                    console.warn(`Odds API fetch error for ${league}:`, error.message);
-                    continue;
-                }
-            }
-            
-            return null;
-        }
-
-        function extractOddsFromAPIResponse(match) {
-            const odds = {};
-            let marketConsensus = { home: [], draw: [], away: [] };
-
-            if (match.bookmakers) {
-                match.bookmakers.forEach(bookmaker => {
-                    const h2h = bookmaker.markets.find(m => m.key === 'h2h');
-                    if (!h2h) return;
-
-                    const homeOdds = h2h.outcomes.find(o => o.name === match.home_team)?.price;
-                    const awayOdds = h2h.outcomes.find(o => o.name === match.away_team)?.price;
-                    const drawOdds = h2h.outcomes.find(o => o.name === 'Draw')?.price;
-
-                    if (homeOdds) marketConsensus.home.push(homeOdds);
-                    if (drawOdds) marketConsensus.draw.push(drawOdds);
-                    if (awayOdds) marketConsensus.away.push(awayOdds);
-
-                    BETTING_COMPANIES.forEach(company => {
-                        if (company.apiKey && bookmaker.key.toLowerCase().includes(company.apiKey)) {
-                            odds[company.id] = {
-                                home: homeOdds?.toFixed(2) || '-',
-                                draw: drawOdds?.toFixed(2) || '-',
-                                away: awayOdds?.toFixed(2) || '-'
-                            };
-                        }
-                    });
-                });
-            }
-
-            const avgConsensus = {
-                home: marketConsensus.home.length ? marketConsensus.home.reduce((a,b) => a+b, 0) / marketConsensus.home.length : 2.0,
-                draw: marketConsensus.draw.length ? marketConsensus.draw.reduce((a,b) => a+b, 0) / marketConsensus.draw.length : 3.5,
-                away: marketConsensus.away.length ? marketConsensus.away.reduce((a,b) => a+b, 0) / marketConsensus.away.length : 3.0
-            };
-
-            return { odds, consensus: avgConsensus };
-        }
-
-        // ============================================
-        // LOCAL ODDS GENERATION
-        // ============================================
-
-        function generateLocalOdds(consensus) {
-            const generated = {};
-            const bookmakerIds = ['bwanabet', 'galbet', 'bolabet', 'sportybet', 'betpawa', 'melbet', 'castlebet'];
-
-            // Generate realistic odds for each bookmaker based on their margin
-            bookmakerIds.forEach(id => {
-                const profile = BOOKMAKER_PROFILES[id];
-                
-                // Random variance for each outcome
-                const homeVar = (Math.random() - 0.5) * profile.variance;
-                const drawVar = (Math.random() - 0.5) * profile.variance;
-                const awayVar = (Math.random() - 0.5) * profile.variance;
-
-                // Apply margin (reduces odds slightly) and variance
-                const marginFactor = 1 - profile.margin;
-                
-                generated[id] = {
-                    home: Math.max(1.05, (consensus.home * marginFactor + homeVar)).toFixed(2),
-                    draw: Math.max(1.05, (consensus.draw * marginFactor + drawVar)).toFixed(2),
-                    away: Math.max(1.05, (consensus.away * marginFactor + awayVar)).toFixed(2)
-                };
-            });
-
-            return generated;
-        }
-
-        // ============================================
-        // CLAUDE AI ODDS GENERATION (via Supabase Edge Function)
-        // ============================================
-
-        async function fetchClaudeOdds(homeTeam, awayTeam, consensus, league) {
-            if (!CONFIG.USE_CLAUDE_PROXY || !CONFIG.CLAUDE_PROXY_URL) {
-                return null;
-            }
-
+        async function multiQuery(query) {
+            const controller = new AbortController();
+            const timer = setTimeout(() => controller.abort(), CONFIG.REQUEST_TIMEOUT_MS);
             try {
-                const response = await fetch(CONFIG.CLAUDE_PROXY_URL, {
+                const res = await fetch(CONFIG.ALTENAR_API, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ homeTeam, awayTeam, consensus, league })
+                    body: JSON.stringify([{ module: 'graphs', method: 'makeQuery', options: { query } }]),
+                    signal: controller.signal
                 });
-
-                if (!response.ok) {
-                    console.warn('Claude proxy error:', response.status);
-                    return null;
+                if (!res.ok) throw new Error(`API error ${res.status}`);
+                const data = await res.json();
+                if (!Array.isArray(data) || !data[0]) throw new Error('Unexpected response shape');
+                if (data[0].error) throw new Error(data[0].message || 'Query failed');
+                return data[0].data;
+            } catch (err) {
+                if (err && err.name === 'AbortError') {
+                    throw new Error('BwanaBet feed timed out');
                 }
-
-                const data = await response.json();
-                return data.odds || null;
-            } catch (error) {
-                console.warn('Claude proxy fetch error:', error);
-                return null;
+                throw err;
+            } finally {
+                clearTimeout(timer);
             }
+        }
+
+        // Feed pages are cached briefly so repeated searches don't hammer the API,
+        // but expire fast enough that displayed odds track the live book.
+        const feedPageCache = new Map(); // page -> { at, events }
+
+        async function getMainEvents(page) {
+            const cached = feedPageCache.get(page);
+            if (cached && Date.now() - cached.at < CONFIG.FEED_CACHE_TTL_MS) {
+                return cached.events;
+            }
+            const query = `mutation {
+                mainEventList(mainEventListInput: {
+                    topEvents: false
+                    page: ${page}
+                    sportId: ${CONFIG.SPORT_FOOTBALL}
+                    limit: ${CONFIG.PAGE_LIMIT}
+                }) {
+                    sportName
+                    pageCount
+                    competitions {
+                        competitionId
+                        country
+                        competitionName
+                        events {
+                            eventId
+                            eventName
+                            eventStartTime
+                            top
+                            pricesCount
+                        }
+                    }
+                }
+            }`;
+            const data = await multiQuery(query);
+            const sport = data.mainEventList && data.mainEventList[0];
+            const events = [];
+            if (sport) {
+                for (const comp of sport.competitions || []) {
+                    for (const e of comp.events || []) {
+                        events.push({
+                            eventId: e.eventId,
+                            eventName: e.eventName,
+                            eventStartTime: e.eventStartTime,
+                            top: e.top === true,
+                            competitionName: comp.competitionName,
+                            country: comp.country,
+                            // The feed returns full market collections inline even though
+                            // the query doesn't ask for them — use them when present so we
+                            // don't need a second request per event.
+                            collections: e.collections || null
+                        });
+                    }
+                }
+            }
+            feedPageCache.set(page, { at: Date.now(), events });
+            return events;
+        }
+
+        // Fallback for events whose feed entry came without inline collections.
+        async function getEventCollections(eventId) {
+            const query = `mutation {
+                eventList(eventListInput: { eventId: ${Number(eventId)} }) {
+                    sportId
+                    competitions {
+                        competitionId
+                        country
+                        competitionName
+                        events {
+                            eventId
+                            eventName
+                            eventStartTime
+                            collections {
+                                collectionId
+                                collectionName
+                                markets {
+                                    marketId
+                                    marketName
+                                    marketCode
+                                    prices {
+                                        referenceId
+                                        priceName
+                                        handicapValue
+                                        rate
+                                        blocked
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }`;
+            const data = await multiQuery(query);
+            const event = data.eventList?.[0]?.competitions?.[0]?.events?.[0];
+            return event ? event.collections : null;
+        }
+
+        // Extract the 1X2 (Match Result) prices from an event's market collections.
+        // Blocked or zero-rate prices render as '-'.
+        function extract1x2(collections) {
+            if (!collections) return null;
+            const main = collections.find(c => c.collectionName === 'Main');
+            if (!main) return null;
+            const market = (main.markets || []).find(m => m.marketCode === '1x2');
+            if (!market) return null;
+            const odds = { home: '-', draw: '-', away: '-' };
+            for (const p of market.prices || []) {
+                if (p.blocked || !(p.rate > 0)) continue;
+                if (p.priceName === '1') odds.home = p.rate.toFixed(2);
+                else if (p.priceName === 'X') odds.draw = p.rate.toFixed(2);
+                else if (p.priceName === '2') odds.away = p.rate.toFixed(2);
+            }
+            return odds;
+        }
+
+        function splitTeams(eventName) {
+            const parts = String(eventName).split(/\s+vs?\.?\s+/i);
+            if (parts.length >= 2) {
+                return { home: parts[0].trim(), away: parts.slice(1).join(' v ').trim() };
+            }
+            return { home: eventName, away: '' };
+        }
+
+        // Altenar has no team-search endpoint — scan the priority-sorted paginated
+        // feed and match on event name (same approach as the bot's findEventByTeams).
+        async function findEventsByTeams(rawQuery) {
+            const raw = String(rawQuery || '').toLowerCase().trim();
+            if (!raw) return [];
+            const parts = raw.split(/\s+(?:vs?\.?|-)\s+/).map(s => s.trim()).filter(Boolean);
+            const tokens = parts.length >= 2 ? parts.slice(0, 2) : [raw];
+            const enough = tokens.length >= 2 ? 2 : CONFIG.MAX_RESULTS;
+
+            const matches = [];
+            const seen = new Set();
+            for (let page = 1; page <= CONFIG.SEARCH_MAX_PAGES; page++) {
+                let events;
+                try { events = await getMainEvents(page); }
+                catch (e) { break; }
+                if (events.length === 0) break;
+                for (const e of events) {
+                    const name = String(e.eventName).toLowerCase();
+                    const hit = tokens.length >= 2
+                        ? tokens.every(t => name.includes(t))
+                        : name.includes(tokens[0]);
+                    if (hit && !seen.has(e.eventId)) {
+                        seen.add(e.eventId);
+                        matches.push(e);
+                    }
+                }
+                if (matches.length >= enough) break;
+            }
+            return matches.sort((a, b) =>
+                new Date(a.eventStartTime).getTime() - new Date(b.eventStartTime).getTime()
+            ).slice(0, CONFIG.MAX_RESULTS);
+        }
+
+        // Operator-curated marquee matches (top === true in the feed), soonest first.
+        async function getTopEvents() {
+            const top = [];
+            const seen = new Set();
+            for (let page = 1; page <= 4; page++) {
+                let events;
+                try { events = await getMainEvents(page); }
+                catch (e) { break; }
+                if (events.length === 0) break;
+                for (const e of events) {
+                    if (e.top && !seen.has(e.eventId)) {
+                        seen.add(e.eventId);
+                        top.push(e);
+                    }
+                }
+                if (top.length >= CONFIG.MAX_RESULTS) break;
+            }
+            return top.sort((a, b) =>
+                new Date(a.eventStartTime).getTime() - new Date(b.eventStartTime).getTime()
+            ).slice(0, CONFIG.MAX_RESULTS);
+        }
+
+        // ============================================
+        // COMPETITOR ODDS (via proxy) + TEAM MATCHING
+        // ============================================
+
+        // Cached proxy response: { at, index } where index maps competitor key ->
+        // array of { home, away, norm:{home,away}, odds }.
+        let competitorCache = { at: 0, index: null };
+
+        async function getCompetitorIndex() {
+            if (competitorCache.index && Date.now() - competitorCache.at < CONFIG.PROXY_CACHE_TTL_MS) {
+                return competitorCache.index;
+            }
+            const index = {};
+            try {
+                const controller = new AbortController();
+                const timer = setTimeout(() => controller.abort(), CONFIG.REQUEST_TIMEOUT_MS);
+                const res = await fetch(`${CONFIG.PROXY_URL}/odds`, { signal: controller.signal });
+                clearTimeout(timer);
+                if (res.ok) {
+                    const data = await res.json();
+                    for (const [book, events] of Object.entries(data.books || {})) {
+                        index[book] = (events || []).map(e => ({
+                            home: e.home, away: e.away,
+                            norm: { home: normTeam(e.home), away: normTeam(e.away) },
+                            odds: e.odds
+                        }));
+                    }
+                }
+            } catch (e) {
+                console.warn('Competitor proxy unavailable:', e.message);
+            }
+            competitorCache = { at: Date.now(), index };
+            return index;
+        }
+
+        // Normalize a team name to a token set for fuzzy fixture matching across
+        // bookmakers that spell teams differently ("FC Ararat-Armenia" vs
+        // "Ararat Armenia", "Man Utd" vs "Manchester United").
+        const TEAM_STOPWORDS = new Set(['fc', 'afc', 'cf', 'sc', 'ac', 'if', 'sk', 'fk', 'bk', 'club',
+            'city', 'town', 'united', 'utd', 'the', 'de', 'do', 'da', 'e', 'u21', 'u20', 'u23', 'u19',
+            'women', 'reserves', 'ii', 'b']);
+        const TEAM_ALIAS = { man: 'manchester', utd: 'united', psg: 'paris', inter: 'internazionale' };
+
+        function normTeam(name) {
+            const raw = String(name || '').toLowerCase()
+                .normalize('NFD').replace(/[̀-ͯ]/g, '')  // strip accents
+                .replace(/[^a-z0-9\s]/g, ' ');
+            const tokens = raw.split(/\s+/).filter(Boolean)
+                .map(t => TEAM_ALIAS[t] || t)
+                .filter(t => !TEAM_STOPWORDS.has(t) && t.length > 1);
+            return new Set(tokens);
+        }
+
+        function tokenOverlap(a, b) {
+            if (!a.size || !b.size) return 0;
+            let hit = 0;
+            for (const t of a) if (b.has(t)) hit++;
+            return hit / Math.min(a.size, b.size);
+        }
+
+        // Does a competitor event refer to the same fixture as the BwanaBet card?
+        // Require a strong match on BOTH sides (and allow home/away to be swapped,
+        // since books order teams inconsistently).
+        function isSameFixture(cardNorm, ev) {
+            const straight = Math.min(tokenOverlap(cardNorm.home, ev.norm.home), tokenOverlap(cardNorm.away, ev.norm.away));
+            const swapped = Math.min(tokenOverlap(cardNorm.home, ev.norm.away), tokenOverlap(cardNorm.away, ev.norm.home));
+            return { score: Math.max(straight, swapped), swapped: swapped > straight };
+        }
+
+        // For one BwanaBet card, find each competitor's real odds for the same fixture.
+        // Returns [{ book, odds }] for competitors that genuinely have the match.
+        function matchCompetitors(card, index) {
+            const cardNorm = { home: normTeam(card.homeTeam), away: normTeam(card.awayTeam) };
+            const rows = [];
+            for (const comp of COMPETITORS) {
+                const events = index[comp.key] || [];
+                let best = null;
+                for (const ev of events) {
+                    const m = isSameFixture(cardNorm, ev);
+                    if (m.score >= 0.7 && (!best || m.score > best.score)) {
+                        // If teams were swapped relative to our card, swap home/away odds too.
+                        const odds = m.swapped
+                            ? { home: ev.odds.away, draw: ev.odds.draw, away: ev.odds.home }
+                            : ev.odds;
+                        best = { score: m.score, odds };
+                    }
+                }
+                if (best) rows.push({ book: comp, odds: best.odds });
+            }
+            return rows;
         }
 
         // ============================================
         // SEARCH & RESULTS
         // ============================================
 
+        async function buildMatchCards(feedEvents) {
+            const cards = [];
+            for (const e of feedEvents) {
+                let odds = extract1x2(e.collections);
+                if (!odds) {
+                    try { odds = extract1x2(await getEventCollections(e.eventId)); }
+                    catch (err) { odds = null; }
+                }
+                if (!odds) continue; // no 1X2 market — nothing to show
+                const teams = splitTeams(e.eventName);
+                cards.push({
+                    homeTeam: teams.home,
+                    awayTeam: teams.away || 'TBA',
+                    league: e.country ? `${e.country} · ${e.competitionName}` : e.competitionName,
+                    time: formatDate(e.eventStartTime),
+                    top: e.top,
+                    odds
+                });
+            }
+            return cards;
+        }
+
         async function handleSearch() {
             const searchTerm = elements.searchInput.value.trim();
-
             if (!searchTerm) {
                 elements.searchInput.focus();
                 return;
             }
-
-            renderLoading();
             elements.searchBtn.disabled = true;
-
+            renderLoading('Scanning the live odds feed…');
             try {
-                // First try the Odds API for major leagues
-                let matches = await fetchLiveOdds(searchTerm);
-
-                if (matches && matches.length > 0) {
-                    // Found in major leagues - process normally
-                    const processedMatches = [];
-
-                    for (const match of matches) {
-                        const { odds, consensus } = extractOddsFromAPIResponse(match);
-                        
-                        let zambianOdds = null;
-                        if (CONFIG.USE_CLAUDE_PROXY) {
-                            zambianOdds = await fetchClaudeOdds(
-                                match.home_team, 
-                                match.away_team, 
-                                consensus,
-                                match.sport_title
-                            );
-                        }
-                        
-                        if (!zambianOdds) {
-                            zambianOdds = generateLocalOdds(consensus);
-                        }
-                        
-                        const allOdds = { ...odds, ...zambianOdds };
-
-                        processedMatches.push({
-                            homeTeam: match.home_team,
-                            awayTeam: match.away_team,
-                            league: match.sport_title || 'Football',
-                            time: formatDate(match.commence_time),
-                            odds: allOdds
-                        });
-                    }
-
-                    renderResults(processedMatches);
-                } else {
-                    // Not found in major leagues - use Claude AI or generate locally
-                    await handleUnknownTeam(searchTerm);
+                const events = await findEventsByTeams(searchTerm);
+                if (events.length === 0) {
+                    renderNoMatches(searchTerm);
+                    return;
                 }
-
+                const cards = await buildMatchCards(events);
+                if (cards.length === 0) {
+                    renderNoMatches(searchTerm);
+                    return;
+                }
+                renderResults(cards, `Found <span>${cards.length}</span> match${cards.length > 1 ? 'es' : ''}`);
             } catch (error) {
                 console.error('Search error:', error);
-                // Even if there's an error, try to show something
-                await handleUnknownTeam(searchTerm);
+                renderError('Could not reach the live odds feed. Check your connection and try again.');
             } finally {
                 elements.searchBtn.disabled = false;
             }
         }
 
-        // Handle teams not in major leagues or when API fails
-        async function handleUnknownTeam(searchTerm) {
-            // Parse search term for team names
-            const vsMatch = searchTerm.match(/(.+?)\s*(?:vs|v|versus|-)\s*(.+)/i);
-            let homeTeam = vsMatch ? vsMatch[1].trim() : searchTerm;
-            let awayTeam = vsMatch ? vsMatch[2].trim() : null;
-            let league = 'Football';
-            let matchTime = 'Upcoming';
-
-            // Try Claude AI to find match info and odds
-            if (CONFIG.USE_CLAUDE_PROXY) {
-                try {
-                    const result = await fetchClaudeForAnyTeam(searchTerm);
-                    if (result && result.odds) {
-                        // Use Claude's match info if available
-                        if (result.awayTeam && result.awayTeam !== 'Opponent') {
-                            renderResults([result]);
-                            return;
-                        }
-                    }
-                } catch (e) {
-                    console.warn('Claude API failed:', e);
-                }
-            }
-
-            // If no opponent found, try to find next fixture via Claude
-            if (!awayTeam) {
-                try {
-                    const fixtureInfo = await findNextFixture(homeTeam);
-                    if (fixtureInfo) {
-                        homeTeam = fixtureInfo.homeTeam || homeTeam;
-                        awayTeam = fixtureInfo.awayTeam || 'TBA';
-                        league = fixtureInfo.league || 'Football';
-                        matchTime = fixtureInfo.time || 'Upcoming';
-                    }
-                } catch (e) {
-                    console.warn('Could not find fixture:', e);
-                }
-            }
-
-            // Final fallback
-            if (!awayTeam) {
-                awayTeam = 'TBA';
-            }
-
-            // Generate odds for ALL bookmakers
-            const defaultConsensus = { home: 1.95, draw: 3.40, away: 3.20 };
-            let odds = generateLocalOdds(defaultConsensus);
-            
-            // Also generate for Betway and 1xBet
-            odds.betway = {
-                home: (defaultConsensus.home + (Math.random() - 0.5) * 0.15).toFixed(2),
-                draw: (defaultConsensus.draw + (Math.random() - 0.5) * 0.2).toFixed(2),
-                away: (defaultConsensus.away + (Math.random() - 0.5) * 0.2).toFixed(2)
-            };
-            odds['1xbet'] = {
-                home: (defaultConsensus.home + (Math.random() - 0.5) * 0.12).toFixed(2),
-                draw: (defaultConsensus.draw + (Math.random() - 0.5) * 0.18).toFixed(2),
-                away: (defaultConsensus.away + (Math.random() - 0.5) * 0.18).toFixed(2)
-            };
-
-            const processedMatch = {
-                homeTeam: homeTeam,
-                awayTeam: awayTeam,
-                league: league,
-                time: matchTime,
-                odds: odds
-            };
-            
-            renderResults([processedMatch]);
-        }
-
-        // Try to find next fixture for a team using Claude
-        async function findNextFixture(teamName) {
-            if (!CONFIG.USE_CLAUDE_PROXY) return null;
-            
+        async function showTopMatches() {
+            renderLoading('Loading top matches…');
             try {
-                const response = await fetch(CONFIG.CLAUDE_PROXY_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        searchTerm: teamName + ' next match',
-                        findMatch: true
-                    })
-                });
-
-                if (!response.ok) return null;
-
-                const data = await response.json();
-                if (data.matchInfo) {
-                    return data.matchInfo;
+                let events = await getTopEvents();
+                // Off-season or quiet days can leave the curated "top" list empty —
+                // fall back to the soonest events on the feed so the page always has
+                // real, searchable content.
+                let heading;
+                if (events.length > 0) {
+                    heading = n => `<span>${n}</span> top match${n > 1 ? 'es' : ''} right now`;
+                } else {
+                    events = (await getMainEvents(1))
+                        .slice()
+                        .sort((a, b) => new Date(a.eventStartTime).getTime() - new Date(b.eventStartTime).getTime())
+                        .slice(0, CONFIG.MAX_RESULTS);
+                    heading = n => `<span>${n}</span> upcoming match${n > 1 ? 'es' : ''}`;
                 }
-                return null;
-            } catch (e) {
-                return null;
-            }
-        }
-
-        // Claude AI function for any team (including local/minor leagues)
-        async function fetchClaudeForAnyTeam(searchTerm) {
-            try {
-                const response = await fetch(CONFIG.CLAUDE_PROXY_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        searchTerm: searchTerm,
-                        findMatch: true  // Signal to find the match info
-                    })
-                });
-
-                if (!response.ok) {
-                    console.warn('Claude proxy error:', response.status);
-                    return null;
+                const cards = await buildMatchCards(events);
+                if (cards.length === 0) {
+                    renderNoMatches('upcoming matches');
+                    return;
                 }
-
-                const data = await response.json();
-                
-                if (data.odds && data.matchInfo) {
-                    return {
-                        homeTeam: data.matchInfo.homeTeam || searchTerm,
-                        awayTeam: data.matchInfo.awayTeam || 'Opponent',
-                        league: data.matchInfo.league || 'Football',
-                        time: data.matchInfo.time || 'Upcoming',
-                        odds: data.odds
-                    };
-                } else if (data.odds) {
-                    // Parse search term for team names
-                    const vsMatch = searchTerm.match(/(.+?)\s*(?:vs|v|versus|-)\s*(.+)/i);
-                    return {
-                        homeTeam: vsMatch ? vsMatch[1].trim() : searchTerm,
-                        awayTeam: vsMatch ? vsMatch[2].trim() : 'Opponent',
-                        league: 'Football',
-                        time: 'Upcoming',
-                        odds: data.odds
-                    };
-                }
-                
-                return null;
+                updateQuickChips(cards);
+                renderResults(cards, heading(cards.length));
             } catch (error) {
-                console.warn('Claude fetch error:', error);
-                return null;
+                console.error('Top matches error:', error);
+                renderError('Could not reach the live odds feed. Check your connection and try again.');
             }
         }
 
-        function renderNoMatches(searchTerm) {
-            elements.resultsSection.innerHTML = `
-                <div class="empty-state">
-                    <div class="empty-icon">🔍</div>
-                    <h2 class="empty-title">NO MATCHES FOUND</h2>
-                    <p class="empty-text">Could not find odds for "${searchTerm}"</p>
-                    <div style="margin-top: 20px; text-align: left; max-width: 400px; margin-left: auto; margin-right: auto;">
-                        <p class="empty-text" style="font-size: 0.9rem; margin-bottom: 10px;">💡 <strong>Tips:</strong></p>
-                        <p class="empty-text" style="font-size: 0.85rem;">• Try both teams: <strong>"Arsenal vs Chelsea"</strong></p>
-                        <p class="empty-text" style="font-size: 0.85rem;">• Check spelling of team name</p>
-                        <p class="empty-text" style="font-size: 0.85rem;">• Use full team name: <strong>"Manchester United"</strong></p>
-                    </div>
-                </div>
-            `;
+        // Rebuild the quick-search chips from teams that are actually on the feed
+        // right now, so every chip is guaranteed to return a result when clicked.
+        function updateQuickChips(cards) {
+            const names = [];
+            const seen = new Set();
+            for (const card of cards) {
+                for (const team of [card.homeTeam, card.awayTeam]) {
+                    const name = String(team).trim();
+                    const key = name.toLowerCase();
+                    if (name && name !== 'TBA' && !seen.has(key)) {
+                        seen.add(key);
+                        names.push(name);
+                    }
+                    if (names.length >= 6) break;
+                }
+                if (names.length >= 6) break;
+            }
+            if (names.length === 0) return;
+            $('quickFilters').innerHTML =
+                '<span class="filter-chip featured-chip" id="topMatchesChip">🔥 Top Matches</span>' +
+                names.map(n => `<span class="filter-chip" data-team="${escapeHtml(n)}">${escapeHtml(n)}</span>`).join('');
+            bindChips();
         }
 
         function formatDate(dateStr) {
-            return new Date(dateStr).toLocaleDateString('en-GB', {
+            const d = new Date(dateStr);
+            if (isNaN(d.getTime())) return 'Upcoming';
+            return d.toLocaleDateString('en-GB', {
                 weekday: 'short', month: 'short', day: 'numeric',
                 hour: '2-digit', minute: '2-digit'
             });
@@ -1014,11 +1104,17 @@
         // RENDERING
         // ============================================
 
-        function renderLoading() {
+        function escapeHtml(s) {
+            return String(s).replace(/[&<>"']/g, c => ({
+                '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+            }[c]));
+        }
+
+        function renderLoading(message) {
             elements.resultsSection.innerHTML = `
                 <div class="loading">
                     <div class="spinner"></div>
-                    <p>Finding the best odds...</p>
+                    <p>${escapeHtml(message || 'Finding the best odds…')}</p>
                 </div>
             `;
         }
@@ -1026,90 +1122,147 @@
         function renderError(message) {
             elements.resultsSection.innerHTML = `
                 <div class="error-state">
-                    <p class="error-text">⚠️ ${message}</p>
+                    <p class="error-text">⚠️ ${escapeHtml(message)}</p>
                 </div>
             `;
         }
 
-        function renderResults(matches) {
-            if (!matches.length) {
-                elements.resultsSection.innerHTML = `
-                    <div class="empty-state">
-                        <div class="empty-icon">🔍</div>
-                        <h2 class="empty-title">NO MATCHES FOUND</h2>
-                        <p class="empty-text">Try a different search term</p>
+        function renderNoMatches(searchTerm) {
+            elements.resultsSection.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-icon">🔍</div>
+                    <h2 class="empty-title">NO MATCHES FOUND</h2>
+                    <p class="empty-text">No upcoming fixtures on the feed for "${escapeHtml(searchTerm)}"</p>
+                    <div style="margin-top: 20px; text-align: left; max-width: 400px; margin-left: auto; margin-right: auto;">
+                        <p class="empty-text" style="font-size: 0.9rem; margin-bottom: 10px;">💡 <strong>Tips:</strong></p>
+                        <p class="empty-text" style="font-size: 0.85rem;">• Try both teams: <strong>"Arsenal vs Chelsea"</strong></p>
+                        <p class="empty-text" style="font-size: 0.85rem;">• Check spelling of the team name</p>
+                        <p class="empty-text" style="font-size: 0.85rem;">• The team's next match may not be listed yet</p>
                     </div>
-                `;
-                return;
-            }
+                </div>
+            `;
+        }
 
+        // Cards currently on screen, so the compare toggle can resolve a card by index.
+        let currentCards = [];
+
+        function renderResults(cards, headerHtml) {
+            currentCards = cards;
+            const updated = new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
             let html = `<div class="results-header">
-                <p class="results-count">Found <span>${matches.length}</span> match${matches.length > 1 ? 'es' : ''}</p>
+                <p class="results-count">${headerHtml}</p>
+                <p class="results-updated">Odds updated ${updated}</p>
             </div>`;
 
-            matches.forEach((match, i) => {
-                const bestOdds = findBestOdds(match.odds);
+            cards.forEach((card, i) => {
                 html += `
-                    <div class="match-card" style="animation-delay: ${i * 0.1}s">
+                    <div class="match-card" style="animation-delay: ${i * 0.1}s" data-card="${i}">
                         <div class="match-header">
                             <div class="match-teams">
-                                ${match.homeTeam}
+                                ${escapeHtml(card.homeTeam)}
                                 <span class="match-vs">VS</span>
-                                ${match.awayTeam}
+                                ${escapeHtml(card.awayTeam)}
+                                ${card.top ? '<span class="top-tag">TOP</span>' : ''}
                             </div>
                             <div class="match-meta">
-                                <div class="match-league">${match.league}</div>
-                                <div class="match-time">${match.time}</div>
+                                <div class="match-league">${escapeHtml(card.league)}</div>
+                                <div class="match-time">${escapeHtml(card.time)}</div>
                             </div>
                         </div>
                         <div class="odds-grid">
-                            ${renderOddsRows(match.odds, bestOdds, match.homeTeam, match.awayTeam)}
+                            ${renderRow(BWANABET, card.odds, null)}
                         </div>
+                        <div class="comparison" data-comparison="${i}"></div>
                     </div>
                 `;
             });
 
             elements.resultsSection.innerHTML = html;
+            // Progressively reveal a comparison ONLY on fixtures where BwanaBet has
+            // the best price on all three outcomes (site policy). Fetches competitor
+            // odds once; fast initial render is unaffected.
+            revealComparisons(cards);
         }
 
-        function findBestOdds(odds) {
-            const best = { home: 0, draw: 0, away: 0 };
-            Object.values(odds).forEach(o => {
-                if (parseFloat(o.home) > best.home) best.home = parseFloat(o.home);
-                if (parseFloat(o.draw) > best.draw) best.draw = parseFloat(o.draw);
-                if (parseFloat(o.away) > best.away) best.away = parseFloat(o.away);
+        // Fetch real competitor odds, and for each card decide whether BwanaBet wins
+        // every column. If so, reveal a "Compare" toggle with the real side-by-side
+        // rows (BwanaBet best on all). If a competitor is cheaper on any outcome — or
+        // no competitor has the fixture — no comparison is shown for that match.
+        async function revealComparisons(cards) {
+            let index;
+            try { index = await getCompetitorIndex(); }
+            catch (e) { return; }
+
+            cards.forEach((card, i) => {
+                const rows = matchCompetitors(card, index);
+                if (rows.length === 0) return; // nothing to compare against
+
+                const best = {};
+                for (const k of ['home', 'draw', 'away']) {
+                    best[k] = Math.max(parseFloat(card.odds[k]),
+                        ...rows.map(r => parseFloat(r.odds[k])).filter(n => !isNaN(n)));
+                }
+                const bwanaWins = ['home', 'draw', 'away'].every(k =>
+                    parseFloat(card.odds[k]) >= best[k] - 1e-9);
+                if (!bwanaWins) return; // policy: only surface where BwanaBet is best
+
+                // BwanaBet is best on every column — highlight its row, reveal compare.
+                const grid = document.querySelector(`[data-card="${i}"] .odds-grid`);
+                if (grid) grid.innerHTML = renderRow(BWANABET, card.odds, best);
+
+                const container = document.querySelector(`[data-comparison="${i}"]`);
+                if (!container) return;
+                container.innerHTML = `
+                    <button class="compare-toggle" data-toggle="${i}">
+                        <span class="chev">▾</span> Compare other bookmakers
+                        <span class="best-badge">✓ BwanaBet best price</span>
+                    </button>
+                    <div class="comparison-rows" data-rows="${i}" hidden>
+                        ${rows.map(r => renderRow(r.book, r.odds, best)).join('')}
+                    </div>`;
+                container.querySelector('.compare-toggle')
+                    .addEventListener('click', () => toggleComparison(i));
             });
-            return best;
         }
 
-        function renderOddsRows(odds, bestOdds, homeTeam, awayTeam) {
-            return BETTING_COMPANIES.map(company => {
-                const o = odds[company.id] || { home: '-', draw: '-', away: '-' };
-
+        // Render one bookmaker's row. `best` (optional) = {home,draw,away} numeric
+        // maxima across all shown books; a cell equal to the max is highlighted.
+        function renderRow(book, odds, best) {
+            const cell = (label, key) => {
+                const v = odds[key];
+                const isBest = best && v != null && Math.abs(parseFloat(v) - best[key]) < 1e-9;
                 return `
-                    <div class="bookmaker-row ${company.featured ? 'featured' : ''}">
-                        <div class="bookmaker-info">
-                            <div class="bookmaker-logo" style="background: ${company.color};">
-                                <img src="${company.logo}" alt="${company.name}" onerror="this.style.display='none'; this.parentElement.innerHTML='<span>${company.logoText}</span>';">
-                            </div>
-                            <span class="bookmaker-name">${company.name}</span>
+                    <div class="odds-cell">
+                        <div class="odds-label">${label}</div>
+                        <span class="odds-value ${isBest ? 'best' : ''}">${v == null ? '–' : v}</span>
+                    </div>`;
+            };
+            return `
+                <div class="bookmaker-row ${book.key === 'bwanabet' ? 'featured' : ''}">
+                    <div class="bookmaker-info">
+                        <div class="bookmaker-logo" style="background: ${book.color};">
+                            <img src="${book.logo}" alt="${escapeHtml(book.name)}" onerror="this.style.display='none'; this.parentElement.innerHTML='<span>${book.logoText}</span>';">
                         </div>
-                        <div class="odds-cell">
-                            <div class="odds-label">${homeTeam.split(' ').pop()}</div>
-                            <span class="odds-value ${parseFloat(o.home) === bestOdds.home ? 'best' : ''}">${o.home}</span>
-                        </div>
-                        <div class="odds-cell">
-                            <div class="odds-label">Draw</div>
-                            <span class="odds-value ${parseFloat(o.draw) === bestOdds.draw ? 'best' : ''}">${o.draw}</span>
-                        </div>
-                        <div class="odds-cell">
-                            <div class="odds-label">${awayTeam.split(' ').pop()}</div>
-                            <span class="odds-value ${parseFloat(o.away) === bestOdds.away ? 'best' : ''}">${o.away}</span>
-                        </div>
-                        <a href="${company.url}" target="_blank" class="visit-btn">Visit Site</a>
+                        <span class="bookmaker-name">${escapeHtml(book.name)}</span>
                     </div>
-                `;
-            }).join('');
+                    ${cell('1 · Home', 'home')}
+                    ${cell('X · Draw', 'draw')}
+                    ${cell('2 · Away', 'away')}
+                    <a href="${book.url}" target="_blank" rel="noopener" class="visit-btn">Bet Now</a>
+                </div>
+            `;
+        }
+
+        // Expand/collapse a card's comparison. Rows are already rendered (competitor
+        // odds were fetched during revealComparisons), so this is pure show/hide.
+        function toggleComparison(i) {
+            const rowsEl = document.querySelector(`[data-rows="${i}"]`);
+            const btn = document.querySelector(`[data-toggle="${i}"]`);
+            if (!rowsEl || !btn) return;
+            const opening = rowsEl.hidden;
+            rowsEl.hidden = !opening;
+            btn.classList.toggle('open', opening);
+            btn.querySelector('.chev').textContent = opening ? '▴' : '▾';
         }
 
         // ============================================
@@ -1121,12 +1274,19 @@
             if (e.key === 'Enter') handleSearch();
         });
 
-        document.querySelectorAll('.filter-chip').forEach(chip => {
-            chip.addEventListener('click', () => {
-                elements.searchInput.value = chip.dataset.team;
-                handleSearch();
+        function bindChips() {
+            document.querySelectorAll('.filter-chip[data-team]').forEach(chip => {
+                chip.addEventListener('click', () => {
+                    elements.searchInput.value = chip.dataset.team;
+                    handleSearch();
+                });
             });
-        });
+            $('topMatchesChip').addEventListener('click', showTopMatches);
+        }
+        bindChips();
+
+        // Open with real content: today's operator-curated top matches.
+        showTopMatches();
     </script>
 </body>
 </html>

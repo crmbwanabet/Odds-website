@@ -1,0 +1,8 @@
+name = "oddszone-odds-proxy"
+main = "odds-proxy.js"
+compatibility_date = "2024-11-01"
+
+# Deploy:  npm i -g wrangler  &&  wrangler login  &&  wrangler deploy
+# After deploy, wrangler prints a URL like:
+#   https://oddszone-odds-proxy.<your-subdomain>.workers.dev
+# Put that URL into CONFIG.PROXY_URL in ../index.html.
