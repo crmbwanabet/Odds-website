@@ -16,9 +16,11 @@ that can't be fetched is simply omitted — never faked.
 | SportyBet  | ✅ live | Public JSON `factsCenter/pcUpcomingEvents` |
 | 1xBet      | ✅ live | Public JSON `LineFeed/Get1x2_VZip` |
 | Betway     | ✅ live | Public JSON `BetBook/Highlights` (esports/virtual rows self-filter — they never match a real fixture) |
-| BetPawa    | ⛔ held | Protobuf feed; team names decode but odds pairing is unverified — left out rather than risk wrong numbers |
+| BetPawa    | ✅ live | JSON via `sportsbook/v4/events/lists/by-queries` (`Accept: application/json` content-negotiates away the protobuf; prices explicitly labelled 1/X/2, verified against the live site) |
 | Gal Sport  | ⛔ n/a  | BetConstruct **WebSocket** + Cloudflare challenge — not a simple relay; needs a headless scraper |
 | BolaBet    | ⛔ n/a  | ASMX + SignalR streams — not a simple relay; needs a headless scraper |
+| Mojabet    | ⛔ n/a  | DataDome bot protection + opaque widget feed — server-side relay would be blocked/brittle |
+| Castle Bet | ⛔ n/a  | Cloudflare-challenged (403 to non-browser clients) |
 
 ## Files
 

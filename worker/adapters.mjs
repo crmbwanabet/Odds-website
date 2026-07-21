@@ -9,22 +9,25 @@
  * Nothing is invented. Every price is the bookmaker's own live 1X2 coefficient.
  * A book that errors returns [] and is simply omitted from the comparison.
  *
- * Verified real & clean: SportyBet, 1xBet.
+ * Verified real & clean: SportyBet, 1xBet, BetPawa.
  * Best-effort (self-filters via team-matching in the UI): Betway (Highlights feed
  * also carries esports/virtual games; those never match a real fixture, and the
  * validity filter drops suspended 0.00 prices).
- * Held out of v1: BetPawa (protobuf heuristic — decodes team names reliably but
- * odds pairing is unverified, so we don't attribute possibly-wrong numbers to it).
+ *
+ * BetPawa note: the old protobuf concern is gone — their v4 BFF endpoint
+ * content-negotiates to JSON (Accept: application/json), and every price is
+ * explicitly labelled "1"/"X"/"2" with home/away given by participant position,
+ * so the odds pairing is unambiguous.
  */
 
 export const UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36';
 const FETCH_TIMEOUT_MS = 12000;
 
 export async function collectAll() {
-  const [sportybet, onexbet, betway] = await Promise.all([
-    safe(fetchSportyBet), safe(fetchOneXBet), safe(fetchBetway)
+  const [sportybet, onexbet, betway, betpawa] = await Promise.all([
+    safe(fetchSportyBet), safe(fetchOneXBet), safe(fetchBetway), safe(fetchBetPawa)
   ]);
-  return { sportybet, onexbet, betway };
+  return { sportybet, onexbet, betway, betpawa };
 }
 
 async function safe(fn) { try { return await fn(); } catch (e) { return []; } }
@@ -87,6 +90,46 @@ export async function fetchBetway() {
     const parts = name.split(/\s+vs?\.?\s+/i);
     const ev = normalize(parts[0] || name, parts[1] || '', (e.expectedStartEpoch || 0) * 1000,
       fmt(priceByOutcome[h.outcomeId]), fmt(priceByOutcome[d.outcomeId]), fmt(priceByOutcome[a.outcomeId]));
+    if (valid(ev)) out.push(ev);
+  }
+  return out;
+}
+
+// ---------- BetPawa ----------
+// v4 BFF endpoint, same one www.betpawa.co.zm renders from. Their web client asks
+// for protobuf, but the server content-negotiates: Accept: application/json returns
+// plain JSON. Market 3743 = "1X2 - FT"; prices are explicitly named "1"/"X"/"2".
+export async function fetchBetPawa() {
+  const q = encodeURIComponent(JSON.stringify({
+    queries: [{
+      query: { eventType: 'UPCOMING', categories: ['2'], zones: {}, hasOdds: true },
+      view: { marketTypes: ['3743'] },
+      skip: 0,
+      take: 100
+    }]
+  }));
+  const url = `https://www.betpawa.co.zm/api/sportsbook/v4/events/lists/by-queries?q=${q}`;
+  const r = await timedFetch(url, {
+    headers: {
+      'User-Agent': UA,
+      'Accept': 'application/json',
+      'x-pawa-brand': 'betpawa-zambia',
+      'x-pawa-language': 'en',
+      'devicetype': 'web',
+      'Referer': 'https://www.betpawa.co.zm/events?marketId=1X2&categoryId=2'
+    }
+  });
+  const j = await r.json();
+  const events = (((j.responses || [])[0]) || {}).responses || [];
+  const out = [];
+  for (const e of events) {
+    const home = (e.participants || []).find(p => Number(p.position) === 1);
+    const away = (e.participants || []).find(p => Number(p.position) === 2);
+    const m = (e.markets || []).find(x => x.marketType && x.marketType.id === '3743');
+    const prices = (m && m.row && m.row[0] && m.row[0].prices) || [];
+    const pick = name => { const p = prices.find(x => x.name === name); return p && p.odds ? fmt(p.odds) : null; };
+    const ev = normalize(home && home.name, away && away.name,
+      e.startTime ? Date.parse(e.startTime) : 0, pick('1'), pick('X'), pick('2'));
     if (valid(ev)) out.push(ev);
   }
   return out;
