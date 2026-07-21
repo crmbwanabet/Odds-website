@@ -17,8 +17,8 @@ that can't be fetched is simply omitted — never faked.
 | 1xBet      | ✅ live | Public JSON `LineFeed/Get1x2_VZip` |
 | Betway     | ✅ live | Public JSON `BetBook/Highlights` (esports/virtual rows self-filter — they never match a real fixture) |
 | BetPawa    | ✅ live | JSON via `sportsbook/v4/events/lists/by-queries` (`Accept: application/json` content-negotiates away the protobuf; prices explicitly labelled 1/X/2, verified against the live site) |
-| Gal Sport  | ⛔ n/a  | BetConstruct **WebSocket** + Cloudflare challenge — not a simple relay; needs a headless scraper |
-| BolaBet    | ⛔ n/a  | ASMX + SignalR streams — not a simple relay; needs a headless scraper |
+| BolaBet    | ✅ live | ASMX JSON POST `ControlsWS.asmx/TopLeagues` (the SignalR streams only push *live* in-play updates; pre-match odds are a plain cookieless POST). Prices labelled 1/X/2, times are UTC+2, verified against the live site |
+| Gal Sport  | ⛔ geo  | Endpoint is actually plain JSON (`services/evapi/event/GetEvents?sportTypeIds=31`), **not** a WebSocket — but `gsb.co.zm` is **geo-blocked to Zambian IPs behind a Cloudflare challenge**. The Worker (non-ZM IP) gets the block page. Needs a relay hosted on a Zambian IP + CF-challenge pass, not a simple Worker fetch |
 | Mojabet    | ⛔ n/a  | DataDome bot protection + opaque widget feed — server-side relay would be blocked/brittle |
 | Castle Bet | ⛔ n/a  | Cloudflare-challenged (403 to non-browser clients) |
 

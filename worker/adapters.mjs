@@ -24,10 +24,10 @@ export const UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 
 const FETCH_TIMEOUT_MS = 12000;
 
 export async function collectAll() {
-  const [sportybet, onexbet, betway, betpawa] = await Promise.all([
-    safe(fetchSportyBet), safe(fetchOneXBet), safe(fetchBetway), safe(fetchBetPawa)
+  const [sportybet, onexbet, betway, betpawa, bolabet] = await Promise.all([
+    safe(fetchSportyBet), safe(fetchOneXBet), safe(fetchBetway), safe(fetchBetPawa), safe(fetchBolaBet)
   ]);
-  return { sportybet, onexbet, betway, betpawa };
+  return { sportybet, onexbet, betway, betpawa, bolabet };
 }
 
 async function safe(fn) { try { return await fn(); } catch (e) { return []; } }
@@ -133,6 +133,45 @@ export async function fetchBetPawa() {
     if (valid(ev)) out.push(ev);
   }
   return out;
+}
+
+// ---------- BolaBet ----------
+// BolaBet's odds are served by classic ASP.NET ASMX endpoints (JSON POST), NOT the
+// SignalR streams — those only push live in-play updates. `TopLeagues` returns the
+// top upcoming fixtures across leagues, each with its "Full Time 1X2" prices, in one
+// cookieless call. Prices are explicitly labelled 1/X/2. IDBookmaker 174 / IDLingua 2
+// are the site's own public parameters.
+const BOLABET_MONTHS = { January:0,February:1,March:2,April:3,May:4,June:5,July:6,August:7,September:8,October:9,November:10,December:11 };
+export async function fetchBolaBet() {
+  const url = 'https://www.bolabet.co.zm/Controls/ControlsWS.asmx/TopLeagues';
+  const r = await timedFetch(url, {
+    method: 'POST',
+    headers: { 'User-Agent': UA, 'Content-Type': 'application/json;charset=UTF-8', 'Accept': 'application/json', 'Referer': 'https://www.bolabet.co.zm/' },
+    body: JSON.stringify({ IDLingua: 2, IDBookmaker: 174, IDTipoSport: 1, upcomingDays: 10, maxFallbackEvents: 8 })
+  });
+  const j = await r.json();
+  const out = [];
+  for (const sport of j.d || []) {
+    for (const league of sport.Eventi || []) {
+      for (const se of league.SottoEventi || []) {
+        const ft = (se.ClassiQuota || []).find(c => c.ClasseQuota === 'Full Time 1X2');
+        if (!ft) continue;
+        const picks = {};
+        for (const q of ft.Quote || []) picks[q.TipoQuota] = q.QuotaValore;
+        const [home, away] = String(se.SottoEvento || '').split(' - ');
+        const ev = normalize(home, away, bolabetTime(se.DataInizio), fmt(picks['1']), fmt(picks['X']), fmt(picks['2']));
+        if (valid(ev)) out.push(ev);
+      }
+    }
+  }
+  return out;
+}
+// "21 July 2026, 18:00" is Zambia local (UTC+2, verified against Gal Sport's UTC feed
+// for the same fixture). Convert to a UTC epoch so `start` matches the other books.
+function bolabetTime(s) {
+  const m = /(\d+)\s+(\w+)\s+(\d+),\s*(\d+):(\d+)/.exec(String(s || ''));
+  if (!m || !(m[2] in BOLABET_MONTHS)) return 0;
+  return Date.UTC(+m[3], BOLABET_MONTHS[m[2]], +m[1], +m[4] - 2, +m[5]);
 }
 
 // ---------- helpers ----------

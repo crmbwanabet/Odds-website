@@ -6,7 +6,7 @@
  * This Worker fetches those feeds server-to-server and re-serves them WITH a
  * CORS header. It invents nothing — see adapters.mjs.
  *
- *   GET /odds            -> { updatedAt, books: { sportybet, onexbet, betway } }
+ *   GET /odds            -> { updatedAt, books: { sportybet, onexbet, betway, betpawa, bolabet } }
  *   GET /odds?book=betway  (filter to one book)
  *
  * Deploy: `wrangler deploy` (see README.md in this folder). Then set
