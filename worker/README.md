@@ -28,14 +28,40 @@ that can't be fetched is simply omitted — never faked.
 - `odds-proxy.js` — Cloudflare Worker entry (imports adapters).
 - `dev-server.mjs` — local Node server running the *same* adapters, for testing.
 - `wrangler.toml` — Worker deploy config.
+- `validate.mjs` — accuracy harness (unit tests + live invariant checks). See below.
+- `loadtest.mjs` — proxy load / cache-behaviour check.
+- `../lib/odds-match.mjs` — the fixture-matching + odds math shared by the site
+  (`index.html`) and `validate.mjs`, so tests exercise the real matcher.
+
+## Fixture matching (`lib/odds-match.mjs`)
+
+Books spell teams differently, so a competitor is paired to a BwanaBet card by
+token overlap on normalized names. Tokens match when equal **or** one is a ≥4-char
+prefix of the other (recovers truncations like "Slovan **Brat.**" ↔ "Slovan
+Bratislava"). A fixture is only confirmed when **both** sides clear 0.7 overlap, so
+a single stray prefix collision can never confirm a wrong match.
+
+## Caching / traffic
+
+The proxy is the only OddsZone-owned service in the hot path. It caches in three
+layers so a spike never re-fetches the 5 bookmaker feeds more than necessary:
+
+1. **In-isolate memory** (~45s) — instant, private to one Worker isolate.
+2. **Cloudflare Cache API** — shared across isolates in a datacenter, so a burst of
+   cold isolates does ~one upstream fan-out per colo per TTL, not one per request.
+3. **Live fan-out** — concurrent misses in an isolate are coalesced into a single
+   in-flight fetch.
 
 ## Local testing
 
 ```bash
 node worker/dev-server.mjs          # serves http://localhost:8787/odds
+node worker/validate.mjs            # unit tests + live accuracy checks (exit≠0 on fail)
+node worker/loadtest.mjs 150 30     # 150 requests, 30 concurrent
 ```
-Keep `CONFIG.PROXY_URL = 'http://localhost:8787'` in `../index.html`, open the site,
-click **Compare other bookmakers** on any match.
+For UI testing set `CONFIG.PROXY_URL = 'http://localhost:8787'` in `../index.html`,
+serve the site over http (it now loads `./lib/odds-match.mjs` as an ES module, which
+does not work from `file://`), open a match, and check the odds list.
 
 ## Production deploy (free)
 
@@ -47,6 +73,11 @@ wrangler deploy
 ```
 Wrangler prints a URL like `https://oddszone-odds-proxy.<subdomain>.workers.dev`.
 Put that into `CONFIG.PROXY_URL` in `../index.html` and redeploy the site.
+
+**Deploying the site:** `index.html` now imports `./lib/odds-match.mjs`, so the
+deploy must include the `lib/` folder and the host must serve `.mjs` as JavaScript
+(Cloudflare Pages, Netlify, Vercel, and GitHub Pages all do). Keep `index.html` and
+`lib/` at the same relative path.
 
 ## Response shape
 

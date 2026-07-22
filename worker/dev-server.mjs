@@ -13,6 +13,24 @@ import { collectAll } from './adapters.mjs';
 const PORT = process.env.PORT || 8787;
 const CACHE_TTL_MS = 45 * 1000;
 let CACHE = { at: 0, data: null };
+let INFLIGHT = null; // coalesce concurrent cold requests into ONE upstream fan-out
+
+// Same cache + in-flight coalescing shape as the deployed Worker (odds-proxy.js),
+// so a burst of concurrent requests refreshes the 5 books once, not once each.
+async function getData() {
+  const now = Date.now();
+  if (CACHE.data && now - CACHE.at <= CACHE_TTL_MS) return CACHE.data;
+  if (!INFLIGHT) {
+    INFLIGHT = (async () => {
+      console.log('[dev-server] refreshing competitor feeds…');
+      const data = await collectAll();
+      CACHE = { at: Date.now(), data };
+      console.log('[dev-server] ' + Object.entries(data).map(([k, v]) => `${k}=${v.length}`).join(' '));
+      return data;
+    })().finally(() => { INFLIGHT = null; });
+  }
+  return INFLIGHT;
+}
 
 createServer(async (req, res) => {
   const url = new URL(req.url, `http://localhost:${PORT}`);
@@ -22,15 +40,9 @@ createServer(async (req, res) => {
   if (req.method === 'OPTIONS') { res.writeHead(204); return res.end(); }
   if (url.pathname !== '/odds' && url.pathname !== '/') { res.writeHead(404); return res.end('{"error":"not found"}'); }
 
-  const now = Date.now();
-  if (!CACHE.data || now - CACHE.at > CACHE_TTL_MS) {
-    console.log('[dev-server] refreshing competitor feeds…');
-    CACHE = { at: now, data: await collectAll() };
-    const counts = Object.entries(CACHE.data).map(([k, v]) => `${k}=${v.length}`).join(' ');
-    console.log('[dev-server] ' + counts);
-  }
+  const data = await getData();
   const only = url.searchParams.get('book');
-  const books = only ? { [only]: CACHE.data[only] || [] } : CACHE.data;
+  const books = only ? { [only]: data[only] || [] } : data;
   res.writeHead(200, { 'Content-Type': 'application/json' });
   res.end(JSON.stringify({ updatedAt: new Date(CACHE.at).toISOString(), books }));
 }).listen(PORT, () => console.log(`[dev-server] odds proxy on http://localhost:${PORT}/odds`));
