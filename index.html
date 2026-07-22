@@ -213,7 +213,6 @@
   .note-panel.open { display: flex; }
   .np-head { display: flex; align-items: baseline; gap: 10px; padding: 14px 16px 10px; border-bottom: 1px solid var(--line); }
   .np-head h3 { font-family: var(--font-display); font-weight: 700; font-size: 1.15rem; }
-  .np-head .np-sub { font-size: 0.72rem; color: var(--faint); text-transform: uppercase; letter-spacing: 0.07em; }
   .np-close { margin-left: auto; border: none; background: none; color: var(--faint); font-size: 1.3rem; line-height: 1; padding: 2px 4px; }
   .np-close:hover { color: var(--ink); }
   .np-body { overflow-y: auto; padding: 6px 16px; }
@@ -379,7 +378,7 @@
     <span class="badge" id="noteBadge" hidden>0</span>
   </button>
   <aside class="note-panel" id="notePanel" aria-label="Saved matches">
-    <div class="np-head"><h3>Saved matches</h3><span class="np-sub">This session only</span><button class="np-close" id="noteClose" aria-label="Close saved matches">×</button></div>
+    <div class="np-head"><h3>Saved matches</h3><button class="np-close" id="noteClose" aria-label="Close saved matches">×</button></div>
     <div class="np-body" id="noteBody"></div>
     <div class="np-foot">
       <div class="np-acca" id="noteAcca" hidden></div>
