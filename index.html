@@ -189,12 +189,12 @@
 </style>
 </head>
 <body>
-  <div class="strapline"><div class="wrap"><span>Zambia's independent football odds desk</span><span>We compare <b>6 bookmakers</b> live · updated every minute</span></div></div>
+  <div class="strapline"><div class="wrap"><span>Zambia's independent football odds desk</span></div></div>
 
   <header class="masthead">
     <div class="wrap">
       <div class="wordmark">Best Betting Odds <span>Zambia</span></div>
-      <div class="edition"><span class="d" id="editionDate">Today</span><span class="t">Zambia Edition</span></div>
+      <div class="edition"><span class="d" id="editionDate">Today</span></div>
     </div>
   </header>
 
@@ -236,8 +236,8 @@
     </section>
   </main>
 
-  <section class="rivalry"><div class="wrap">
-    <div class="section-title"><h2>Biggest rivalries</h2><span class="more">Best price when they're live</span></div>
+  <section class="rivalry" id="rivalrySection" hidden><div class="wrap">
+    <div class="section-title"><h2>Biggest rivalries</h2><span class="more">Upcoming this week</span></div>
     <div class="riv-track" id="rivTrack"></div>
   </div></section>
 
@@ -254,14 +254,6 @@
     </div>
   </section>
 
-  <section class="more-sec"><div class="wrap">
-    <div class="section-title"><h2>How it works</h2></div>
-    <div class="hcards">
-      <a class="hcard" href="#"><div class="ph" style="background:linear-gradient(140deg,var(--claret-2),oklch(0.55 0.12 30))"><svg viewBox="0 0 300 200" fill="none" stroke="white" stroke-width="1.5"><circle cx="150" cy="100" r="42"/><path d="M0 150 L300 150"/></svg></div><span class="k">Real prices</span><h3>We read the live feed from all six Zambian books</h3><p>No invented prices — only each book's own real coefficients.</p></a>
-      <a class="hcard" href="#"><div class="ph" style="background:linear-gradient(140deg,oklch(0.4 0.1 250),oklch(0.55 0.12 220))"><svg viewBox="0 0 300 200" fill="none" stroke="white" stroke-width="1.5"><path d="M40 40 L260 40 L260 160 L40 160Z"/><path d="M150 40 L150 160"/></svg></div><span class="k">Top price first</span><h3>Search any team and see BwanaBet against the rest</h3><p>The featured price up top, every other book listed below.</p></a>
-      <a class="hcard" href="#"><div class="ph" style="background:linear-gradient(140deg,oklch(0.45 0.11 140),oklch(0.6 0.13 120))"><svg viewBox="0 0 300 200" fill="none" stroke="white" stroke-width="1.5"><path d="M60 140 L120 90 L170 120 L240 60"/><path d="M0 170 L300 170"/></svg></div><span class="k">Live &amp; updated</span><h3>Odds refresh every minute across the coupon</h3><p>Prices move — we keep the comparison current.</p></a>
-    </div>
-  </div></section>
 
   <footer><div class="wrap">
     <div class="foot">
@@ -295,7 +287,7 @@
 
   /* ---- image asset registries ---- */
   const LEAGUES = [
-    { name: 'Champions League', re: /champions league|uefa|europa|conference/i, img: 'assets/leagues/ucl.png' },
+    { name: 'Champions League', re: /champions league/i, img: 'assets/leagues/ucl.png' },
     { name: 'Premier League', re: /premier league|england/i, img: 'assets/leagues/epl.jpg' },
     { name: 'La Liga', re: /la ?liga|spain/i, img: 'assets/leagues/laliga.jpg' },
     { name: 'Bundesliga', re: /bundesliga|germany/i, img: 'assets/leagues/bundesliga.png' },
@@ -510,11 +502,22 @@
   }
 
   /* ---- rivalry radar ---- */
-  function renderRivalry() {
-    $('rivTrack').innerHTML = MATCHUPS.map(m =>
-      `<button class="riv-tile" data-q="${esc(m.q)}"><div class="riv-pic" style="background-image:url('${m.img}')"></div><div class="riv-body"><div class="riv-name">${esc(m.title)}</div><div class="riv-sub">${esc(m.sub)}</div><span class="riv-cta">Get best odds →</span></div></button>`
+  // Only surface a rivalry tile if that fixture is actually on the feed and kicks
+  // off within the next week; hide the whole section when none qualify.
+  async function renderRivalry() {
+    const now = Date.now(), weekMs = 7 * 24 * 60 * 60 * 1000;
+    const found = [];
+    for (const m of MATCHUPS) {
+      let evs = []; try { evs = await findEventsByTeams(m.q); } catch (e) {}
+      const soon = evs.find(e => { const t = new Date(e.eventStartTime).getTime(); return t >= now - 3 * 60 * 60 * 1000 && t <= now + weekMs; });
+      if (soon) found.push({ m, when: formatDate(soon.eventStartTime) });
+    }
+    if (!found.length) return; // section stays hidden
+    $('rivTrack').innerHTML = found.map(({ m, when }) =>
+      `<button class="riv-tile" data-q="${esc(m.q)}"><div class="riv-pic" style="background-image:url('${m.img}')"></div><div class="riv-body"><div class="riv-name">${esc(m.title)}</div><div class="riv-sub">${esc(when)} · ${esc(m.sub)}</div><span class="riv-cta">Get best odds →</span></div></button>`
     ).join('');
     $('rivTrack').querySelectorAll('.riv-tile').forEach(b => b.addEventListener('click', () => { $('searchInput').value = b.dataset.q; doSearch(b.dataset.q); }));
+    $('rivalrySection').hidden = false;
   }
 
   /* ---- flows ---- */
