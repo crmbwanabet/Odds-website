@@ -1,1203 +1,556 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OddsZone Zambia | Live Football Odds</title>
-    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --primary: #0D1B2A;
-            --secondary: #1B263B;
-            --accent: #E0A526;
-            --accent-glow: rgba(224, 165, 38, 0.3);
-            --success: #00C853;
-            --text: #FFFFFF;
-            --text-muted: #8892A0;
-            --card-bg: #1B263B;
-            --border: rgba(255, 255, 255, 0.1);
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'DM Sans', sans-serif;
-            background: var(--primary);
-            color: var(--text);
-            min-height: 100vh;
-            background-image:
-                radial-gradient(ellipse at 20% 20%, rgba(224, 165, 38, 0.08) 0%, transparent 50%),
-                radial-gradient(ellipse at 80% 80%, rgba(26, 92, 255, 0.08) 0%, transparent 50%);
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-
-        header {
-            text-align: center;
-            padding: 40px 20px 30px;
-            margin-bottom: 30px;
-        }
-
-        .logo {
-            font-family: 'Bebas Neue', sans-serif;
-            font-size: 3.5rem;
-            letter-spacing: 4px;
-            margin-bottom: 8px;
-            background: linear-gradient(135deg, var(--accent) 0%, #FFF 50%, var(--accent) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .tagline {
-            color: var(--text-muted);
-            font-size: 1rem;
-            font-weight: 500;
-        }
-
-        .live-badge {
-            display: inline-block;
-            margin-top: 12px;
-            padding: 6px 14px;
-            border-radius: 20px;
-            background: rgba(0, 200, 83, 0.12);
-            border: 1px solid rgba(0, 200, 83, 0.4);
-            color: var(--success);
-            font-size: 0.8rem;
-            font-weight: 600;
-            letter-spacing: 1px;
-        }
-
-        .live-dot {
-            display: inline-block;
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: var(--success);
-            margin-right: 8px;
-            animation: pulse 1.5s ease infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.3; }
-        }
-
-        .search-section {
-            max-width: 700px;
-            margin: 0 auto 40px;
-        }
-
-        .search-container {
-            display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
-        }
-
-        .search-input-wrapper {
-            flex: 1;
-            min-width: 280px;
-            position: relative;
-        }
-
-        .search-input {
-            width: 100%;
-            padding: 18px 24px 18px 54px;
-            font-size: 1.1rem;
-            font-family: 'DM Sans', sans-serif;
-            border: 2px solid var(--border);
-            border-radius: 16px;
-            background: var(--secondary);
-            color: var(--text);
-            transition: all 0.3s ease;
-        }
-
-        .search-input:focus {
-            outline: none;
-            border-color: var(--accent);
-            box-shadow: 0 0 30px var(--accent-glow);
-        }
-
-        .search-input::placeholder {
-            color: var(--text-muted);
-        }
-
-        .search-icon {
-            position: absolute;
-            left: 20px;
-            top: 50%;
-            transform: translateY(-50%);
-            font-size: 1.3rem;
-            opacity: 0.5;
-        }
-
-        .search-btn {
-            padding: 18px 40px;
-            font-size: 1.1rem;
-            font-family: 'Bebas Neue', sans-serif;
-            letter-spacing: 2px;
-            border: none;
-            border-radius: 16px;
-            background: linear-gradient(135deg, var(--accent) 0%, #D4941C 100%);
-            color: var(--primary);
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-weight: 600;
-        }
-
-        .search-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 40px var(--accent-glow);
-        }
-
-        .search-btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .quick-filters {
-            display: flex;
-            gap: 10px;
-            margin-top: 20px;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-
-        .filter-chip {
-            padding: 10px 20px;
-            background: var(--secondary);
-            border: 1px solid var(--border);
-            border-radius: 30px;
-            color: var(--text-muted);
-            font-size: 0.9rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .filter-chip:hover {
-            border-color: var(--accent);
-            color: var(--accent);
-        }
-
-        .filter-chip.featured-chip {
-            border-color: var(--accent);
-            color: var(--accent);
-        }
-
-        .loading {
-            text-align: center;
-            padding: 60px;
-        }
-
-        .spinner {
-            width: 50px;
-            height: 50px;
-            border: 3px solid var(--border);
-            border-top-color: var(--accent);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 20px;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        .loading-status {
-            color: var(--text-muted);
-            font-size: 0.95rem;
-            margin-top: 15px;
-        }
-
-        .results-section {
-            margin-top: 30px;
-        }
-
-        .results-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 24px;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-
-        .results-count {
-            font-size: 1.1rem;
-            color: var(--text-muted);
-        }
-
-        .results-count span {
-            color: var(--accent);
-            font-weight: 700;
-        }
-
-        .results-updated {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-        }
-
-        .match-card {
-            background: var(--card-bg);
-            border-radius: 20px;
-            padding: 28px;
-            margin-bottom: 24px;
-            border: 1px solid var(--border);
-            transition: all 0.3s ease;
-            animation: fadeInUp 0.5s ease forwards;
-        }
-
-        .match-card:hover {
-            transform: translateY(-4px);
-            border-color: var(--accent);
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-        }
-
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .match-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
-
-        .match-teams {
-            font-family: 'Bebas Neue', sans-serif;
-            font-size: 1.8rem;
-            letter-spacing: 1px;
-        }
-
-        .match-vs {
-            color: var(--accent);
-            margin: 0 12px;
-            font-size: 1.4rem;
-        }
-
-        .match-meta {
-            text-align: right;
-        }
-
-        .match-league {
-            color: var(--accent);
-            font-size: 0.85rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .match-time {
-            color: var(--text-muted);
-            font-size: 0.9rem;
-            margin-top: 4px;
-        }
-
-        .top-tag {
-            display: inline-block;
-            padding: 3px 10px;
-            margin-left: 10px;
-            border-radius: 12px;
-            background: rgba(224, 165, 38, 0.15);
-            border: 1px solid rgba(224, 165, 38, 0.4);
-            color: var(--accent);
-            font-family: 'DM Sans', sans-serif;
-            font-size: 0.7rem;
-            font-weight: 700;
-            letter-spacing: 1px;
-            vertical-align: middle;
-        }
-
-        .odds-grid {
-            display: grid;
-            gap: 12px;
-        }
-
-        .bookmaker-row {
-            display: grid;
-            grid-template-columns: 200px repeat(3, 1fr) auto;
-            gap: 12px;
-            align-items: center;
-            padding: 16px 20px;
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 12px;
-            transition: all 0.3s ease;
-        }
-
-        .bookmaker-row:hover {
-            background: rgba(0, 0, 0, 0.3);
-        }
-
-        .bookmaker-row.featured {
-            background: rgba(255, 255, 255, 0.05);
-        }
-
-        .bookmaker-info {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .bookmaker-logo {
-            width: 40px;
-            height: 40px;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.85rem;
-            font-weight: 700;
-            overflow: hidden;
-            color: #000;
-            flex-shrink: 0;
-        }
-
-        .bookmaker-logo img {
-            width: 32px;
-            height: 32px;
-            object-fit: contain;
-            border-radius: 4px;
-        }
-
-        .bookmaker-logo span {
-            color: #000;
-            font-weight: 700;
-            font-size: 0.85rem;
-        }
-
-        .bookmaker-name {
-            font-weight: 600;
-            font-size: 1rem;
-        }
-
-        .odds-cell {
-            text-align: center;
-        }
-
-        .odds-label {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            margin-bottom: 4px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .odds-value {
-            font-family: 'Bebas Neue', sans-serif;
-            font-size: 1.6rem;
-            color: var(--text);
-            padding: 8px 16px;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 8px;
-            display: inline-block;
-            min-width: 70px;
-            transition: all 0.2s ease;
-        }
-
-        .odds-value:hover {
-            background: var(--accent);
-            color: var(--primary);
-        }
-
-        .odds-value.best {
-            background: rgba(224, 165, 38, 0.18);
-            color: var(--accent);
-        }
-
-        .visit-btn {
-            padding: 10px 20px;
-            font-size: 0.85rem;
-            font-family: 'DM Sans', sans-serif;
-            font-weight: 600;
-            border: none;
-            border-radius: 8px;
-            background: var(--accent);
-            color: var(--primary);
-            cursor: pointer;
-            transition: all 0.2s ease;
-            text-decoration: none;
-            white-space: nowrap;
-        }
-
-        .visit-btn:hover {
-            background: #FFF;
-            transform: scale(1.05);
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 80px 20px;
-        }
-
-        .empty-icon {
-            font-size: 4rem;
-            margin-bottom: 20px;
-            opacity: 0.5;
-        }
-
-        .empty-title {
-            font-family: 'Bebas Neue', sans-serif;
-            font-size: 2rem;
-            letter-spacing: 2px;
-            margin-bottom: 10px;
-        }
-
-        .empty-text {
-            color: var(--text-muted);
-            font-size: 1.1rem;
-        }
-
-        .error-state {
-            text-align: center;
-            padding: 40px;
-            background: rgba(255, 71, 87, 0.1);
-            border: 1px solid rgba(255, 71, 87, 0.3);
-            border-radius: 16px;
-            margin: 20px 0;
-        }
-
-        .error-text {
-            color: #FF4757;
-            font-size: 1rem;
-        }
-
-        footer {
-            text-align: center;
-            padding: 40px 20px;
-            margin-top: 60px;
-            border-top: 1px solid var(--border);
-            color: var(--text-muted);
-            font-size: 0.85rem;
-        }
-
-        @media (max-width: 900px) {
-            .bookmaker-row {
-                grid-template-columns: 1fr;
-                gap: 16px;
-                text-align: center;
-            }
-            .bookmaker-info {
-                justify-content: center;
-                flex-wrap: wrap;
-            }
-            .odds-cell {
-                display: inline-block;
-                margin: 0 8px;
-            }
-            .match-meta {
-                text-align: left;
-            }
-            .visit-btn {
-                width: 100%;
-                padding: 14px 20px;
-            }
-        }
-
-        /* Selectable match rows (search results) + the odds panel they reveal */
-        .match-select {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            width: 100%;
-            padding: 0;
-            background: none;
-            border: none;
-            color: var(--text);
-            font-family: inherit;
-            text-align: left;
-            cursor: pointer;
-        }
-
-        .match-select .match-header {
-            flex: 1;
-            margin-bottom: 0;
-        }
-
-        .select-chev {
-            color: var(--accent);
-            font-size: 1.1rem;
-            flex-shrink: 0;
-        }
-
-        .match-odds {
-            margin-top: 22px;
-        }
-
-        .compare-caption {
-            margin: 20px 0 10px;
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .comparison-rows {
-            display: grid;
-            gap: 12px;
-            margin-top: 12px;
-        }
-
-        .comparison-rows .bookmaker-row {
-            animation: fadeInUp 0.35s ease forwards;
-        }
-
-        .compare-loading {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            padding: 20px;
-            color: var(--text-muted);
-            font-size: 0.9rem;
-        }
-
-        .spinner.small {
-            width: 22px;
-            height: 22px;
-            border-width: 2px;
-            margin: 0;
-        }
-
-        @media (max-width: 768px) {
-            .logo {
-                font-size: 2.5rem;
-            }
-            .match-teams {
-                font-size: 1.4rem;
-            }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Best Betting Odds Zambia | Live Football Odds Comparison</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@500;600;700&family=Libre+Franklin:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: oklch(0.977 0.006 85); --paper-2: oklch(0.945 0.008 80); --paper-3: oklch(0.915 0.01 78);
+    --ink: oklch(0.24 0.02 40); --muted: oklch(0.46 0.02 40); --faint: oklch(0.6 0.015 45);
+    --line: oklch(0.85 0.012 65); --line-strong: oklch(0.4 0.02 45);
+    --claret: oklch(0.44 0.15 16); --claret-2: oklch(0.36 0.14 16); --gold: oklch(0.72 0.13 75);
+    --font-display: 'Zilla Slab', Georgia, serif; --font-body: 'Libre Franklin', system-ui, sans-serif;
+    --sp-2: 8px; --sp-3: 12px; --sp-4: 16px; --sp-5: 24px; --sp-6: 32px; --sp-7: 48px; --sp-8: 64px;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { font-family: var(--font-body); background: var(--paper); color: var(--ink); -webkit-font-smoothing: antialiased; line-height: 1.55; }
+  .wrap { max-width: 1200px; margin: 0 auto; padding: 0 var(--sp-5); }
+  a { color: inherit; text-decoration: none; }
+  button { font: inherit; cursor: pointer; }
+  .tnum { font-variant-numeric: tabular-nums; }
+
+  /* masthead */
+  .strapline { background: var(--ink); color: var(--paper); font-size: 0.76rem; }
+  .strapline .wrap { display: flex; justify-content: space-between; align-items: center; height: 34px; letter-spacing: 0.02em; }
+  .strapline b { color: var(--gold); font-weight: 700; }
+  .masthead { border-bottom: 2px solid var(--line-strong); }
+  .masthead .wrap { display: flex; align-items: center; gap: var(--sp-5); padding: var(--sp-4) var(--sp-5); }
+  .wordmark { font-family: var(--font-display); font-weight: 700; font-size: clamp(1.5rem, 3.4vw, 2.1rem); letter-spacing: -0.01em; line-height: 1; }
+  .wordmark span { color: var(--claret); }
+  .edition { margin-left: auto; text-align: right; }
+  .edition .d { font-family: var(--font-display); font-weight: 600; font-size: 0.95rem; }
+  .edition .t { font-size: 0.74rem; color: var(--faint); text-transform: uppercase; letter-spacing: 0.1em; }
+
+  /* league rail (nav) */
+  nav.leagues { border-bottom: 1px solid var(--line); background: var(--paper); position: sticky; top: 0; z-index: 40; }
+  nav.leagues .wrap { display: flex; gap: 4px; overflow-x: auto; padding-top: 8px; padding-bottom: 8px; scrollbar-width: none; }
+  nav.leagues .wrap::-webkit-scrollbar { display: none; }
+  .lg-btn { display: flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 999px; border: 1px solid transparent; color: var(--muted); font-weight: 600; font-size: 0.88rem; white-space: nowrap; background: none; transition: background .15s, color .15s, border-color .15s; }
+  .lg-btn img { height: 20px; width: 20px; object-fit: contain; }
+  .lg-btn:hover { background: var(--paper-2); color: var(--ink); }
+  .lg-btn.active { background: var(--claret); color: var(--paper); border-color: var(--claret); }
+  .lg-btn.active img { filter: brightness(0) invert(1); }
+
+  /* hero search */
+  .hero-search { padding: var(--sp-8) 0 var(--sp-7); text-align: center; border-bottom: 1px solid var(--line);
+    background: radial-gradient(60% 120% at 50% -20%, color-mix(in oklab, var(--claret) 7%, transparent), transparent 70%); }
+  .hs-title { font-family: var(--font-display); font-weight: 700; font-size: clamp(2rem, 4.6vw, 3.1rem); line-height: 1.04; letter-spacing: -0.015em; max-width: 20ch; margin: 0 auto; }
+  .hs-title span { color: var(--claret); }
+  .hs-sub { color: var(--muted); font-size: 1.05rem; max-width: 56ch; margin: var(--sp-4) auto var(--sp-6); }
+  .hs-form { display: flex; gap: 10px; max-width: 660px; margin: 0 auto; }
+  .hs-field { flex: 1; display: flex; align-items: center; gap: 12px; border: 1.5px solid var(--line-strong); border-radius: 6px; padding: 15px 20px; background: var(--paper); transition: border-color .15s, box-shadow .15s; }
+  .hs-field:focus-within { border-color: var(--claret); box-shadow: 0 0 0 3px color-mix(in oklab, var(--claret) 14%, transparent); }
+  .hs-field svg { color: var(--muted); flex-shrink: 0; }
+  .hs-field input { border: none; background: none; font-family: inherit; font-size: 1.05rem; width: 100%; outline: none; color: var(--ink); }
+  .hs-field input::placeholder { color: var(--faint); }
+  .hs-form button { background: var(--claret); color: var(--paper); font-family: var(--font-display); font-weight: 700; padding: 0 30px; border: none; border-radius: 6px; font-size: 1.05rem; transition: background .15s; }
+  .hs-form button:hover { background: var(--claret-2); }
+
+  /* lead + matchday poster */
+  .lead { padding: var(--sp-7) 0 var(--sp-6); display: grid; grid-template-columns: 1.5fr 1fr; gap: var(--sp-6); align-items: start; }
+  .kicker { font-weight: 700; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--claret); margin-bottom: var(--sp-3); display: inline-block; }
+  .photo { position: relative; border-radius: 6px; overflow: hidden; aspect-ratio: 16/9; margin-bottom: var(--sp-4);
+    background: linear-gradient(180deg, oklch(0.18 0.05 16 / 0.35) 0%, transparent 35%, oklch(0.16 0.05 16 / 0.92) 100%), linear-gradient(150deg, var(--claret-2), oklch(0.5 0.13 18));
+    background-size: cover; background-position: center;
+    display: flex; align-items: flex-end; padding: var(--sp-5); }
+  .poster-league { position: absolute; top: 16px; right: 16px; height: 46px; width: auto; z-index: 3; filter: drop-shadow(0 2px 8px rgba(0,0,0,.55)); background: rgba(255,255,255,.9); border-radius: 8px; padding: 5px; }
+  .poster-combo { position: absolute; left: 50%; top: 44%; transform: translate(-50%,-50%); max-height: 66%; max-width: 82%; object-fit: contain; z-index: 1; filter: drop-shadow(0 8px 22px rgba(0,0,0,.5)); }
+  .poster-vs { position: absolute; left: 0; right: 0; top: 8px; bottom: 78px; display: flex; align-items: center; justify-content: center; gap: clamp(16px, 5vw, 40px); z-index: 1; }
+  .poster-vs img { height: clamp(88px, 15vw, 132px); width: auto; object-fit: contain; filter: drop-shadow(0 8px 22px rgba(0,0,0,.6)); }
+  .poster-vs .vsx { font-family: var(--font-display); color: #fff; font-size: 1.5rem; font-weight: 700; opacity: .85; text-shadow: 0 2px 8px rgba(0,0,0,.7); }
+  .photo .ribbon { position: absolute; top: 16px; left: 0; background: var(--gold); color: var(--ink); font-weight: 800; font-size: 0.78rem; letter-spacing: 0.04em; text-transform: uppercase; padding: 7px 16px 7px 14px; z-index: 3; }
+  .photo .cap { position: relative; color: var(--paper); z-index: 2; }
+  .photo .cap .lg { font-size: 0.76rem; text-transform: uppercase; letter-spacing: 0.1em; opacity: 0.9; font-weight: 600; text-shadow: 0 1px 4px rgba(0,0,0,.6); }
+  .photo .cap h2 { font-family: var(--font-display); font-weight: 700; font-size: clamp(1.7rem, 3.2vw, 2.7rem); line-height: 1.05; margin-top: 4px; text-shadow: 0 2px 10px rgba(0,0,0,.6); }
+  .feature .dek { font-size: 1.02rem; color: var(--muted); max-width: 62ch; }
+  .feature .byline { font-size: 0.8rem; color: var(--faint); margin-top: var(--sp-4); padding-top: var(--sp-3); border-top: 1px solid var(--line); text-transform: uppercase; letter-spacing: 0.06em; }
+
+  /* odds box + unified bookmaker list */
+  .oddsbox { border: 1px solid var(--line); border-top: 4px solid var(--claret); border-radius: 2px; background: var(--paper); padding: var(--sp-5); position: sticky; top: 66px; }
+  .oddsbox h3 { font-family: var(--font-display); font-weight: 700; font-size: 1.3rem; margin-bottom: 2px; }
+  .oddsbox .sub { font-size: 0.82rem; color: var(--faint); margin-bottom: var(--sp-4); }
+  .betnow { display: block; text-align: center; margin-top: var(--sp-5); background: var(--claret); color: var(--paper); font-weight: 700; font-size: 0.98rem; padding: 13px; border-radius: 4px; transition: background .15s; }
+  .betnow:hover { background: var(--claret-2); }
+  .muted-note { color: var(--faint); font-size: 0.86rem; }
+  .oddslist { margin-top: 2px; }
+  .ol-head, .olrow { display: grid; grid-template-columns: minmax(0,1fr) repeat(3, 46px) 44px; gap: 8px; align-items: center; }
+  .ol-head { padding-bottom: 8px; }
+  .ol-head span { text-align: center; font-size: 0.64rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--faint); font-weight: 700; }
+  .ol-head span:first-child { text-align: left; }
+  .olrow { padding: 10px 0; border-top: 1px solid var(--line); }
+  .olrow.bwana { border-top: none; background: color-mix(in oklab, var(--claret) 7%, transparent); border-radius: 5px; padding: 11px 10px; margin: 2px -10px; }
+  .ol-book { display: flex; align-items: center; gap: 10px; min-width: 0; }
+  .ol-logo { position: relative; width: 30px; height: 30px; border-radius: 7px; overflow: hidden; flex-shrink: 0; display: grid; place-items: center; }
+  .ol-logo b { color: #fff; font-family: var(--font-display); font-weight: 700; font-size: 0.72rem; text-shadow: 0 1px 2px rgba(0,0,0,.45); }
+  .ol-logo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .bw-lockup { display: inline-flex; align-items: center; background: #0a0a0a; border-radius: 5px; padding: 6px 10px; }
+  .bw-lockup img { height: 17px; width: auto; display: block; }
+  .ol-name { font-weight: 700; font-size: 0.95rem; line-height: 1.1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+  .ol-name em { font-style: normal; display: block; font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--claret); font-weight: 800; }
+  .ol-odd { text-align: center; font-family: var(--font-display); font-weight: 700; font-size: 1.2rem; font-variant-numeric: tabular-nums; }
+  .olrow.bwana .ol-odd { color: var(--claret); }
+  .ol-cta { text-align: center; font-weight: 700; font-size: 0.9rem; color: var(--faint); padding: 4px 0; }
+  .ol-cta:hover { color: var(--claret); }
+  .ol-cta.bet { background: var(--claret); color: var(--paper); border-radius: 4px; font-family: var(--font-display); font-size: 0.85rem; padding: 8px 0; }
+  .ol-cta.bet:hover { background: var(--claret-2); color: var(--paper); }
+
+  /* fixtures table */
+  .section-title { display: flex; align-items: baseline; gap: var(--sp-4); border-bottom: 2px solid var(--line-strong); padding-bottom: var(--sp-3); margin-bottom: var(--sp-4); }
+  .section-title h2 { font-family: var(--font-display); font-weight: 700; font-size: 1.6rem; }
+  .section-title .more { margin-left: auto; font-size: 0.85rem; font-weight: 700; color: var(--claret); }
+  .fixtures { padding-bottom: var(--sp-7); scroll-margin-top: 64px; }
+  table.fx { width: 100%; border-collapse: collapse; }
+  table.fx thead th { text-align: left; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--faint); font-weight: 700; padding: 10px 12px; border-bottom: 1px solid var(--line); }
+  table.fx thead th.num { text-align: center; }
+  table.fx tbody tr.fxrow { border-bottom: 1px solid var(--line); transition: background .12s; cursor: pointer; }
+  table.fx tbody tr.fxrow:hover, table.fx tbody tr.fxrow.open { background: var(--paper-2); }
+  table.fx td { padding: 12px; vertical-align: middle; }
+  .fx .lgc { display: flex; align-items: center; gap: 8px; }
+  .fx .lgc img { height: 22px; width: 22px; object-fit: contain; flex-shrink: 0; }
+  .fx .lgc span { font-size: 0.74rem; color: var(--faint); font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
+  .fx .match { font-family: var(--font-display); font-weight: 600; font-size: 1.12rem; display: flex; align-items: center; gap: 8px; }
+  .fx .match .v { color: var(--faint); font-weight: 500; padding: 0 6px; }
+  .fx .match .chev { color: var(--claret); font-size: 0.8rem; transition: transform .2s; }
+  tr.fxrow.open .match .chev { transform: rotate(90deg); }
+  .fx .ko { font-weight: 600; color: var(--muted); font-size: 0.9rem; white-space: nowrap; }
+  .fx .odd { text-align: center; font-family: var(--font-display); font-weight: 700; font-size: 1.15rem; width: 62px; }
+  .fx .odd.b { color: var(--claret); }
+  tr.detail td { padding: 0; border-bottom: 1px solid var(--line); background: var(--paper-2); }
+  .dp { padding: var(--sp-4) 12px var(--sp-5); }
+  .loadrow td { padding: var(--sp-6) 12px; text-align: center; color: var(--faint); }
+  .spinner { width: 18px; height: 18px; border: 2px solid var(--line); border-top-color: var(--claret); border-radius: 50%; animation: spin .8s linear infinite; display: inline-block; vertical-align: -3px; margin-right: 8px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* rivalry radar */
+  .rivalry { padding: var(--sp-7) 0; background: var(--paper-2); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+  .riv-track { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(240px, 1fr); gap: var(--sp-4); overflow-x: auto; padding-bottom: 6px; scrollbar-width: thin; }
+  .riv-tile { text-align: left; background: var(--paper); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; transition: transform .18s, box-shadow .2s, border-color .2s; display: flex; flex-direction: column; }
+  .riv-tile:hover { transform: translateY(-3px); border-color: var(--claret); box-shadow: 0 14px 30px oklch(0.4 0.1 20 / 0.12); }
+  .riv-pic { aspect-ratio: 16/9; background: #fff center/contain no-repeat; border-bottom: 1px solid var(--line); }
+  .riv-body { padding: var(--sp-4); }
+  .riv-name { font-family: var(--font-display); font-weight: 700; font-size: 1.15rem; }
+  .riv-sub { font-size: 0.82rem; color: var(--faint); margin-top: 2px; }
+  .riv-cta { display: inline-block; margin-top: 10px; font-size: 0.8rem; font-weight: 700; color: var(--claret); }
+
+  /* local Zambia */
+  .local { position: relative; color: var(--paper); overflow: hidden; }
+  .local .bg { position: absolute; inset: 0; background: linear-gradient(120deg, oklch(0.2 0.03 150 / 0.95) 0%, oklch(0.2 0.03 150 / 0.7) 55%, oklch(0.2 0.03 150 / 0.4) 100%), url('assets/stadiums/soccer-city.jpg') center/cover; z-index: 0; }
+  .local .wrap { position: relative; z-index: 1; padding: var(--sp-8) var(--sp-5); display: grid; grid-template-columns: 1.4fr 1fr; gap: var(--sp-6); align-items: center; }
+  .local .badge { height: 64px; width: auto; margin-bottom: var(--sp-4); }
+  .local h2 { font-family: var(--font-display); font-weight: 700; font-size: clamp(1.8rem, 3.5vw, 2.6rem); line-height: 1.05; }
+  .local p { color: var(--paper-3); max-width: 46ch; margin-top: var(--sp-3); }
+  .local .lbtn { display: inline-block; margin-top: var(--sp-5); background: var(--gold); color: var(--ink); font-weight: 700; padding: 12px 22px; border-radius: 5px; }
+  .local .lbtn:hover { filter: brightness(1.06); }
+  .local .derby { background: #fff center/contain no-repeat; aspect-ratio: 16/10; border-radius: 8px; box-shadow: 0 16px 40px rgba(0,0,0,.4); }
+
+  /* how it works */
+  .more-sec { padding: var(--sp-7) 0; }
+  .hcards { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--sp-5); }
+  .hcard .ph { aspect-ratio: 3/2; border-radius: 4px; margin-bottom: var(--sp-3); position: relative; overflow: hidden; }
+  .hcard .ph svg { position: absolute; inset: 0; opacity: 0.3; }
+  .hcard h3 { font-family: var(--font-display); font-weight: 700; font-size: 1.24rem; line-height: 1.12; }
+  .hcard .k { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--claret); margin-bottom: 5px; }
+  .hcard p { font-size: 0.9rem; color: var(--muted); margin-top: 6px; }
+
+  /* footer */
+  footer { background: var(--ink); color: var(--paper-2); padding: var(--sp-7) 0 var(--sp-6); }
+  .foot { display: flex; justify-content: space-between; gap: var(--sp-6); flex-wrap: wrap; padding-bottom: var(--sp-5); border-bottom: 1px solid oklch(0.4 0.02 40); }
+  .foot .fm { font-family: var(--font-display); font-weight: 700; font-size: 1.5rem; }
+  .foot .fm span { color: var(--gold); }
+  .foot-col h4 { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.09em; color: var(--faint); margin-bottom: 10px; }
+  .foot-col a { display: block; color: var(--paper-3); font-size: 0.88rem; padding: 3px 0; }
+  .rg { display: flex; align-items: center; gap: 14px; padding-top: var(--sp-5); font-size: 0.8rem; color: var(--faint); }
+  .age { border: 2px solid var(--gold); color: var(--gold); font-weight: 800; border-radius: 50%; width: 38px; height: 38px; display: grid; place-items: center; font-size: 0.82rem; flex-shrink: 0; }
+
+  @media (max-width: 900px) {
+    .lead { grid-template-columns: 1fr; }
+    .oddsbox { position: static; }
+    .hcards { grid-template-columns: 1fr; }
+    .hs-form { flex-direction: column; }
+    .hs-form button { padding: 14px; }
+    .edition { display: none; }
+    .local .wrap { grid-template-columns: 1fr; }
+  }
+</style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1 class="logo">ODDSZONE ZAMBIA</h1>
-            <p class="tagline">Live Football Odds &amp; Fixtures</p>
-            <div class="live-badge"><span class="live-dot"></span>LIVE ODDS</div>
-        </header>
+  <div class="strapline"><div class="wrap"><span>Zambia's independent football odds desk</span><span>We compare <b>6 bookmakers</b> live · updated every minute</span></div></div>
 
-        <section class="search-section">
-            <div class="search-container">
-                <div class="search-input-wrapper">
-                    <span class="search-icon">🔍</span>
-                    <input type="text" id="searchInput" class="search-input" placeholder="Search team or match (e.g., Arsenal vs Chelsea)">
-                </div>
-                <button id="searchBtn" class="search-btn">SEARCH</button>
-            </div>
-            <div class="quick-filters" id="quickFilters">
-                <span class="filter-chip featured-chip" id="topMatchesChip">🔥 Top Matches</span>
-            </div>
-        </section>
-
-        <section id="resultsSection" class="results-section">
-            <div class="empty-state">
-                <div class="empty-icon">⚽</div>
-                <h2 class="empty-title">LOADING TOP MATCHES…</h2>
-                <p class="empty-text">Or search a team to find its next fixtures</p>
-            </div>
-        </section>
-
-        <footer>
-            <p>Odds are provided live by the listed bookmakers and may change at any time. 18+ only. Bet responsibly — gambling can be addictive.</p>
-        </footer>
+  <header class="masthead">
+    <div class="wrap">
+      <div class="wordmark">Best Betting Odds <span>Zambia</span></div>
+      <div class="edition"><span class="d" id="editionDate">Today</span><span class="t">Zambia Edition</span></div>
     </div>
+  </header>
 
-    <script type="module">
-        import {
-            extract1x2, splitTeams,
-            buildIndex, matchCompetitors, beatenBooks
-        } from './lib/odds-match.mjs';
+  <nav class="leagues"><div class="wrap" id="leagueRail"></div></nav>
 
-        // ============================================
-        // CONFIGURATION
-        // ============================================
+  <section class="hero-search">
+    <div class="wrap">
+      <h1 class="hs-title">The best football betting odds in <span>Zambia</span></h1>
+      <p class="hs-sub">Search any team or match. We compare all six major Zambian bookmakers and put the top price first.</p>
+      <form class="hs-form" id="searchForm">
+        <label class="hs-field">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/><path d="m20 20-3-3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          <input id="searchInput" placeholder="Search a team or match — e.g. “Arsenal vs Chelsea”" autocomplete="off">
+        </label>
+        <button type="submit">Search</button>
+      </form>
+    </div>
+  </section>
 
-        const CONFIG = {
-            // BwanaBet's Altenar sportsbook feed (public GraphQL-over-multi endpoint,
-            // CORS-open, no auth). Same feed the bwanabet.co.zm site itself uses.
-            ALTENAR_API: 'https://api.bwanabet.co.zm/api/v2/multi',
-            SPORT_FOOTBALL: 501,
-            REQUEST_TIMEOUT_MS: 10000,
-            FEED_CACHE_TTL_MS: 60 * 1000,   // re-fetch feed pages after 60s so odds stay fresh
-            SEARCH_MAX_PAGES: 6,
-            PAGE_LIMIT: 100,
-            MAX_RESULTS: 8,
+  <main class="wrap">
+    <section class="lead">
+      <article class="feature" id="leadFeature">
+        <span class="kicker">Match of the evening</span>
+        <div class="photo"><div class="cap"><span class="lg">Loading…</span><h2>Finding tonight's best-priced match…</h2></div></div>
+        <p class="dek">Reading the live odds feed from every major Zambian bookmaker.</p>
+      </article>
+      <aside class="oddsbox" id="leadOdds">
+        <h3>Best odds</h3><p class="sub">Loading the live feed…</p>
+        <div><div class="muted-note"><span class="spinner"></span>Fetching odds…</div></div>
+      </aside>
+    </section>
 
-            // Competitor-odds proxy (Cloudflare Worker in /worker). Competitor feeds
-            // are CORS-locked, so the proxy fetches them server-side and re-serves
-            // with CORS. For local testing point this at the dev-server
-            // (http://localhost:8787).
-            PROXY_URL: 'https://oddszone-odds-proxy.oddszone.workers.dev',
-            PROXY_CACHE_TTL_MS: 45 * 1000
-        };
+    <section class="fixtures" id="fixtures">
+      <div class="section-title"><h2 id="fxTitle">Today's fixtures</h2><a class="more" href="#" id="fxMore">Best odds today →</a></div>
+      <table class="fx">
+        <thead><tr><th>League</th><th>Match</th><th>Kickoff</th><th class="num">1</th><th class="num">X</th><th class="num">2</th></tr></thead>
+        <tbody id="fxBody"><tr class="loadrow"><td colspan="6"><span class="spinner"></span>Loading top matches…</td></tr></tbody>
+      </table>
+    </section>
+  </main>
 
-        // Bookmaker display metadata. BwanaBet is always first and featured; the
-        // rest are shown only when the proxy actually has that bookmaker's real odds
-        // for the fixture. `key` matches the proxy's per-book field name.
-        const BWANABET = {
-            key: 'bwanabet',
-            name: 'BwanaBet',
-            color: '#FFD700',
-            logo: 'https://www.google.com/s2/favicons?domain=bwanabet.co.zm&sz=64',
-            logoText: 'BW',
-            url: 'https://bwanabet.co.zm/'
-        };
+  <section class="rivalry"><div class="wrap">
+    <div class="section-title"><h2>Biggest rivalries</h2><span class="more">Best price when they're live</span></div>
+    <div class="riv-track" id="rivTrack"></div>
+  </div></section>
 
-        const COMPETITORS = [
-            { key: 'sportybet', name: 'SportyBet', color: '#E31E24', logo: 'https://www.google.com/s2/favicons?domain=sportybet.com&sz=64', logoText: 'SB', url: 'https://www.sportybet.com/zm/' },
-            { key: 'onexbet', name: '1xBet', color: '#1A5CFF', logo: 'https://www.google.com/s2/favicons?domain=1xbet.com.zm&sz=64', logoText: '1X', url: 'https://1xbet.com.zm/' },
-            { key: 'betway', name: 'Betway', color: '#00A651', logo: 'https://www.google.com/s2/favicons?domain=betway.co.zm&sz=64', logoText: 'BW', url: 'https://www.betway.co.zm/' },
-            { key: 'betpawa', name: 'BetPawa', color: '#9CE800', logo: 'https://www.google.com/s2/favicons?domain=betpawa.co.zm&sz=64', logoText: 'BP', url: 'https://www.betpawa.co.zm/' },
-            { key: 'bolabet', name: 'BolaBet', color: '#F5A623', logo: 'https://www.google.com/s2/favicons?domain=bolabet.co.zm&sz=64', logoText: 'BL', url: 'https://www.bolabet.co.zm/' }
-        ];
+  <section class="local">
+    <div class="bg"></div>
+    <div class="wrap">
+      <div>
+        <img class="badge" src="assets/leagues/zambia-super-league.jpg" alt="Zambia Super League">
+        <h2>Zambian football, best local odds</h2>
+        <p>From the Super League to the derbies — compare every Zambian book and back the top price on the games closest to home.</p>
+        <a class="lbtn" href="#" id="localCta">Find Zambian fixtures →</a>
+      </div>
+      <div class="derby" style="background-image:url('assets/matchups/zesco-power.jpg')" role="img" aria-label="Zesco United vs Power Dynamos"></div>
+    </div>
+  </section>
 
-        // ============================================
-        // DOM ELEMENTS
-        // ============================================
+  <section class="more-sec"><div class="wrap">
+    <div class="section-title"><h2>How it works</h2></div>
+    <div class="hcards">
+      <a class="hcard" href="#"><div class="ph" style="background:linear-gradient(140deg,var(--claret-2),oklch(0.55 0.12 30))"><svg viewBox="0 0 300 200" fill="none" stroke="white" stroke-width="1.5"><circle cx="150" cy="100" r="42"/><path d="M0 150 L300 150"/></svg></div><span class="k">Real prices</span><h3>We read the live feed from all six Zambian books</h3><p>No invented prices — only each book's own real coefficients.</p></a>
+      <a class="hcard" href="#"><div class="ph" style="background:linear-gradient(140deg,oklch(0.4 0.1 250),oklch(0.55 0.12 220))"><svg viewBox="0 0 300 200" fill="none" stroke="white" stroke-width="1.5"><path d="M40 40 L260 40 L260 160 L40 160Z"/><path d="M150 40 L150 160"/></svg></div><span class="k">Top price first</span><h3>Search any team and see BwanaBet against the rest</h3><p>The featured price up top, every other book listed below.</p></a>
+      <a class="hcard" href="#"><div class="ph" style="background:linear-gradient(140deg,oklch(0.45 0.11 140),oklch(0.6 0.13 120))"><svg viewBox="0 0 300 200" fill="none" stroke="white" stroke-width="1.5"><path d="M60 140 L120 90 L170 120 L240 60"/><path d="M0 170 L300 170"/></svg></div><span class="k">Live &amp; updated</span><h3>Odds refresh every minute across the coupon</h3><p>Prices move — we keep the comparison current.</p></a>
+    </div>
+  </div></section>
 
-        const $ = id => document.getElementById(id);
-        const elements = {
-            searchInput: $('searchInput'),
-            searchBtn: $('searchBtn'),
-            resultsSection: $('resultsSection')
-        };
+  <footer><div class="wrap">
+    <div class="foot">
+      <div style="max-width:300px"><div class="fm">Best Betting Odds <span>Zambia</span></div><p style="color:var(--paper-3);font-size:0.9rem;margin-top:10px">Zambia's independent football odds desk. Real live prices, every major book, best payout up front.</p></div>
+      <div class="foot-col"><h4>Sections</h4><a href="#">Fixtures</a><a href="#">Best odds</a><a href="#">Rivalries</a><a href="#">Zambian football</a></div>
+      <div class="foot-col"><h4>Books</h4><a href="#">BwanaBet</a><a href="#">SportyBet</a><a href="#">1xBet</a><a href="#">BetPawa</a></div>
+      <div class="foot-col"><h4>Desk</h4><a href="#">How we compare</a><a href="#">Responsible gambling</a><a href="#">Contact</a></div>
+    </div>
+    <div class="rg"><span class="age">18+</span><span>Odds are provided live by the listed bookmakers and may change at any time. Bet responsibly — gambling can be addictive.</span></div>
+  </div></footer>
 
-        // ============================================
-        // ALTENAR CLIENT (browser port of the bot's lib/altenar-client.js)
-        // ============================================
+<script type="module">
+  import { extract1x2, splitTeams, buildIndex, matchCompetitors, beatenBooks } from './lib/odds-match.mjs';
 
-        async function multiQuery(query) {
-            const controller = new AbortController();
-            const timer = setTimeout(() => controller.abort(), CONFIG.REQUEST_TIMEOUT_MS);
-            try {
-                const res = await fetch(CONFIG.ALTENAR_API, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify([{ module: 'graphs', method: 'makeQuery', options: { query } }]),
-                    signal: controller.signal
-                });
-                if (!res.ok) throw new Error(`API error ${res.status}`);
-                const data = await res.json();
-                if (!Array.isArray(data) || !data[0]) throw new Error('Unexpected response shape');
-                if (data[0].error) throw new Error(data[0].message || 'Query failed');
-                return data[0].data;
-            } catch (err) {
-                if (err && err.name === 'AbortError') {
-                    throw new Error('BwanaBet feed timed out');
-                }
-                throw err;
-            } finally {
-                clearTimeout(timer);
-            }
-        }
+  const CONFIG = {
+    ALTENAR_API: 'https://api.bwanabet.co.zm/api/v2/multi', SPORT_FOOTBALL: 501, REQUEST_TIMEOUT_MS: 10000,
+    FEED_CACHE_TTL_MS: 60 * 1000, SEARCH_MAX_PAGES: 6, PAGE_LIMIT: 100, MAX_RESULTS: 8,
+    PROXY_URL: 'https://oddszone-odds-proxy.oddszone.workers.dev', PROXY_CACHE_TTL_MS: 45 * 1000
+  };
+  const BWANABET = { key: 'bwanabet', name: 'BwanaBet', url: 'https://bwanabet.co.zm/', color: '#c9a227', logoText: 'BW', logo: 'assets/logos/bwanabet.png' };
+  const COMPETITORS = [
+    { key: 'sportybet', name: 'SportyBet', url: 'https://www.sportybet.com/zm/', color: '#d0021b', logoText: 'SB', logo: 'assets/logos/sportybet.png' },
+    { key: 'onexbet', name: '1xBet', url: 'https://1xbet.com.zm/', color: '#1a5cff', logoText: '1X', logo: 'assets/logos/1xbet.jpg' },
+    { key: 'betway', name: 'Betway', url: 'https://www.betway.co.zm/', color: '#111', logoText: 'BY', logo: 'assets/logos/betway.png' },
+    { key: 'betpawa', name: 'BetPawa', url: 'https://www.betpawa.co.zm/', color: '#7cb400', logoText: 'BP', logo: 'assets/logos/betpawa.jpg' },
+    { key: 'bolabet', name: 'BolaBet', url: 'https://www.bolabet.co.zm/', color: '#111', logoText: 'BL', logo: 'assets/logos/bolabet.jpg' }
+  ];
+  const COMP_KEYS = COMPETITORS.map(c => c.key);
+  const COMPETITOR_BY_KEY = Object.fromEntries(COMPETITORS.map(c => [c.key, c]));
+  const $ = id => document.getElementById(id);
 
-        // Feed pages are cached briefly so repeated searches don't hammer the API,
-        // but expire fast enough that displayed odds track the live book.
-        const feedPageCache = new Map(); // page -> { at, events }
+  /* ---- image asset registries ---- */
+  const LEAGUES = [
+    { name: 'Champions League', re: /champions league|uefa|europa|conference/i, img: 'assets/leagues/ucl.png' },
+    { name: 'Premier League', re: /premier league|england/i, img: 'assets/leagues/epl.jpg' },
+    { name: 'La Liga', re: /la ?liga|spain/i, img: 'assets/leagues/laliga.jpg' },
+    { name: 'Bundesliga', re: /bundesliga|germany/i, img: 'assets/leagues/bundesliga.png' },
+    { name: 'Ligue 1', re: /ligue ?1|france/i, img: 'assets/leagues/ligue1.png' },
+    { name: 'Zambia Super League', re: /zambia|super league/i, img: 'assets/leagues/zambia-super-league.jpg' }
+  ];
+  function leagueInfo(name) { const n = String(name || ''); return LEAGUES.find(l => l.re.test(n)) || null; }
+  const TEAM_CRESTS = [
+    ['real madrid', 'assets/teams/real-madrid.jpg'], ['barcelona', 'assets/teams/barcelona.png'],
+    ['atletico', 'assets/teams/atletico.jpg'], ['chelsea', 'assets/teams/chelsea.jpg'],
+    ['liverpool', 'assets/teams/liverpool.jpg'], ['juventus', 'assets/teams/juventus.jpg'],
+    ['ac milan', 'assets/teams/ac-milan.png'], ['bayern', 'assets/teams/bayern.jpg'],
+    ['psg', 'assets/teams/psg.jpg'], ['paris saint', 'assets/teams/psg.jpg']
+  ];
+  function crestFor(team) { const n = String(team || '').toLowerCase(); for (const [k, v] of TEAM_CRESTS) if (n.includes(k)) return v; return null; }
+  const MATCHUPS = [
+    { a: ['real madrid'], b: ['barcelona'], img: 'assets/matchups/el-clasico.jpg', title: 'El Clásico', sub: 'Real Madrid v Barcelona', q: 'Real Madrid vs Barcelona' },
+    { a: ['manchester united', 'man united', 'man utd'], b: ['manchester city', 'man city'], img: 'assets/matchups/manchester-derby.jpg', title: 'Manchester Derby', sub: 'Man United v Man City', q: 'Manchester United vs Manchester City' },
+    { a: ['manchester united', 'man united', 'man utd'], b: ['chelsea'], img: 'assets/matchups/united-chelsea.jpg', title: 'United v Chelsea', sub: 'Man United v Chelsea', q: 'Manchester United vs Chelsea' },
+    { a: ['ac milan'], b: ['inter'], img: 'assets/matchups/milan-derby.jpg', title: 'Milan Derby', sub: 'AC Milan v Inter', q: 'AC Milan vs Inter' },
+    { a: ['dortmund'], b: ['bayern'], img: 'assets/matchups/der-klassiker.jpg', title: 'Der Klassiker', sub: 'Dortmund v Bayern', q: 'Dortmund vs Bayern' },
+    { a: ['zesco'], b: ['power dynamos'], img: 'assets/matchups/zesco-power.jpg', title: 'Zesco v Power Dynamos', sub: 'Zambia Super League', q: 'Zesco vs Power Dynamos' }
+  ];
+  const hit = (name, aliases) => aliases.some(a => name.includes(a));
+  function matchupFor(home, away) {
+    const h = String(home).toLowerCase(), a = String(away).toLowerCase();
+    return MATCHUPS.find(m => (hit(h, m.a) && hit(a, m.b)) || (hit(a, m.a) && hit(h, m.b))) || null;
+  }
+  const STADIUMS = ['allianz', 'soccer-city', 'lusail', 'wembley', 'camp-nou'];
+  function pickStadium(seed) { let h = 0; for (const c of String(seed || '')) h = (h * 31 + c.charCodeAt(0)) >>> 0; return `assets/stadiums/${STADIUMS[h % STADIUMS.length]}.jpg`; }
 
-        async function getMainEvents(page) {
-            const cached = feedPageCache.get(page);
-            if (cached && Date.now() - cached.at < CONFIG.FEED_CACHE_TTL_MS) {
-                return cached.events;
-            }
-            const query = `mutation {
-                mainEventList(mainEventListInput: {
-                    topEvents: false
-                    page: ${page}
-                    sportId: ${CONFIG.SPORT_FOOTBALL}
-                    limit: ${CONFIG.PAGE_LIMIT}
-                }) {
-                    sportName
-                    pageCount
-                    competitions {
-                        competitionId
-                        country
-                        competitionName
-                        events {
-                            eventId
-                            eventName
-                            eventStartTime
-                            top
-                            pricesCount
-                        }
-                    }
-                }
-            }`;
-            const data = await multiQuery(query);
-            const sport = data.mainEventList && data.mainEventList[0];
-            const events = [];
-            if (sport) {
-                for (const comp of sport.competitions || []) {
-                    for (const e of comp.events || []) {
-                        events.push({
-                            eventId: e.eventId,
-                            eventName: e.eventName,
-                            eventStartTime: e.eventStartTime,
-                            top: e.top === true,
-                            competitionName: comp.competitionName,
-                            country: comp.country,
-                            // The feed returns full market collections inline even though
-                            // the query doesn't ask for them — use them when present so we
-                            // don't need a second request per event.
-                            collections: e.collections || null
-                        });
-                    }
-                }
-            }
-            feedPageCache.set(page, { at: Date.now(), events });
-            return events;
-        }
+  /* ---- Altenar client ---- */
+  async function multiQuery(query) {
+    const c = new AbortController(); const t = setTimeout(() => c.abort(), CONFIG.REQUEST_TIMEOUT_MS);
+    try {
+      const res = await fetch(CONFIG.ALTENAR_API, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify([{ module: 'graphs', method: 'makeQuery', options: { query } }]), signal: c.signal });
+      if (!res.ok) throw new Error('API ' + res.status);
+      const data = await res.json();
+      if (!Array.isArray(data) || !data[0] || data[0].error) throw new Error('bad response');
+      return data[0].data;
+    } finally { clearTimeout(t); }
+  }
+  const feedPageCache = new Map();
+  async function getMainEvents(page) {
+    const cached = feedPageCache.get(page);
+    if (cached && Date.now() - cached.at < CONFIG.FEED_CACHE_TTL_MS) return cached.events;
+    const q = `mutation { mainEventList(mainEventListInput: { topEvents: false page: ${page} sportId: ${CONFIG.SPORT_FOOTBALL} limit: ${CONFIG.PAGE_LIMIT} }) { competitions { competitionId country competitionName events { eventId eventName eventStartTime top pricesCount } } } }`;
+    const data = await multiQuery(q); const sport = data.mainEventList && data.mainEventList[0]; const events = [];
+    if (sport) for (const comp of sport.competitions || []) for (const e of comp.events || [])
+      events.push({ eventId: e.eventId, eventName: e.eventName, eventStartTime: e.eventStartTime, top: e.top === true, competitionName: comp.competitionName, country: comp.country, collections: e.collections || null });
+    feedPageCache.set(page, { at: Date.now(), events }); return events;
+  }
+  async function getEventCollections(eventId) {
+    const q = `mutation { eventList(eventListInput: { eventId: ${Number(eventId)} }) { sportId competitions { competitionId country competitionName events { eventId eventName eventStartTime collections { collectionId collectionName markets { marketId marketName marketCode prices { referenceId priceName handicapValue rate blocked } } } } } } }`;
+    const data = await multiQuery(q); return data.eventList?.[0]?.competitions?.[0]?.events?.[0]?.collections || null;
+  }
+  async function findEventsByTeams(rawQuery) {
+    const raw = String(rawQuery || '').toLowerCase().trim(); if (!raw) return [];
+    const parts = raw.split(/\s+(?:vs?\.?|-)\s+/).map(s => s.trim()).filter(Boolean);
+    const tokens = parts.length >= 2 ? parts.slice(0, 2) : [raw]; const enough = tokens.length >= 2 ? 2 : CONFIG.MAX_RESULTS;
+    const matches = [], seen = new Set();
+    for (let page = 1; page <= CONFIG.SEARCH_MAX_PAGES; page++) {
+      let events; try { events = await getMainEvents(page); } catch (e) { break; } if (!events.length) break;
+      for (const e of events) { const name = String(e.eventName).toLowerCase(); const ok = tokens.length >= 2 ? tokens.every(t => name.includes(t)) : name.includes(tokens[0]); if (ok && !seen.has(e.eventId)) { seen.add(e.eventId); matches.push(e); } }
+      if (matches.length >= enough) break;
+    }
+    return matches.sort((a, b) => new Date(a.eventStartTime) - new Date(b.eventStartTime)).slice(0, CONFIG.MAX_RESULTS);
+  }
+  async function getTopEvents() {
+    const top = [], seen = new Set();
+    for (let page = 1; page <= 4; page++) { let events; try { events = await getMainEvents(page); } catch (e) { break; } if (!events.length) break; for (const e of events) if (e.top && !seen.has(e.eventId)) { seen.add(e.eventId); top.push(e); } if (top.length >= CONFIG.MAX_RESULTS) break; }
+    return top.sort((a, b) => new Date(a.eventStartTime) - new Date(b.eventStartTime)).slice(0, CONFIG.MAX_RESULTS);
+  }
 
-        // Fallback for events whose feed entry came without inline collections.
-        async function getEventCollections(eventId) {
-            const query = `mutation {
-                eventList(eventListInput: { eventId: ${Number(eventId)} }) {
-                    sportId
-                    competitions {
-                        competitionId
-                        country
-                        competitionName
-                        events {
-                            eventId
-                            eventName
-                            eventStartTime
-                            collections {
-                                collectionId
-                                collectionName
-                                markets {
-                                    marketId
-                                    marketName
-                                    marketCode
-                                    prices {
-                                        referenceId
-                                        priceName
-                                        handicapValue
-                                        rate
-                                        blocked
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }`;
-            const data = await multiQuery(query);
-            const event = data.eventList?.[0]?.competitions?.[0]?.events?.[0];
-            return event ? event.collections : null;
-        }
+  /* ---- competitor odds ---- */
+  let competitorCache = { at: 0, index: null };
+  async function getCompetitorIndex() {
+    if (competitorCache.index && Date.now() - competitorCache.at < CONFIG.PROXY_CACHE_TTL_MS) return competitorCache.index;
+    let index = {};
+    try { const c = new AbortController(); const t = setTimeout(() => c.abort(), CONFIG.REQUEST_TIMEOUT_MS); const res = await fetch(`${CONFIG.PROXY_URL}/odds`, { signal: c.signal }); clearTimeout(t); if (res.ok) index = buildIndex((await res.json()).books); }
+    catch (e) { console.warn('proxy unavailable', e.message); }
+    competitorCache = { at: Date.now(), index }; return index;
+  }
 
-        // extract1x2 + splitTeams now live in lib/odds-match.mjs (imported above).
+  /* ---- cards ---- */
+  async function buildMatchCards(feedEvents) {
+    const cards = [];
+    for (const e of feedEvents) {
+      let odds = extract1x2(e.collections);
+      if (!odds) { try { odds = extract1x2(await getEventCollections(e.eventId)); } catch (err) { odds = null; } }
+      if (!odds) continue;
+      const teams = splitTeams(e.eventName); const li = leagueInfo(e.competitionName) || leagueInfo(e.country);
+      cards.push({ eventId: e.eventId, eventName: e.eventName, country: e.country, competition: e.competitionName,
+        homeTeam: teams.home, awayTeam: teams.away || 'TBA', leagueLine: e.country ? `${e.country} · ${e.competitionName}` : e.competitionName,
+        league: e.competitionName || 'Football', leagueName: li ? li.name : null, leagueImg: li ? li.img : null,
+        time: formatDate(e.eventStartTime), top: e.top, odds, beaten: undefined });
+    }
+    return cards;
+  }
+  function formatDate(s) { const d = new Date(s); if (isNaN(d)) return 'Upcoming'; return d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }); }
+  function esc(s) { return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
 
-        // Altenar has no team-search endpoint — scan the priority-sorted paginated
-        // feed and match on event name (same approach as the bot's findEventByTeams).
-        async function findEventsByTeams(rawQuery) {
-            const raw = String(rawQuery || '').toLowerCase().trim();
-            if (!raw) return [];
-            const parts = raw.split(/\s+(?:vs?\.?|-)\s+/).map(s => s.trim()).filter(Boolean);
-            const tokens = parts.length >= 2 ? parts.slice(0, 2) : [raw];
-            const enough = tokens.length >= 2 ? 2 : CONFIG.MAX_RESULTS;
+  function bwanaMatchUrl(card) {
+    if (!card.eventId) return BWANABET.url;
+    const seg = s => encodeURIComponent(String(s || '').trim() || '-');
+    return `https://bwanabet.co.zm/en/sports/prematch/Football/${seg(card.country)}/${seg(card.competition)}/${seg(card.eventName)}_${card.eventId}`;
+  }
 
-            const matches = [];
-            const seen = new Set();
-            for (let page = 1; page <= CONFIG.SEARCH_MAX_PAGES; page++) {
-                let events;
-                try { events = await getMainEvents(page); }
-                catch (e) { break; }
-                if (events.length === 0) break;
-                for (const e of events) {
-                    const name = String(e.eventName).toLowerCase();
-                    const hit = tokens.length >= 2
-                        ? tokens.every(t => name.includes(t))
-                        : name.includes(tokens[0]);
-                    if (hit && !seen.has(e.eventId)) {
-                        seen.add(e.eventId);
-                        matches.push(e);
-                    }
-                }
-                if (matches.length >= enough) break;
-            }
-            return matches.sort((a, b) =>
-                new Date(a.eventStartTime).getTime() - new Date(b.eventStartTime).getTime()
-            ).slice(0, CONFIG.MAX_RESULTS);
-        }
+  /* ---- state ---- */
+  let ALL_CARDS = [], CARDS = [], openIndex = -1, currentLeague = 'all';
 
-        // Operator-curated marquee matches (top === true in the feed), soonest first.
-        async function getTopEvents() {
-            const top = [];
-            const seen = new Set();
-            for (let page = 1; page <= 4; page++) {
-                let events;
-                try { events = await getMainEvents(page); }
-                catch (e) { break; }
-                if (events.length === 0) break;
-                for (const e of events) {
-                    if (e.top && !seen.has(e.eventId)) {
-                        seen.add(e.eventId);
-                        top.push(e);
-                    }
-                }
-                if (top.length >= CONFIG.MAX_RESULTS) break;
-            }
-            return top.sort((a, b) =>
-                new Date(a.eventStartTime).getTime() - new Date(b.eventStartTime).getTime()
-            ).slice(0, CONFIG.MAX_RESULTS);
-        }
+  /* ---- unified bookmaker list ---- */
+  function bookLogo(meta) {
+    return `<span class="ol-logo" style="background:${meta.color}"><b>${esc(meta.logoText)}</b><img src="${meta.logo}" alt="${esc(meta.name)}" loading="lazy" onerror="this.style.display='none'"></span>`;
+  }
+  function bookRow(meta, odds, cta) {
+    const feat = meta.key === 'bwanabet';
+    const book = feat
+      ? `<span class="ol-book"><span class="bw-lockup"><img src="${BWANABET.logo}" alt="BwanaBet" onerror="this.replaceWith(Object.assign(document.createElement('b'),{textContent:'BWANABET',style:'color:#fff;font-family:var(--font-display);font-weight:700'}))"></span><span class="ol-name" style="flex:0"><em>Featured</em></span></span>`
+      : `<span class="ol-book">${bookLogo(meta)}<span class="ol-name">${esc(meta.name)}</span></span>`;
+    return `<div class="olrow ${feat ? 'bwana' : ''}">${book}<span class="ol-odd">${esc(odds.home)}</span><span class="ol-odd">${esc(odds.draw)}</span><span class="ol-odd">${esc(odds.away)}</span>${cta}</div>`;
+  }
+  function oddsListHtml(card, beaten) {
+    let rows = bookRow(BWANABET, card.odds, `<a class="ol-cta bet" href="${bwanaMatchUrl(card)}" target="_blank" rel="noopener">Bet</a>`);
+    rows += (beaten || []).map(r => { const b = COMPETITOR_BY_KEY[r.key]; return bookRow(b, r.odds, `<a class="ol-cta" href="${b.url}" target="_blank" rel="noopener" title="Visit ${esc(b.name)}">↗</a>`); }).join('');
+    const note = (beaten && beaten.length) ? '' : `<p class="muted-note" style="padding-top:10px">No other listed bookmaker is priced higher on this match.</p>`;
+    return `<div class="oddslist"><div class="ol-head"><span>Bookmaker</span><span>1</span><span>X</span><span>2</span><span></span></div>${rows}</div>${note}`;
+  }
 
-        // ============================================
-        // COMPETITOR ODDS (via proxy) + TEAM MATCHING
-        // ============================================
+  /* ---- matchday poster ---- */
+  function renderLead(card) {
+    const away = card.awayTeam && card.awayTeam !== 'TBA';
+    const headline = away ? `${esc(card.homeTeam)} host ${esc(card.awayTeam)}` : esc(card.homeTeam);
+    const stadium = pickStadium(card.eventId);
+    const mu = away ? matchupFor(card.homeTeam, card.awayTeam) : null;
+    const ch = crestFor(card.homeTeam), ca = away ? crestFor(card.awayTeam) : null;
+    const lg = card.leagueImg;
+    let hero = '';
+    if (mu) hero = `<img class="poster-combo" src="${mu.img}" alt="">`;
+    else if (ch && ca) hero = `<div class="poster-vs"><img src="${ch}" alt=""><span class="vsx">VS</span><img src="${ca}" alt=""></div>`;
+    else if (ch || ca) hero = `<div class="poster-vs"><img src="${ch || ca}" alt=""></div>`;
+    $('leadFeature').innerHTML = `
+      <span class="kicker">Match of the evening</span>
+      <div class="photo" style="background-image: linear-gradient(180deg, oklch(0.18 0.05 16 / 0.35) 0%, transparent 35%, oklch(0.16 0.05 16 / 0.92) 100%), url('${stadium}');">
+        ${lg ? `<img class="poster-league" src="${lg}" alt="">` : ''}
+        <span class="ribbon" id="leadRibbon" hidden>Best price in town</span>
+        ${hero}
+        <div class="cap"><span class="lg">${esc(card.leagueLine)}</span><h2>${headline}</h2></div>
+      </div>
+      <p class="dek">Live match-result prices from every major Zambian book, with BwanaBet's price up top.</p>
+      <p class="byline">Odds desk · Live prices · Kickoff ${esc(card.time)}</p>`;
+    $('leadOdds').innerHTML = `
+      <h3>${esc(card.homeTeam)} v ${away ? esc(card.awayTeam) : 'TBA'}</h3>
+      <p class="sub">Match result · full time · all six books, best price first</p>
+      <div id="leadList">${oddsListHtml(card, [])}</div>
+      <a class="betnow" href="${bwanaMatchUrl(card)}" target="_blank" rel="noopener">Bet with BwanaBet →</a>`;
+  }
+  function fillLead(card, index) {
+    card.beaten = beatenBooks(card.odds, matchCompetitors(card.homeTeam, card.awayTeam, index, COMP_KEYS));
+    const el = $('leadList'); if (el) el.innerHTML = oddsListHtml(card, card.beaten);
+    const r = $('leadRibbon'); if (r) r.hidden = !card.beaten.length;
+  }
 
-        // Cached proxy response: { at, index } where index maps competitor key ->
-        // array of { home, away, norm:{home,away}, odds }.
-        let competitorCache = { at: 0, index: null };
+  /* ---- fixtures ---- */
+  function renderFixtures(cards, title) {
+    CARDS = cards; openIndex = -1; $('fxTitle').textContent = title;
+    if (!cards.length) { $('fxBody').innerHTML = `<tr class="loadrow"><td colspan="6">No fixtures to show here. Try “All” or search a team.</td></tr>`; return; }
+    $('fxBody').innerHTML = cards.map((card, i) => {
+      const away = card.awayTeam && card.awayTeam !== 'TBA';
+      const lg = card.leagueImg ? `<img src="${card.leagueImg}" alt="">` : '';
+      return `<tr class="fxrow" data-i="${i}">
+        <td><span class="lgc">${lg}<span>${esc(card.league)}</span></span></td>
+        <td><span class="match"><span class="chev">▸</span>${esc(card.homeTeam)}${away ? `<span class="v">v</span>${esc(card.awayTeam)}` : ''}</span></td>
+        <td><span class="ko">${esc(card.time)}</span></td>
+        <td class="odd b tnum">${esc(card.odds.home)}</td><td class="odd tnum">${esc(card.odds.draw)}</td><td class="odd tnum">${esc(card.odds.away)}</td>
+      </tr>`;
+    }).join('');
+    $('fxBody').querySelectorAll('.fxrow').forEach(tr => tr.addEventListener('click', () => toggleDetail(Number(tr.dataset.i))));
+  }
+  async function toggleDetail(i) {
+    const rows = $('fxBody'); const existing = rows.querySelector('tr.detail'); const wasOpen = openIndex === i;
+    if (existing) existing.remove(); rows.querySelectorAll('.fxrow.open').forEach(r => r.classList.remove('open'));
+    if (wasOpen) { openIndex = -1; return; }
+    openIndex = i; const row = rows.querySelector(`.fxrow[data-i="${i}"]`); row.classList.add('open'); const card = CARDS[i];
+    const detail = document.createElement('tr'); detail.className = 'detail';
+    detail.innerHTML = `<td colspan="6"><div class="dp"><div class="muted-note"><span class="spinner"></span>Loading odds…</div></div></td>`;
+    row.after(detail);
+    let index = {}; try { index = await getCompetitorIndex(); } catch (e) {}
+    if (openIndex !== i) return;
+    if (card.beaten === undefined) card.beaten = beatenBooks(card.odds, matchCompetitors(card.homeTeam, card.awayTeam, index, COMP_KEYS));
+    detail.querySelector('.dp').outerHTML = `<div class="dp">${oddsListHtml(card, card.beaten)}</div>`;
+  }
+  function fixturesMessage(html) { $('fxBody').innerHTML = `<tr class="loadrow"><td colspan="6">${html}</td></tr>`; }
 
-        async function getCompetitorIndex() {
-            if (competitorCache.index && Date.now() - competitorCache.at < CONFIG.PROXY_CACHE_TTL_MS) {
-                return competitorCache.index;
-            }
-            let index = {};
-            try {
-                const controller = new AbortController();
-                const timer = setTimeout(() => controller.abort(), CONFIG.REQUEST_TIMEOUT_MS);
-                const res = await fetch(`${CONFIG.PROXY_URL}/odds`, { signal: controller.signal });
-                clearTimeout(timer);
-                if (res.ok) {
-                    const data = await res.json();
-                    index = buildIndex(data.books);
-                }
-            } catch (e) {
-                console.warn('Competitor proxy unavailable:', e.message);
-            }
-            competitorCache = { at: Date.now(), index };
-            return index;
-        }
+  /* ---- league rail ---- */
+  function renderRail() {
+    const present = new Set(ALL_CARDS.map(c => c.leagueName).filter(Boolean));
+    const items = [{ name: 'all', label: 'All football', img: null }]
+      .concat(LEAGUES.map(l => ({ name: l.name, label: l.name, img: l.img, dim: !present.has(l.name) })));
+    $('leagueRail').innerHTML = items.map(it =>
+      `<button class="lg-btn ${currentLeague === it.name ? 'active' : ''}" data-league="${esc(it.name)}" style="${it.dim ? 'opacity:.55' : ''}">${it.img ? `<img src="${it.img}" alt="">` : ''}${esc(it.label)}</button>`
+    ).join('');
+    $('leagueRail').querySelectorAll('.lg-btn').forEach(b => b.addEventListener('click', () => filterLeague(b.dataset.league)));
+  }
+  function filterLeague(name) {
+    currentLeague = name;
+    const cards = name === 'all' ? ALL_CARDS : ALL_CARDS.filter(c => c.leagueName === name);
+    renderRail();
+    if (!cards.length) { $('fxTitle').textContent = name; fixturesMessage(`No ${esc(name)} fixtures on today's coupon — try “All” or search a team.`); $('fixtures').scrollIntoView({ behavior: 'smooth', block: 'start' }); return; }
+    renderFixtures(cards, name === 'all' ? "Today's fixtures" : name);
+    $('fixtures').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
 
-        // Team normalization + fixture matching now live in lib/odds-match.mjs
-        // (normTeam, tokenOverlap, isSameFixture, matchCompetitors — imported above).
-        // Lookup from a matched competitor key back to its display metadata (logo,
-        // colour, url) for rendering.
-        const COMPETITOR_BY_KEY = Object.fromEntries(COMPETITORS.map(c => [c.key, c]));
+  /* ---- rivalry radar ---- */
+  function renderRivalry() {
+    $('rivTrack').innerHTML = MATCHUPS.map(m =>
+      `<button class="riv-tile" data-q="${esc(m.q)}"><div class="riv-pic" style="background-image:url('${m.img}')"></div><div class="riv-body"><div class="riv-name">${esc(m.title)}</div><div class="riv-sub">${esc(m.sub)}</div><span class="riv-cta">Get best odds →</span></div></button>`
+    ).join('');
+    $('rivTrack').querySelectorAll('.riv-tile').forEach(b => b.addEventListener('click', () => { $('searchInput').value = b.dataset.q; doSearch(b.dataset.q); }));
+  }
 
-        // ============================================
-        // SEARCH & RESULTS
-        // ============================================
+  /* ---- flows ---- */
+  async function loadTop() {
+    const indexPromise = getCompetitorIndex().catch(() => ({}));
+    fixturesMessage('<span class="spinner"></span>Loading top matches…');
+    try {
+      const top = await getTopEvents(); const seen = new Set(top.map(e => e.eventId));
+      let filler = []; try { filler = (await getMainEvents(1)).filter(e => !seen.has(e.eventId)); } catch (e) {}
+      filler.sort((a, b) => new Date(a.eventStartTime) - new Date(b.eventStartTime));
+      const events = [...top, ...filler].slice(0, CONFIG.MAX_RESULTS);
+      const cards = await buildMatchCards(events);
+      if (!cards.length) { fixturesMessage('No fixtures on the live feed right now.'); return; }
+      ALL_CARDS = cards; currentLeague = 'all';
+      renderLead(cards[0]); renderRail(); renderFixtures(cards, "Today's fixtures");
+      fillLead(cards[0], await indexPromise);
+    } catch (e) { console.error(e); fixturesMessage('⚠️ Could not reach the live odds feed. Please refresh and try again.'); }
+  }
+  async function doSearch(term) {
+    term = term.trim(); if (!term) return;
+    currentLeague = 'all';
+    $('fixtures').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    $('fxTitle').textContent = `Searching “${term}”…`; fixturesMessage(`<span class="spinner"></span>Scanning the live feed for “${esc(term)}”…`);
+    try {
+      const events = await findEventsByTeams(term); const cards = events.length ? await buildMatchCards(events) : [];
+      if (!cards.length) { $('fxTitle').textContent = `Results for “${term}”`; fixturesMessage(`No upcoming fixtures on the feed for “${esc(term)}”. Try both teams, e.g. “Arsenal vs Chelsea”.`); ALL_CARDS = []; renderRail(); return; }
+      ALL_CARDS = cards; renderRail(); renderFixtures(cards, `Results for “${term}”`);
+    } catch (e) { console.error(e); $('fxTitle').textContent = `Results for “${term}”`; fixturesMessage('⚠️ Could not reach the live odds feed. Please try again.'); }
+  }
 
-        async function buildMatchCards(feedEvents) {
-            const cards = [];
-            for (const e of feedEvents) {
-                let odds = extract1x2(e.collections);
-                if (!odds) {
-                    try { odds = extract1x2(await getEventCollections(e.eventId)); }
-                    catch (err) { odds = null; }
-                }
-                if (!odds) continue; // no 1X2 market — nothing to show
-                const teams = splitTeams(e.eventName);
-                cards.push({
-                    homeTeam: teams.home,
-                    awayTeam: teams.away || 'TBA',
-                    league: e.country ? `${e.country} · ${e.competitionName}` : e.competitionName,
-                    time: formatDate(e.eventStartTime),
-                    top: e.top,
-                    odds
-                });
-            }
-            return cards;
-        }
-
-        async function handleSearch() {
-            const searchTerm = elements.searchInput.value.trim();
-            if (!searchTerm) {
-                elements.searchInput.focus();
-                return;
-            }
-            elements.searchBtn.disabled = true;
-            renderLoading('Scanning the live odds feed…');
-            try {
-                const events = await findEventsByTeams(searchTerm);
-                if (events.length === 0) {
-                    renderNoMatches(searchTerm);
-                    return;
-                }
-                const cards = await buildMatchCards(events);
-                if (cards.length === 0) {
-                    renderNoMatches(searchTerm);
-                    return;
-                }
-                renderResults(cards, `Found <span>${cards.length}</span> match${cards.length > 1 ? 'es' : ''}`);
-            } catch (error) {
-                console.error('Search error:', error);
-                renderError('Could not reach the live odds feed. Check your connection and try again.');
-            } finally {
-                elements.searchBtn.disabled = false;
-            }
-        }
-
-        async function showTopMatches() {
-            renderLoading('Loading top matches…');
-            try {
-                let events = await getTopEvents();
-                // Off-season or quiet days can leave the curated "top" list empty —
-                // fall back to the soonest events on the feed so the page always has
-                // real, searchable content.
-                let heading;
-                if (events.length > 0) {
-                    heading = n => `<span>${n}</span> top match${n > 1 ? 'es' : ''} right now`;
-                } else {
-                    events = (await getMainEvents(1))
-                        .slice()
-                        .sort((a, b) => new Date(a.eventStartTime).getTime() - new Date(b.eventStartTime).getTime())
-                        .slice(0, CONFIG.MAX_RESULTS);
-                    heading = n => `<span>${n}</span> upcoming match${n > 1 ? 'es' : ''}`;
-                }
-                const cards = await buildMatchCards(events);
-                if (cards.length === 0) {
-                    renderNoMatches('upcoming matches');
-                    return;
-                }
-                updateQuickChips(cards);
-                renderResults(cards, heading(cards.length));
-            } catch (error) {
-                console.error('Top matches error:', error);
-                renderError('Could not reach the live odds feed. Check your connection and try again.');
-            }
-        }
-
-        // Rebuild the quick-search chips from teams that are actually on the feed
-        // right now, so every chip is guaranteed to return a result when clicked.
-        function updateQuickChips(cards) {
-            const names = [];
-            const seen = new Set();
-            for (const card of cards) {
-                for (const team of [card.homeTeam, card.awayTeam]) {
-                    const name = String(team).trim();
-                    const key = name.toLowerCase();
-                    if (name && name !== 'TBA' && !seen.has(key)) {
-                        seen.add(key);
-                        names.push(name);
-                    }
-                    if (names.length >= 6) break;
-                }
-                if (names.length >= 6) break;
-            }
-            if (names.length === 0) return;
-            $('quickFilters').innerHTML =
-                '<span class="filter-chip featured-chip" id="topMatchesChip">🔥 Top Matches</span>' +
-                names.map(n => `<span class="filter-chip" data-team="${escapeHtml(n)}">${escapeHtml(n)}</span>`).join('');
-            bindChips();
-        }
-
-        function formatDate(dateStr) {
-            const d = new Date(dateStr);
-            if (isNaN(d.getTime())) return 'Upcoming';
-            return d.toLocaleDateString('en-GB', {
-                weekday: 'short', month: 'short', day: 'numeric',
-                hour: '2-digit', minute: '2-digit'
-            });
-        }
-
-        // ============================================
-        // RENDERING
-        // ============================================
-
-        function escapeHtml(s) {
-            return String(s).replace(/[&<>"']/g, c => ({
-                '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
-            }[c]));
-        }
-
-        function renderLoading(message) {
-            elements.resultsSection.innerHTML = `
-                <div class="loading">
-                    <div class="spinner"></div>
-                    <p>${escapeHtml(message || 'Finding the best odds…')}</p>
-                </div>
-            `;
-        }
-
-        function renderError(message) {
-            elements.resultsSection.innerHTML = `
-                <div class="error-state">
-                    <p class="error-text">⚠️ ${escapeHtml(message)}</p>
-                </div>
-            `;
-        }
-
-        function renderNoMatches(searchTerm) {
-            elements.resultsSection.innerHTML = `
-                <div class="empty-state">
-                    <div class="empty-icon">🔍</div>
-                    <h2 class="empty-title">NO MATCHES FOUND</h2>
-                    <p class="empty-text">No upcoming fixtures on the feed for "${escapeHtml(searchTerm)}"</p>
-                    <div style="margin-top: 20px; text-align: left; max-width: 400px; margin-left: auto; margin-right: auto;">
-                        <p class="empty-text" style="font-size: 0.9rem; margin-bottom: 10px;">💡 <strong>Tips:</strong></p>
-                        <p class="empty-text" style="font-size: 0.85rem;">• Try both teams: <strong>"Arsenal vs Chelsea"</strong></p>
-                        <p class="empty-text" style="font-size: 0.85rem;">• Check spelling of the team name</p>
-                        <p class="empty-text" style="font-size: 0.85rem;">• The team's next match may not be listed yet</p>
-                    </div>
-                </div>
-            `;
-        }
-
-        // Cards currently on screen, so the compare toggle can resolve a card by index.
-        let currentCards = [];
-
-        function renderResults(cards, headerHtml) {
-            currentCards = cards;
-            const updated = new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
-            let html = `<div class="results-header">
-                <p class="results-count">${headerHtml}</p>
-                <p class="results-updated">Odds updated ${updated}</p>
-            </div>`;
-
-            // Search shows a LIST of matches only — no odds yet. Selecting a match
-            // reveals its odds (BwanaBet on top, then the sites it beats).
-            cards.forEach((card, i) => {
-                html += `
-                    <div class="match-card" style="animation-delay: ${i * 0.1}s" data-card="${i}">
-                        <button class="match-select" data-select="${i}" aria-expanded="false">
-                            <div class="match-header">
-                                <div class="match-teams">
-                                    ${escapeHtml(card.homeTeam)}
-                                    <span class="match-vs">VS</span>
-                                    ${escapeHtml(card.awayTeam)}
-                                    ${card.top ? '<span class="top-tag">TOP</span>' : ''}
-                                </div>
-                                <div class="match-meta">
-                                    <div class="match-league">${escapeHtml(card.league)}</div>
-                                    <div class="match-time">${escapeHtml(card.time)}</div>
-                                </div>
-                            </div>
-                            <span class="select-chev">▾</span>
-                        </button>
-                        <div class="match-odds" data-odds="${i}" hidden></div>
-                    </div>
-                `;
-            });
-
-            elements.resultsSection.innerHTML = html;
-
-            document.querySelectorAll('.match-select').forEach(btn => {
-                btn.addEventListener('click', () => selectMatch(Number(btn.dataset.select)));
-            });
-
-            // Warm the competitor feed in the background so the first selection can
-            // render its odds without waiting on the proxy.
-            getCompetitorIndex().catch(() => {});
-        }
-
-        // Render one bookmaker's row. `best` (optional) = {home,draw,away} numeric
-        // maxima across all shown books; a cell equal to the max is highlighted.
-        function renderRow(book, odds, best) {
-            const cell = (label, key) => {
-                const v = odds[key];
-                const isBest = best && v != null && Math.abs(parseFloat(v) - best[key]) < 1e-9;
-                return `
-                    <div class="odds-cell">
-                        <div class="odds-label">${label}</div>
-                        <span class="odds-value ${isBest ? 'best' : ''}">${v == null ? '–' : v}</span>
-                    </div>`;
-            };
-            return `
-                <div class="bookmaker-row ${book.key === 'bwanabet' ? 'featured' : ''}">
-                    <div class="bookmaker-info">
-                        <div class="bookmaker-logo" style="background: ${book.color};">
-                            <img src="${book.logo}" alt="${escapeHtml(book.name)}" onerror="this.style.display='none'; this.parentElement.innerHTML='<span>${book.logoText}</span>';">
-                        </div>
-                        <span class="bookmaker-name">${escapeHtml(book.name)}</span>
-                    </div>
-                    ${cell('1 · Home', 'home')}
-                    ${cell('X · Draw', 'draw')}
-                    ${cell('2 · Away', 'away')}
-                    <a href="${book.url}" target="_blank" rel="noopener" class="visit-btn">Bet Now</a>
-                </div>
-            `;
-        }
-
-        // Selecting a match reveals its odds. Accordion: opening one closes any other.
-        // BwanaBet's odds render on top, followed by the sites it beats. Odds are
-        // fetched/rendered lazily the first time a given match is opened.
-        async function selectMatch(i) {
-            const panel = document.querySelector(`[data-odds="${i}"]`);
-            const btn = document.querySelector(`[data-select="${i}"]`);
-            if (!panel || !btn) return;
-
-            const opening = panel.hidden;
-
-            // Collapse every match first (one open at a time).
-            document.querySelectorAll('.match-odds').forEach(p => { p.hidden = true; });
-            document.querySelectorAll('.match-select').forEach(b => {
-                b.classList.remove('open');
-                b.setAttribute('aria-expanded', 'false');
-                const c = b.querySelector('.select-chev');
-                if (c) c.textContent = '▾';
-            });
-            if (!opening) return; // second click on the already-open match — leave closed
-
-            btn.classList.add('open');
-            btn.setAttribute('aria-expanded', 'true');
-            btn.querySelector('.select-chev').textContent = '▴';
-            panel.hidden = false;
-
-            if (panel.dataset.rendered === '1') return; // already built — just re-show
-            panel.innerHTML = `<div class="compare-loading"><div class="spinner small"></div> Loading odds…</div>`;
-            let index = {};
-            try { index = await getCompetitorIndex(); } catch (e) {}
-            panel.innerHTML = renderMatchOdds(currentCards[i], index);
-            panel.dataset.rendered = '1';
-        }
-
-        // Odds view for a selected match: BwanaBet featured on top, then the sites it
-        // beats on total payout (home + draw + away), listed unranked. Sites that beat
-        // or tie BwanaBet — or don't carry the fixture — are left off.
-        function renderMatchOdds(card, index) {
-            const rows = matchCompetitors(card.homeTeam, card.awayTeam, index, COMPETITORS.map(c => c.key));
-            const beaten = beatenBooks(card.odds, rows);
-
-            let html = `<div class="odds-grid">${renderRow(BWANABET, card.odds, null)}</div>`;
-            if (beaten.length > 0) {
-                html += `<p class="compare-caption">Bookmakers BwanaBet beats</p>
-                    <div class="comparison-rows">
-                        ${beaten.map(r => renderRow(COMPETITOR_BY_KEY[r.key], r.odds, null)).join('')}
-                    </div>`;
-            }
-            return html;
-        }
-
-        // ============================================
-        // EVENT LISTENERS
-        // ============================================
-
-        elements.searchBtn.addEventListener('click', handleSearch);
-        elements.searchInput.addEventListener('keypress', e => {
-            if (e.key === 'Enter') handleSearch();
-        });
-
-        function bindChips() {
-            document.querySelectorAll('.filter-chip[data-team]').forEach(chip => {
-                chip.addEventListener('click', () => {
-                    elements.searchInput.value = chip.dataset.team;
-                    handleSearch();
-                });
-            });
-            $('topMatchesChip').addEventListener('click', showTopMatches);
-        }
-        bindChips();
-
-        // Open with real content: today's operator-curated top matches.
-        showTopMatches();
-    </script>
+  /* ---- wire ---- */
+  $('searchForm').addEventListener('submit', e => { e.preventDefault(); doSearch($('searchInput').value); });
+  $('localCta').addEventListener('click', e => { e.preventDefault(); $('searchInput').value = 'Zesco'; doSearch('Zesco'); });
+  $('fxMore').addEventListener('click', e => { e.preventDefault(); $('fixtures').scrollIntoView({ behavior: 'smooth' }); });
+  $('editionDate').textContent = new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' });
+  renderRail(); renderRivalry(); loadTop();
+</script>
 </body>
 </html>
