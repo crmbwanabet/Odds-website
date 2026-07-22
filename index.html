@@ -506,53 +506,42 @@
             }
         }
 
-        .comparison {
-            margin-top: 16px;
-        }
-
-        .compare-toggle {
-            width: 100%;
-            padding: 12px 20px;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px dashed var(--border);
-            border-radius: 12px;
-            color: var(--text-muted);
-            font-family: 'DM Sans', sans-serif;
-            font-size: 0.9rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.25s ease;
+        /* Selectable match rows (search results) + the odds panel they reveal */
+        .match-select {
             display: flex;
             align-items: center;
-            justify-content: center;
-            gap: 8px;
+            gap: 16px;
+            width: 100%;
+            padding: 0;
+            background: none;
+            border: none;
+            color: var(--text);
+            font-family: inherit;
+            text-align: left;
+            cursor: pointer;
         }
 
-        .compare-toggle:hover {
-            border-color: var(--accent);
+        .match-select .match-header {
+            flex: 1;
+            margin-bottom: 0;
+        }
+
+        .select-chev {
             color: var(--accent);
-            background: rgba(224, 165, 38, 0.06);
+            font-size: 1.1rem;
+            flex-shrink: 0;
         }
 
-        .compare-toggle.open {
-            color: var(--accent);
-            border-style: solid;
-            border-color: rgba(224, 165, 38, 0.3);
+        .match-odds {
+            margin-top: 22px;
         }
 
-        .compare-toggle .chev {
-            font-size: 0.8rem;
-        }
-
-        .best-badge {
-            padding: 3px 10px;
-            border-radius: 12px;
-            background: rgba(0, 200, 83, 0.15);
-            border: 1px solid rgba(0, 200, 83, 0.4);
-            color: var(--success);
-            font-size: 0.72rem;
-            font-weight: 700;
-            letter-spacing: 0.5px;
+        .compare-caption {
+            margin: 20px 0 10px;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         .comparison-rows {
@@ -580,13 +569,6 @@
             height: 22px;
             border-width: 2px;
             margin: 0;
-        }
-
-        .compare-empty {
-            text-align: center;
-            padding: 16px;
-            color: var(--text-muted);
-            font-size: 0.9rem;
         }
 
         @media (max-width: 768px) {
@@ -633,7 +615,12 @@
         </footer>
     </div>
 
-    <script>
+    <script type="module">
+        import {
+            extract1x2, splitTeams,
+            buildIndex, matchCompetitors, beatenBooks
+        } from './lib/odds-match.mjs';
+
         // ============================================
         // CONFIGURATION
         // ============================================
@@ -812,31 +799,7 @@
             return event ? event.collections : null;
         }
 
-        // Extract the 1X2 (Match Result) prices from an event's market collections.
-        // Blocked or zero-rate prices render as '-'.
-        function extract1x2(collections) {
-            if (!collections) return null;
-            const main = collections.find(c => c.collectionName === 'Main');
-            if (!main) return null;
-            const market = (main.markets || []).find(m => m.marketCode === '1x2');
-            if (!market) return null;
-            const odds = { home: '-', draw: '-', away: '-' };
-            for (const p of market.prices || []) {
-                if (p.blocked || !(p.rate > 0)) continue;
-                if (p.priceName === '1') odds.home = p.rate.toFixed(2);
-                else if (p.priceName === 'X') odds.draw = p.rate.toFixed(2);
-                else if (p.priceName === '2') odds.away = p.rate.toFixed(2);
-            }
-            return odds;
-        }
-
-        function splitTeams(eventName) {
-            const parts = String(eventName).split(/\s+vs?\.?\s+/i);
-            if (parts.length >= 2) {
-                return { home: parts[0].trim(), away: parts.slice(1).join(' v ').trim() };
-            }
-            return { home: eventName, away: '' };
-        }
+        // extract1x2 + splitTeams now live in lib/odds-match.mjs (imported above).
 
         // Altenar has no team-search endpoint — scan the priority-sorted paginated
         // feed and match on event name (same approach as the bot's findEventByTeams).
@@ -905,7 +868,7 @@
             if (competitorCache.index && Date.now() - competitorCache.at < CONFIG.PROXY_CACHE_TTL_MS) {
                 return competitorCache.index;
             }
-            const index = {};
+            let index = {};
             try {
                 const controller = new AbortController();
                 const timer = setTimeout(() => controller.abort(), CONFIG.REQUEST_TIMEOUT_MS);
@@ -913,13 +876,7 @@
                 clearTimeout(timer);
                 if (res.ok) {
                     const data = await res.json();
-                    for (const [book, events] of Object.entries(data.books || {})) {
-                        index[book] = (events || []).map(e => ({
-                            home: e.home, away: e.away,
-                            norm: { home: normTeam(e.home), away: normTeam(e.away) },
-                            odds: e.odds
-                        }));
-                    }
+                    index = buildIndex(data.books);
                 }
             } catch (e) {
                 console.warn('Competitor proxy unavailable:', e.message);
@@ -928,62 +885,11 @@
             return index;
         }
 
-        // Normalize a team name to a token set for fuzzy fixture matching across
-        // bookmakers that spell teams differently ("FC Ararat-Armenia" vs
-        // "Ararat Armenia", "Man Utd" vs "Manchester United").
-        const TEAM_STOPWORDS = new Set(['fc', 'afc', 'cf', 'sc', 'ac', 'if', 'sk', 'fk', 'bk', 'club',
-            'city', 'town', 'united', 'utd', 'the', 'de', 'do', 'da', 'e', 'u21', 'u20', 'u23', 'u19',
-            'women', 'reserves', 'ii', 'b']);
-        const TEAM_ALIAS = { man: 'manchester', utd: 'united', psg: 'paris', inter: 'internazionale' };
-
-        function normTeam(name) {
-            const raw = String(name || '').toLowerCase()
-                .normalize('NFD').replace(/[̀-ͯ]/g, '')  // strip accents
-                .replace(/[^a-z0-9\s]/g, ' ');
-            const tokens = raw.split(/\s+/).filter(Boolean)
-                .map(t => TEAM_ALIAS[t] || t)
-                .filter(t => !TEAM_STOPWORDS.has(t) && t.length > 1);
-            return new Set(tokens);
-        }
-
-        function tokenOverlap(a, b) {
-            if (!a.size || !b.size) return 0;
-            let hit = 0;
-            for (const t of a) if (b.has(t)) hit++;
-            return hit / Math.min(a.size, b.size);
-        }
-
-        // Does a competitor event refer to the same fixture as the BwanaBet card?
-        // Require a strong match on BOTH sides (and allow home/away to be swapped,
-        // since books order teams inconsistently).
-        function isSameFixture(cardNorm, ev) {
-            const straight = Math.min(tokenOverlap(cardNorm.home, ev.norm.home), tokenOverlap(cardNorm.away, ev.norm.away));
-            const swapped = Math.min(tokenOverlap(cardNorm.home, ev.norm.away), tokenOverlap(cardNorm.away, ev.norm.home));
-            return { score: Math.max(straight, swapped), swapped: swapped > straight };
-        }
-
-        // For one BwanaBet card, find each competitor's real odds for the same fixture.
-        // Returns [{ book, odds }] for competitors that genuinely have the match.
-        function matchCompetitors(card, index) {
-            const cardNorm = { home: normTeam(card.homeTeam), away: normTeam(card.awayTeam) };
-            const rows = [];
-            for (const comp of COMPETITORS) {
-                const events = index[comp.key] || [];
-                let best = null;
-                for (const ev of events) {
-                    const m = isSameFixture(cardNorm, ev);
-                    if (m.score >= 0.7 && (!best || m.score > best.score)) {
-                        // If teams were swapped relative to our card, swap home/away odds too.
-                        const odds = m.swapped
-                            ? { home: ev.odds.away, draw: ev.odds.draw, away: ev.odds.home }
-                            : ev.odds;
-                        best = { score: m.score, odds };
-                    }
-                }
-                if (best) rows.push({ book: comp, odds: best.odds });
-            }
-            return rows;
-        }
+        // Team normalization + fixture matching now live in lib/odds-match.mjs
+        // (normTeam, tokenOverlap, isSameFixture, matchCompetitors — imported above).
+        // Lookup from a matched competitor key back to its display metadata (logo,
+        // colour, url) for rendering.
+        const COMPETITOR_BY_KEY = Object.fromEntries(COMPETITORS.map(c => [c.key, c]));
 
         // ============================================
         // SEARCH & RESULTS
@@ -1156,75 +1062,40 @@
                 <p class="results-updated">Odds updated ${updated}</p>
             </div>`;
 
+            // Search shows a LIST of matches only — no odds yet. Selecting a match
+            // reveals its odds (BwanaBet on top, then the sites it beats).
             cards.forEach((card, i) => {
                 html += `
                     <div class="match-card" style="animation-delay: ${i * 0.1}s" data-card="${i}">
-                        <div class="match-header">
-                            <div class="match-teams">
-                                ${escapeHtml(card.homeTeam)}
-                                <span class="match-vs">VS</span>
-                                ${escapeHtml(card.awayTeam)}
-                                ${card.top ? '<span class="top-tag">TOP</span>' : ''}
+                        <button class="match-select" data-select="${i}" aria-expanded="false">
+                            <div class="match-header">
+                                <div class="match-teams">
+                                    ${escapeHtml(card.homeTeam)}
+                                    <span class="match-vs">VS</span>
+                                    ${escapeHtml(card.awayTeam)}
+                                    ${card.top ? '<span class="top-tag">TOP</span>' : ''}
+                                </div>
+                                <div class="match-meta">
+                                    <div class="match-league">${escapeHtml(card.league)}</div>
+                                    <div class="match-time">${escapeHtml(card.time)}</div>
+                                </div>
                             </div>
-                            <div class="match-meta">
-                                <div class="match-league">${escapeHtml(card.league)}</div>
-                                <div class="match-time">${escapeHtml(card.time)}</div>
-                            </div>
-                        </div>
-                        <div class="odds-grid">
-                            ${renderRow(BWANABET, card.odds, null)}
-                        </div>
-                        <div class="comparison" data-comparison="${i}"></div>
+                            <span class="select-chev">▾</span>
+                        </button>
+                        <div class="match-odds" data-odds="${i}" hidden></div>
                     </div>
                 `;
             });
 
             elements.resultsSection.innerHTML = html;
-            // Progressively reveal a comparison ONLY on fixtures where BwanaBet has
-            // the best price on all three outcomes (site policy). Fetches competitor
-            // odds once; fast initial render is unaffected.
-            revealComparisons(cards);
-        }
 
-        // Fetch real competitor odds, and for each card decide whether BwanaBet wins
-        // every column. If so, reveal a "Compare" toggle with the real side-by-side
-        // rows (BwanaBet best on all). If a competitor is cheaper on any outcome — or
-        // no competitor has the fixture — no comparison is shown for that match.
-        async function revealComparisons(cards) {
-            let index;
-            try { index = await getCompetitorIndex(); }
-            catch (e) { return; }
-
-            cards.forEach((card, i) => {
-                const rows = matchCompetitors(card, index);
-                if (rows.length === 0) return; // nothing to compare against
-
-                const best = {};
-                for (const k of ['home', 'draw', 'away']) {
-                    best[k] = Math.max(parseFloat(card.odds[k]),
-                        ...rows.map(r => parseFloat(r.odds[k])).filter(n => !isNaN(n)));
-                }
-                const bwanaWins = ['home', 'draw', 'away'].every(k =>
-                    parseFloat(card.odds[k]) >= best[k] - 1e-9);
-                if (!bwanaWins) return; // policy: only surface where BwanaBet is best
-
-                // BwanaBet is best on every column — highlight its row, reveal compare.
-                const grid = document.querySelector(`[data-card="${i}"] .odds-grid`);
-                if (grid) grid.innerHTML = renderRow(BWANABET, card.odds, best);
-
-                const container = document.querySelector(`[data-comparison="${i}"]`);
-                if (!container) return;
-                container.innerHTML = `
-                    <button class="compare-toggle" data-toggle="${i}">
-                        <span class="chev">▾</span> Compare other bookmakers
-                        <span class="best-badge">✓ BwanaBet best price</span>
-                    </button>
-                    <div class="comparison-rows" data-rows="${i}" hidden>
-                        ${rows.map(r => renderRow(r.book, r.odds, best)).join('')}
-                    </div>`;
-                container.querySelector('.compare-toggle')
-                    .addEventListener('click', () => toggleComparison(i));
+            document.querySelectorAll('.match-select').forEach(btn => {
+                btn.addEventListener('click', () => selectMatch(Number(btn.dataset.select)));
             });
+
+            // Warm the competitor feed in the background so the first selection can
+            // render its odds without waiting on the proxy.
+            getCompetitorIndex().catch(() => {});
         }
 
         // Render one bookmaker's row. `best` (optional) = {home,draw,away} numeric
@@ -1255,16 +1126,54 @@
             `;
         }
 
-        // Expand/collapse a card's comparison. Rows are already rendered (competitor
-        // odds were fetched during revealComparisons), so this is pure show/hide.
-        function toggleComparison(i) {
-            const rowsEl = document.querySelector(`[data-rows="${i}"]`);
-            const btn = document.querySelector(`[data-toggle="${i}"]`);
-            if (!rowsEl || !btn) return;
-            const opening = rowsEl.hidden;
-            rowsEl.hidden = !opening;
-            btn.classList.toggle('open', opening);
-            btn.querySelector('.chev').textContent = opening ? '▴' : '▾';
+        // Selecting a match reveals its odds. Accordion: opening one closes any other.
+        // BwanaBet's odds render on top, followed by the sites it beats. Odds are
+        // fetched/rendered lazily the first time a given match is opened.
+        async function selectMatch(i) {
+            const panel = document.querySelector(`[data-odds="${i}"]`);
+            const btn = document.querySelector(`[data-select="${i}"]`);
+            if (!panel || !btn) return;
+
+            const opening = panel.hidden;
+
+            // Collapse every match first (one open at a time).
+            document.querySelectorAll('.match-odds').forEach(p => { p.hidden = true; });
+            document.querySelectorAll('.match-select').forEach(b => {
+                b.classList.remove('open');
+                b.setAttribute('aria-expanded', 'false');
+                const c = b.querySelector('.select-chev');
+                if (c) c.textContent = '▾';
+            });
+            if (!opening) return; // second click on the already-open match — leave closed
+
+            btn.classList.add('open');
+            btn.setAttribute('aria-expanded', 'true');
+            btn.querySelector('.select-chev').textContent = '▴';
+            panel.hidden = false;
+
+            if (panel.dataset.rendered === '1') return; // already built — just re-show
+            panel.innerHTML = `<div class="compare-loading"><div class="spinner small"></div> Loading odds…</div>`;
+            let index = {};
+            try { index = await getCompetitorIndex(); } catch (e) {}
+            panel.innerHTML = renderMatchOdds(currentCards[i], index);
+            panel.dataset.rendered = '1';
+        }
+
+        // Odds view for a selected match: BwanaBet featured on top, then the sites it
+        // beats on total payout (home + draw + away), listed unranked. Sites that beat
+        // or tie BwanaBet — or don't carry the fixture — are left off.
+        function renderMatchOdds(card, index) {
+            const rows = matchCompetitors(card.homeTeam, card.awayTeam, index, COMPETITORS.map(c => c.key));
+            const beaten = beatenBooks(card.odds, rows);
+
+            let html = `<div class="odds-grid">${renderRow(BWANABET, card.odds, null)}</div>`;
+            if (beaten.length > 0) {
+                html += `<p class="compare-caption">Bookmakers BwanaBet beats</p>
+                    <div class="comparison-rows">
+                        ${beaten.map(r => renderRow(COMPETITOR_BY_KEY[r.key], r.odds, null)).join('')}
+                    </div>`;
+            }
+            return html;
         }
 
         // ============================================
