@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Best Betting Odds Zambia | Live Football Odds Comparison</title>
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+<meta name="theme-color" content="#7f1d2b">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@500;600;700&family=Libre+Franklin:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -402,7 +404,7 @@
       cards.push({ eventId: e.eventId, eventName: e.eventName, country: e.country, competition: e.competitionName,
         homeTeam: teams.home, awayTeam: teams.away || 'TBA', leagueLine: e.country ? `${e.country} · ${e.competitionName}` : e.competitionName,
         league: e.competitionName || 'Football', leagueName: li ? li.name : null, leagueImg: li ? li.img : null,
-        time: formatDate(e.eventStartTime), top: e.top, odds, beaten: undefined });
+        startTime: e.eventStartTime, time: formatDate(e.eventStartTime), top: e.top, odds, beaten: undefined });
     }
     return cards;
   }
@@ -424,7 +426,7 @@
   }
   function bookRow(meta, odds, cta) {
     const feat = meta.key === 'bwanabet';
-    return `<div class="olrow ${feat ? 'bwana' : ''}"><span class="ol-book">${bookLogo(meta)}<span class="ol-name">${esc(meta.name)}${feat ? '<em>Featured</em>' : ''}</span></span><span class="ol-odd">${esc(odds.home)}</span><span class="ol-odd">${esc(odds.draw)}</span><span class="ol-odd">${esc(odds.away)}</span>${cta}</div>`;
+    return `<div class="olrow ${feat ? 'bwana' : ''}"><span class="ol-book">${bookLogo(meta)}<span class="ol-name">${esc(meta.name)}</span></span><span class="ol-odd">${esc(odds.home)}</span><span class="ol-odd">${esc(odds.draw)}</span><span class="ol-odd">${esc(odds.away)}</span>${cta}</div>`;
   }
   function oddsListHtml(card, beaten) {
     let rows = bookRow(BWANABET, card.odds, `<a class="ol-cta bet" href="${bwanaMatchUrl(card)}" target="_blank" rel="noopener">Bet</a>`);
@@ -449,7 +451,6 @@
       <span class="kicker">Match of the evening</span>
       <div class="photo" style="background-image: linear-gradient(180deg, oklch(0.18 0.05 16 / 0.35) 0%, transparent 35%, oklch(0.16 0.05 16 / 0.92) 100%), url('${stadium}');">
         ${lg ? `<img class="poster-league" src="${lg}" alt="">` : ''}
-        <span class="ribbon" id="leadRibbon" hidden>Best price in town</span>
         ${hero}
         <div class="cap"><span class="lg">${esc(card.leagueLine)}</span><h2>${headline}</h2></div>
       </div>
@@ -464,7 +465,6 @@
   function fillLead(card, index) {
     card.beaten = beatenBooks(card.odds, matchCompetitors(card.homeTeam, card.awayTeam, index, COMP_KEYS));
     const el = $('leadList'); if (el) el.innerHTML = oddsListHtml(card, card.beaten);
-    const r = $('leadRibbon'); if (r) r.hidden = !card.beaten.length;
   }
 
   /* ---- fixtures ---- */
@@ -501,21 +501,27 @@
   /* ---- league rail ---- */
   function renderRail() {
     const present = new Set(ALL_CARDS.map(c => c.leagueName).filter(Boolean));
-    const items = [{ name: 'all', label: 'All football', img: null }]
+    const items = [{ name: 'today', label: "Today's matches", img: null }, { name: 'all', label: 'All football', img: null }]
       .concat(LEAGUES.map(l => ({ name: l.name, label: l.name, img: l.img, dim: !present.has(l.name) })));
     $('leagueRail').innerHTML = items.map(it =>
       `<button class="lg-btn ${currentLeague === it.name ? 'active' : ''}" data-league="${esc(it.name)}" style="${it.dim ? 'opacity:.55' : ''}">${it.img ? `<img src="${it.img}" alt="">` : ''}${esc(it.label)}</button>`
     ).join('');
     $('leagueRail').querySelectorAll('.lg-btn').forEach(b => b.addEventListener('click', () => filterLeague(b.dataset.league)));
   }
-  function filterLeague(name) {
-    currentLeague = name;
-    const cards = name === 'all' ? ALL_CARDS : ALL_CARDS.filter(c => c.leagueName === name);
-    renderRail();
-    if (!cards.length) { $('fxTitle').textContent = name; fixturesMessage(`No ${esc(name)} fixtures on today's coupon — try “All” or search a team.`); $('fixtures').scrollIntoView({ behavior: 'smooth', block: 'start' }); return; }
-    renderFixtures(cards, name === 'all' ? "Today's fixtures" : name);
-    $('fixtures').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  function isToday(card) { return card.startTime && new Date(card.startTime).toDateString() === new Date().toDateString(); }
+  function viewForLeague(name) {
+    if (name === 'today') return { cards: ALL_CARDS.filter(isToday), title: "Today's matches", empty: 'No matches kicking off today — try “All football”.' };
+    if (name === 'all') return { cards: ALL_CARDS, title: "Today's fixtures", empty: 'No fixtures to show right now.' };
+    return { cards: ALL_CARDS.filter(c => c.leagueName === name), title: name, empty: `No ${name} fixtures on today's coupon — try “All football” or search a team.` };
   }
+  function applyLeague(name, scroll) {
+    currentLeague = name; renderRail();
+    const { cards, title, empty } = viewForLeague(name);
+    if (!cards.length) { $('fxTitle').textContent = title; fixturesMessage(esc(empty)); }
+    else renderFixtures(cards, title);
+    if (scroll) $('fixtures').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+  function filterLeague(name) { applyLeague(name, true); }
 
   /* ---- rivalry radar ---- */
   // Only surface a rivalry tile if that fixture is actually on the feed and kicks
@@ -547,8 +553,9 @@
       const events = [...top, ...filler].slice(0, CONFIG.MAX_RESULTS);
       const cards = await buildMatchCards(events);
       if (!cards.length) { fixturesMessage('No fixtures on the live feed right now.'); return; }
-      ALL_CARDS = cards; currentLeague = 'all';
-      renderLead(cards[0]); renderRail(); renderFixtures(cards, "Today's fixtures");
+      ALL_CARDS = cards;
+      renderLead(cards[0]);
+      applyLeague(cards.some(isToday) ? 'today' : 'all', false);
       fillLead(cards[0], await indexPromise);
     } catch (e) { console.error(e); fixturesMessage('⚠️ Could not reach the live odds feed. Please refresh and try again.'); }
   }
