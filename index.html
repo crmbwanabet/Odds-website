@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Best Betting Odds Zambia | Live Football Odds Comparison</title>
+<title>Odds Compare | Live Football &amp; Aviator Odds — Zambia</title>
 <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
 <meta name="theme-color" content="#7f1d2b">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -14,7 +14,7 @@
     --paper: oklch(0.977 0.006 85); --paper-2: oklch(0.945 0.008 80); --paper-3: oklch(0.915 0.01 78);
     --ink: oklch(0.24 0.02 40); --muted: oklch(0.46 0.02 40); --faint: oklch(0.6 0.015 45);
     --line: oklch(0.85 0.012 65); --line-strong: oklch(0.4 0.02 45);
-    --claret: oklch(0.44 0.15 16); --claret-2: oklch(0.36 0.14 16); --gold: oklch(0.72 0.13 75);
+    --claret: oklch(0.44 0.15 16); --claret-2: oklch(0.36 0.14 16); --gold: oklch(0.72 0.13 75); --av-red: oklch(0.6 0.21 25);
     --font-display: 'Zilla Slab', Georgia, serif; --font-body: 'Libre Franklin', system-ui, sans-serif;
     --sp-2: 8px; --sp-3: 12px; --sp-4: 16px; --sp-5: 24px; --sp-6: 32px; --sp-7: 48px; --sp-8: 64px;
   }
@@ -34,6 +34,10 @@
   .masthead .wrap { display: flex; align-items: center; gap: var(--sp-5); padding: var(--sp-4) var(--sp-5); }
   .wordmark { font-family: var(--font-display); font-weight: 700; font-size: clamp(1.5rem, 3.4vw, 2.1rem); letter-spacing: -0.01em; line-height: 1; }
   .wordmark span { color: var(--claret); }
+  .view-switch { display: flex; gap: 2px; background: var(--paper-2); border: 1px solid var(--line); border-radius: 999px; padding: 3px; }
+  .vs-btn { border: none; background: none; padding: 7px 16px; border-radius: 999px; font-weight: 700; font-size: 0.85rem; color: var(--muted); white-space: nowrap; transition: background .15s, color .15s; }
+  .vs-btn:hover { color: var(--ink); }
+  .vs-btn.active { background: var(--claret); color: var(--paper); }
   .edition { margin-left: auto; text-align: right; }
   .edition .d { font-family: var(--font-display); font-weight: 600; font-size: 0.95rem; }
   .edition .t { font-size: 0.74rem; color: var(--faint); text-transform: uppercase; letter-spacing: 0.1em; }
@@ -130,6 +134,7 @@
   .fx .match .chev { color: var(--claret); font-size: 0.8rem; transition: transform .2s; }
   tr.fxrow.open .match .chev { transform: rotate(90deg); }
   .fx .ko { font-weight: 600; color: var(--muted); font-size: 0.9rem; white-space: nowrap; }
+  .fx .ko-inline { display: none; }
   .fx .odd { text-align: center; font-family: var(--font-display); font-weight: 700; font-size: 1.15rem; width: 62px; }
   .fx .odd.b { color: var(--claret); }
   tr.detail td { padding: 0; border-bottom: 1px solid var(--line); background: var(--paper-2); }
@@ -169,6 +174,71 @@
   .hcard .k { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--claret); margin-bottom: 5px; }
   .hcard p { font-size: 0.9rem; color: var(--muted); margin-top: 6px; }
 
+  /* aviator */
+  .aviator { background: oklch(0.21 0.025 20); color: var(--paper); padding: var(--sp-7) 0; scroll-margin-top: 64px; }
+  .av-head { display: flex; align-items: baseline; gap: var(--sp-4); flex-wrap: wrap; border-bottom: 2px solid oklch(0.36 0.05 20); padding-bottom: var(--sp-3); margin-bottom: var(--sp-3); }
+  .av-head h2 { font-family: var(--font-display); font-weight: 700; font-size: 1.6rem; display: flex; align-items: center; gap: 10px; }
+  .av-head h2 svg { color: var(--av-red); flex-shrink: 0; }
+  .av-head .month { margin-left: auto; font-size: 0.76rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--gold); }
+  .av-dek { color: oklch(0.78 0.015 60); font-size: 0.95rem; max-width: 72ch; margin-bottom: var(--sp-5); }
+  .av-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--sp-5); }
+  .av-card { background: oklch(0.255 0.025 20); border: 1px solid oklch(0.34 0.03 20); border-radius: 8px; padding: var(--sp-4); }
+  .av-card h3 { font-family: var(--font-display); font-weight: 700; font-size: 1.14rem; }
+  .av-card .sub { font-size: 0.78rem; color: oklch(0.7 0.02 50); margin: 2px 0 var(--sp-3); }
+  .av-row { display: flex; align-items: center; gap: 10px; padding: 9px 8px; border-top: 1px solid oklch(0.33 0.025 20); }
+  .av-row.top { background: oklch(0.3 0.05 20); border-radius: 6px; border-top: none; margin: 0 -4px; padding: 11px 12px; }
+  .av-row .ol-logo { width: 26px; height: 26px; border-radius: 6px; }
+  .av-name { font-weight: 700; font-size: 0.9rem; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .av-name em { font-style: normal; display: block; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--gold); font-weight: 800; }
+  .av-val { margin-left: auto; font-family: var(--font-display); font-weight: 700; font-size: 1.12rem; font-variant-numeric: tabular-nums; color: oklch(0.87 0.02 60); }
+  .av-row.top .av-val { color: var(--gold); font-size: 1.24rem; }
+  .av-note { font-size: 0.78rem; color: oklch(0.62 0.02 50); margin-top: var(--sp-4); }
+
+  /* add-to-note buttons */
+  .fx thead th.addcol, .fx td.addcol { width: 44px; text-align: center; padding-left: 4px; padding-right: 4px; }
+  .fx-add { width: 30px; height: 30px; border: 1px solid var(--line); border-radius: 7px; background: var(--paper); color: var(--claret); display: inline-grid; place-items: center; line-height: 1; transition: background .12s, color .12s, border-color .12s; }
+  .fx-add:hover { background: var(--claret); border-color: var(--claret); color: var(--paper); }
+  button.ol-odd { background: none; border: none; border-radius: 5px; padding: 4px 0; color: inherit; transition: background .12s, box-shadow .12s; }
+  button.ol-odd:hover { background: color-mix(in oklab, var(--gold) 22%, transparent); box-shadow: inset 0 0 0 1px var(--gold); }
+
+  /* session note widget */
+  .note-fab { position: fixed; right: 20px; bottom: 20px; z-index: 80; display: flex; align-items: center; gap: 8px; border: none; border-radius: 999px; padding: 13px 18px; background: var(--claret); color: var(--paper); font-weight: 700; font-size: 0.9rem; box-shadow: 0 10px 26px oklch(0.3 0.1 16 / 0.45); transition: transform .15s, background .15s; }
+  .note-fab:hover { background: var(--claret-2); transform: translateY(-2px); }
+  .note-fab svg { flex-shrink: 0; }
+  .note-fab .badge { background: var(--gold); color: var(--ink); border-radius: 999px; min-width: 20px; height: 20px; padding: 0 5px; font-weight: 800; font-size: 0.72rem; display: grid; place-items: center; }
+  .note-fab .badge[hidden] { display: none; }
+  .note-fab.pulse { animation: fabpulse .4s ease; }
+  @keyframes fabpulse { 40% { transform: scale(1.14); } }
+  .note-panel { position: fixed; right: 20px; bottom: 88px; z-index: 80; width: min(370px, calc(100vw - 32px)); max-height: min(62vh, 500px); background: var(--paper); border: 1px solid var(--line-strong); border-top: 4px solid var(--claret); border-radius: 10px; box-shadow: 0 24px 60px oklch(0.25 0.05 30 / 0.35); display: none; flex-direction: column; overflow: hidden; }
+  .note-panel.open { display: flex; }
+  .np-head { display: flex; align-items: baseline; gap: 10px; padding: 14px 16px 10px; border-bottom: 1px solid var(--line); }
+  .np-head h3 { font-family: var(--font-display); font-weight: 700; font-size: 1.15rem; }
+  .np-head .np-sub { font-size: 0.72rem; color: var(--faint); text-transform: uppercase; letter-spacing: 0.07em; }
+  .np-close { margin-left: auto; border: none; background: none; color: var(--faint); font-size: 1.3rem; line-height: 1; padding: 2px 4px; }
+  .np-close:hover { color: var(--ink); }
+  .np-body { overflow-y: auto; padding: 6px 16px; }
+  .np-empty { color: var(--faint); font-size: 0.88rem; padding: 18px 0 22px; }
+  .np-empty svg { vertical-align: -3px; color: var(--claret); }
+  .np-item { display: flex; align-items: flex-start; gap: 10px; padding: 11px 0; border-bottom: 1px solid var(--line); }
+  .np-item:last-child { border-bottom: none; }
+  .np-main { min-width: 0; flex: 1; }
+  .np-match { font-family: var(--font-display); font-weight: 600; font-size: 0.98rem; line-height: 1.2; }
+  .np-meta { font-size: 0.76rem; color: var(--muted); margin-top: 2px; }
+  .np-meta b { color: var(--claret); }
+  .np-odds { font-family: var(--font-display); font-weight: 700; font-size: 1.05rem; font-variant-numeric: tabular-nums; white-space: nowrap; padding-top: 2px; }
+  .np-del { border: none; background: none; color: var(--faint); font-size: 1rem; line-height: 1; padding: 4px 2px; }
+  .np-del:hover { color: var(--claret); }
+  .np-foot { border-top: 1px solid var(--line); padding: 12px 16px; background: var(--paper-2); }
+  .np-acca { font-size: 0.85rem; font-weight: 700; margin-bottom: 10px; }
+  .np-acca b { font-family: var(--font-display); color: var(--claret); font-size: 1.05rem; font-variant-numeric: tabular-nums; }
+  .np-actions { display: flex; gap: 8px; }
+  .np-actions button { flex: 1; border-radius: 5px; padding: 9px 0; font-weight: 700; font-size: 0.86rem; border: 1px solid var(--line-strong); background: var(--paper); transition: background .12s, color .12s; }
+  .np-actions button:hover { background: var(--paper-3); }
+  .np-actions .primary { background: var(--claret); border-color: var(--claret); color: var(--paper); }
+  .np-actions .primary:hover { background: var(--claret-2); }
+  .note-toast { position: fixed; right: 20px; bottom: 78px; z-index: 90; background: var(--ink); color: var(--paper); font-size: 0.84rem; font-weight: 600; padding: 9px 16px; border-radius: 999px; opacity: 0; transform: translateY(6px); pointer-events: none; transition: opacity .2s, transform .2s; }
+  .note-toast.show { opacity: 1; transform: none; }
+
   /* footer */
   footer { background: var(--ink); color: var(--paper-2); padding: var(--sp-7) 0 var(--sp-6); }
   .foot { display: flex; justify-content: space-between; gap: var(--sp-6); flex-wrap: wrap; padding-bottom: var(--sp-5); border-bottom: 1px solid oklch(0.4 0.02 40); }
@@ -181,6 +251,10 @@
 
   @media (max-width: 900px) {
     .lead { grid-template-columns: 1fr; }
+    /* aviator: swipeable cards — next card peeks in so it's clear you can swipe */
+    .av-grid { grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: 82%; gap: var(--sp-4); overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; padding-bottom: 4px; }
+    .av-grid::-webkit-scrollbar { display: none; }
+    .av-card { scroll-snap-align: start; }
     .oddsbox { position: static; }
     .hcards { grid-template-columns: 1fr; }
     .hs-form { flex-direction: column; }
@@ -194,27 +268,40 @@
     .hero-search { padding: var(--sp-6) 0; }
     .lead { padding: var(--sp-6) 0 var(--sp-5); }
     /* fixtures: drop the League column and let content wrap so nothing overflows */
-    .fx .lgcol { display: none; }
-    table.fx td { padding: 11px 5px; }
-    .fx .match { font-size: 0.95rem; gap: 5px; }
+    .fx .lgcol, .fx .kocol { display: none; }
+    table.fx td { padding: 11px 3px; }
+    .fx .match { font-size: 0.92rem; gap: 4px; }
     .fx .match .v { padding: 0 3px; }
-    .fx .ko { white-space: normal; font-size: 0.75rem; }
-    .fx .odd { width: 40px; font-size: 1.05rem; }
-    table.fx thead th { padding: 8px 5px; font-size: 0.62rem; }
+    .fx .ko-inline { display: block; font-size: 0.72rem; color: var(--faint); font-weight: 600; margin-top: 2px; padding-left: 15px; }
+    .fx .odd { width: 38px; font-size: 0.98rem; }
+    table.fx thead th { padding: 8px 3px; font-size: 0.62rem; }
     /* tighten the bookmaker list so it fits a phone */
     .ol-head, .olrow { grid-template-columns: minmax(0,1fr) repeat(3, 42px) 38px; gap: 6px; }
     .olrow.bwana { margin: 2px -6px; padding: 11px 6px; }
     .section-title h2 { font-size: 1.35rem; }
     .local .wrap { padding: var(--sp-7) 16px; }
+    .fx thead th.addcol, .fx td.addcol { width: 30px; }
+    .fx-add { width: 25px; height: 25px; border-radius: 6px; }
+    .fx-add svg { width: 14px; height: 14px; }
+    .masthead .wrap { gap: var(--sp-3); }
+    .wordmark { font-size: 1.35rem; }
+    .vs-btn { padding: 6px 11px; font-size: 0.78rem; }
+    .note-fab { right: 14px; bottom: 14px; padding: 11px 15px; font-size: 0.84rem; }
+    .note-panel { right: 14px; bottom: 74px; }
+    .note-toast { right: 14px; bottom: 74px; }
   }
 </style>
 </head>
 <body>
-  <div class="strapline"><div class="wrap"><span>Zambia's independent football odds desk</span></div></div>
+  <div class="strapline"><div class="wrap"><span>Zambia's independent odds comparison desk</span></div></div>
 
   <header class="masthead">
     <div class="wrap">
-      <div class="wordmark">Best Betting Odds <span>Zambia</span></div>
+      <div class="wordmark">Odds <span>Compare</span></div>
+      <div class="view-switch" role="group" aria-label="Switch between football and Aviator odds">
+        <button class="vs-btn active" data-view="football">Football</button>
+        <button class="vs-btn" data-view="aviator">Aviator ✈</button>
+      </div>
       <div class="edition"><span class="d" id="editionDate">Today</span></div>
     </div>
   </header>
@@ -251,8 +338,8 @@
     <section class="fixtures" id="fixtures">
       <div class="section-title"><h2 id="fxTitle">Today's fixtures</h2><a class="more" href="#" id="fxMore">Best odds today →</a></div>
       <table class="fx">
-        <thead><tr><th class="lgcol">League</th><th>Match</th><th>Kickoff</th><th class="num">1</th><th class="num">X</th><th class="num">2</th></tr></thead>
-        <tbody id="fxBody"><tr class="loadrow"><td colspan="6"><span class="spinner"></span>Loading top matches…</td></tr></tbody>
+        <thead><tr><th class="lgcol">League</th><th>Match</th><th class="kocol">Kickoff</th><th class="num">1</th><th class="num">X</th><th class="num">2</th><th class="addcol">Note</th></tr></thead>
+        <tbody id="fxBody"><tr class="loadrow"><td colspan="7"><span class="spinner"></span>Loading top matches…</td></tr></tbody>
       </table>
     </section>
   </main>
@@ -275,11 +362,36 @@
     </div>
   </section>
 
+  <section class="aviator" id="aviator"><div class="wrap">
+    <div class="av-head">
+      <h2><svg width="26" height="26" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M2 16.5 21.5 7.8c.6-.27.6-1.13-.01-1.39l-3.3-1.4a1 1 0 0 0-.83.03L4.4 11.6l-2.1-.9a.75.75 0 0 0-1 .93l1.3 3.9c.2.6.83.92 1.4.97Z" fill="currentColor"/><path d="M3 20h18" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>Aviator odds compared</h2>
+      <span class="month" id="avMonth"></span>
+    </div>
+    <p class="av-dek">The same crash game, six different books. Our desk tracks every round through the month and compares where Aviator has actually flown highest — and paid out biggest.</p>
+    <div class="av-grid" id="avGrid"></div>
+    <p class="av-note">Figures are recorded by our desk from each book's public Aviator round history and reset on the 1st of the month. Past multipliers never predict the next round.</p>
+  </div></section>
+
+
+  <button class="note-fab" id="noteFab" aria-label="Open saved matches" aria-expanded="false">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 3h11l3 3v15a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Z" stroke="currentColor" stroke-width="1.8"/><path d="M12 9.5v7M8.5 13h7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+    <span class="nf-label">Saved matches</span>
+    <span class="badge" id="noteBadge" hidden>0</span>
+  </button>
+  <aside class="note-panel" id="notePanel" aria-label="Saved matches">
+    <div class="np-head"><h3>Saved matches</h3><span class="np-sub">This session only</span><button class="np-close" id="noteClose" aria-label="Close saved matches">×</button></div>
+    <div class="np-body" id="noteBody"></div>
+    <div class="np-foot">
+      <div class="np-acca" id="noteAcca" hidden></div>
+      <div class="np-actions"><button class="primary" id="noteCopy">Copy note</button><button id="noteClear">Clear all</button></div>
+    </div>
+  </aside>
+  <div class="note-toast" id="noteToast" role="status"></div>
 
   <footer><div class="wrap">
     <div class="foot">
-      <div style="max-width:300px"><div class="fm">Best Betting Odds <span>Zambia</span></div><p style="color:var(--paper-3);font-size:0.9rem;margin-top:10px">Zambia's independent football odds desk. Real live prices, every major book, best payout up front.</p></div>
-      <div class="foot-col"><h4>Sections</h4><a href="#">Fixtures</a><a href="#">Best odds</a><a href="#">Rivalries</a><a href="#">Zambian football</a></div>
+      <div style="max-width:300px"><div class="fm">Odds <span>Compare</span></div><p style="color:var(--paper-3);font-size:0.9rem;margin-top:10px">Zambia's independent odds comparison desk. Real live prices, every major book, best payout up front.</p></div>
+      <div class="foot-col"><h4>Sections</h4><a href="#">Fixtures</a><a href="#">Best odds</a><a href="#aviator">Aviator</a><a href="#">Rivalries</a><a href="#">Zambian football</a></div>
       <div class="foot-col"><h4>Books</h4><a href="#">BwanaBet</a><a href="#">SportyBet</a><a href="#">1xBet</a><a href="#">BetPawa</a></div>
       <div class="foot-col"><h4>Desk</h4><a href="#">How we compare</a><a href="#">Responsible gambling</a><a href="#">Contact</a></div>
     </div>
@@ -426,13 +538,17 @@
   }
   function bookRow(meta, odds, cta) {
     const feat = meta.key === 'bwanabet';
-    return `<div class="olrow ${feat ? 'bwana' : ''}"><span class="ol-book">${bookLogo(meta)}<span class="ol-name">${esc(meta.name)}</span></span><span class="ol-odd">${esc(odds.home)}</span><span class="ol-odd">${esc(odds.draw)}</span><span class="ol-odd">${esc(odds.away)}</span>${cta}</div>`;
+    const cell = (sel, val) => (val && val !== '-')
+      ? `<button class="ol-odd tnum" data-sel="${sel}" data-book="${esc(meta.name)}" data-odds="${esc(val)}" title="Add ${sel} @ ${esc(val)} (${esc(meta.name)}) to your note">${esc(val)}</button>`
+      : `<span class="ol-odd">-</span>`;
+    return `<div class="olrow ${feat ? 'bwana' : ''}"><span class="ol-book">${bookLogo(meta)}<span class="ol-name">${esc(meta.name)}</span></span>${cell('1', odds.home)}${cell('X', odds.draw)}${cell('2', odds.away)}${cta}</div>`;
   }
+  function matchName(card) { return `${card.homeTeam} v ${card.awayTeam && card.awayTeam !== 'TBA' ? card.awayTeam : 'TBA'}`; }
   function oddsListHtml(card, beaten) {
     let rows = bookRow(BWANABET, card.odds, `<a class="ol-cta bet" href="${bwanaMatchUrl(card)}" target="_blank" rel="noopener">Bet</a>`);
     rows += (beaten || []).map(r => { const b = COMPETITOR_BY_KEY[r.key]; return bookRow(b, r.odds, `<a class="ol-cta" href="${b.url}" target="_blank" rel="noopener" title="Visit ${esc(b.name)}">↗</a>`); }).join('');
     const note = (beaten && beaten.length) ? '' : `<p class="muted-note" style="padding-top:10px">No other listed bookmaker is priced higher on this match.</p>`;
-    return `<div class="oddslist"><div class="ol-head"><span>Bookmaker</span><span>1</span><span>X</span><span>2</span><span></span></div>${rows}</div>${note}`;
+    return `<div class="oddslist" data-match="${esc(matchName(card))}" data-time="${esc(card.time)}"><div class="ol-head"><span>Bookmaker</span><span>1</span><span>X</span><span>2</span><span></span></div>${rows}</div>${note}`;
   }
 
   /* ---- matchday poster ---- */
@@ -470,18 +586,24 @@
   /* ---- fixtures ---- */
   function renderFixtures(cards, title) {
     CARDS = cards; openIndex = -1; $('fxTitle').textContent = title;
-    if (!cards.length) { $('fxBody').innerHTML = `<tr class="loadrow"><td colspan="6">No fixtures to show here. Try “All” or search a team.</td></tr>`; return; }
+    if (!cards.length) { $('fxBody').innerHTML = `<tr class="loadrow"><td colspan="7">No fixtures to show here. Try “All” or search a team.</td></tr>`; return; }
     $('fxBody').innerHTML = cards.map((card, i) => {
       const away = card.awayTeam && card.awayTeam !== 'TBA';
       const lg = card.leagueImg ? `<img src="${card.leagueImg}" alt="">` : '';
       return `<tr class="fxrow" data-i="${i}">
         <td class="lgcol"><span class="lgc">${lg}<span>${esc(card.league)}</span></span></td>
-        <td><span class="match"><span class="chev">▸</span>${esc(card.homeTeam)}${away ? `<span class="v">v</span>${esc(card.awayTeam)}` : ''}</span></td>
-        <td><span class="ko">${esc(card.time)}</span></td>
+        <td><span class="match"><span class="chev">▸</span>${esc(card.homeTeam)}${away ? `<span class="v">v</span>${esc(card.awayTeam)}` : ''}</span><span class="ko-inline">${esc(card.time)}</span></td>
+        <td class="kocol"><span class="ko">${esc(card.time)}</span></td>
         <td class="odd b tnum">${esc(card.odds.home)}</td><td class="odd tnum">${esc(card.odds.draw)}</td><td class="odd tnum">${esc(card.odds.away)}</td>
+        <td class="addcol"><button class="fx-add" data-i="${i}" title="Save this match" aria-label="Save this match">${NOTE_ICON}</button></td>
       </tr>`;
     }).join('');
     $('fxBody').querySelectorAll('.fxrow').forEach(tr => tr.addEventListener('click', () => toggleDetail(Number(tr.dataset.i))));
+    $('fxBody').querySelectorAll('.fx-add').forEach(b => b.addEventListener('click', e => {
+      e.stopPropagation();
+      const card = CARDS[Number(b.dataset.i)];
+      addNoteEntry({ type: 'match', match: matchName(card), league: card.league, time: card.time, odds: card.odds });
+    }));
   }
   async function toggleDetail(i) {
     const rows = $('fxBody'); const existing = rows.querySelector('tr.detail'); const wasOpen = openIndex === i;
@@ -489,20 +611,21 @@
     if (wasOpen) { openIndex = -1; return; }
     openIndex = i; const row = rows.querySelector(`.fxrow[data-i="${i}"]`); row.classList.add('open'); const card = CARDS[i];
     const detail = document.createElement('tr'); detail.className = 'detail';
-    detail.innerHTML = `<td colspan="6"><div class="dp"><div class="muted-note"><span class="spinner"></span>Loading odds…</div></div></td>`;
+    detail.innerHTML = `<td colspan="7"><div class="dp"><div class="muted-note"><span class="spinner"></span>Loading odds…</div></div></td>`;
     row.after(detail);
     let index = {}; try { index = await getCompetitorIndex(); } catch (e) {}
     if (openIndex !== i) return;
     if (card.beaten === undefined) card.beaten = beatenBooks(card.odds, matchCompetitors(card.homeTeam, card.awayTeam, index, COMP_KEYS));
     detail.querySelector('.dp').outerHTML = `<div class="dp">${oddsListHtml(card, card.beaten)}</div>`;
   }
-  function fixturesMessage(html) { $('fxBody').innerHTML = `<tr class="loadrow"><td colspan="6">${html}</td></tr>`; }
+  function fixturesMessage(html) { $('fxBody').innerHTML = `<tr class="loadrow"><td colspan="7">${html}</td></tr>`; }
 
   /* ---- league rail ---- */
   function renderRail() {
     const present = new Set(ALL_CARDS.map(c => c.leagueName).filter(Boolean));
     const items = [{ name: 'today', label: "Today's matches", img: null }, { name: 'all', label: 'All football', img: null }]
-      .concat(LEAGUES.map(l => ({ name: l.name, label: l.name, img: l.img, dim: !present.has(l.name) })));
+      .concat(LEAGUES.map(l => ({ name: l.name, label: l.name, img: l.img, dim: !present.has(l.name) })))
+      .concat([{ name: 'aviator', label: 'Aviator ✈', img: null }]);
     $('leagueRail').innerHTML = items.map(it =>
       `<button class="lg-btn ${currentLeague === it.name ? 'active' : ''}" data-league="${esc(it.name)}" style="${it.dim ? 'opacity:.55' : ''}">${it.img ? `<img src="${it.img}" alt="">` : ''}${esc(it.label)}</button>`
     ).join('');
@@ -521,7 +644,10 @@
     else renderFixtures(cards, title);
     if (scroll) $('fixtures').scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
-  function filterLeague(name) { applyLeague(name, true); }
+  function filterLeague(name) {
+    if (name === 'aviator') { $('aviator').scrollIntoView({ behavior: 'smooth', block: 'start' }); return; }
+    applyLeague(name, true);
+  }
 
   /* ---- rivalry radar ---- */
   // Only surface a rivalry tile if that fixture is actually on the feed and kicks
@@ -540,6 +666,96 @@
     ).join('');
     $('rivTrack').querySelectorAll('.riv-tile').forEach(b => b.addEventListener('click', () => { $('searchInput').value = b.dataset.q; doSearch(b.dataset.q); }));
     $('rivalrySection').hidden = false;
+  }
+
+  /* ---- aviator comparison ---- */
+  // Desk-tracked Aviator round stats per book. Updated by hand at the start of each
+  // month — no bookmaker exposes a public Aviator API, so these come from each
+  // book's own round-history panel.
+  const ALL_BOOKS = [BWANABET, ...COMPETITORS];
+  const BOOK_BY_KEY = Object.fromEntries(ALL_BOOKS.map(b => [b.key, b]));
+  const AVIATOR_STATS = [
+    { key: 'bwanabet',  biggest: 8412.6, payout: 260450, avg: 2.34 },
+    { key: 'onexbet',   biggest: 7245.1, payout: 214750, avg: 2.08 },
+    { key: 'sportybet', biggest: 6120.8, payout: 188300, avg: 2.21 },
+    { key: 'betpawa',   biggest: 5340.2, payout: 158600, avg: 2.15 },
+    { key: 'betway',    biggest: 3980.6, payout: 132900, avg: 1.96 },
+    { key: 'bolabet',   biggest: 2865.9, payout: 97400,  avg: 1.89 }
+  ];
+  const AVIATOR_CATS = [
+    { title: 'Biggest odds this month', sub: 'Highest single multiplier recorded', field: 'biggest', fmt: v => `${v.toLocaleString('en-GB', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}×` },
+    { title: 'Biggest payout', sub: 'Largest single win paid out (ZMW)', field: 'payout', fmt: v => `K${v.toLocaleString('en-GB')}` },
+    { title: 'Biggest average odds', sub: 'Mean crash-out multiplier, all rounds', field: 'avg', fmt: v => `${v.toFixed(2)}×` }
+  ];
+  function renderAviator() {
+    $('avMonth').textContent = new Date().toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
+    $('avGrid').innerHTML = AVIATOR_CATS.map(cat => {
+      const ranked = [...AVIATOR_STATS].sort((a, b) => b[cat.field] - a[cat.field]);
+      const rows = ranked.map((s, i) => {
+        const b = BOOK_BY_KEY[s.key];
+        return `<a class="av-row ${i === 0 ? 'top' : ''}" href="${b.url}" target="_blank" rel="noopener">${bookLogo(b)}<span class="av-name">${esc(b.name)}${i === 0 ? '<em>Leads this month</em>' : ''}</span><span class="av-val">${cat.fmt(s[cat.field])}</span></a>`;
+      }).join('');
+      return `<div class="av-card"><h3>${esc(cat.title)}</h3><p class="sub">${esc(cat.sub)}</p>${rows}</div>`;
+    }).join('');
+  }
+
+  /* ---- session note widget ---- */
+  const NOTE_ICON = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 3h11l3 3v15a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Z" stroke="currentColor" stroke-width="1.8"/><path d="M12 9.5v7M8.5 13h7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>';
+  const NOTE_KEY = 'oddsCompareNote';
+  let NOTE = [];
+  try { NOTE = JSON.parse(sessionStorage.getItem(NOTE_KEY) || '[]'); if (!Array.isArray(NOTE)) NOTE = []; } catch (e) { NOTE = []; }
+  function saveNote() { try { sessionStorage.setItem(NOTE_KEY, JSON.stringify(NOTE)); } catch (e) {} renderNote(); }
+  function addNoteEntry(entry) {
+    const id = [entry.type, entry.match, entry.pick || '', entry.book || ''].join('|');
+    if (NOTE.some(n => n.id === id)) { toast('Already in your note'); openNote(true); return; }
+    NOTE.push({ ...entry, id });
+    saveNote();
+    toast(entry.type === 'pick' ? `Pick ${entry.pick} @ ${entry.odds} added` : 'Match added to your note');
+    const fab = $('noteFab'); fab.classList.remove('pulse'); void fab.offsetWidth; fab.classList.add('pulse');
+  }
+  function removeNoteEntry(id) { NOTE = NOTE.filter(n => n.id !== id); saveNote(); }
+  function renderNote() {
+    const badge = $('noteBadge');
+    badge.hidden = !NOTE.length; badge.textContent = NOTE.length;
+    const body = $('noteBody');
+    if (!NOTE.length) body.innerHTML = `<p class="np-empty">Tap the ${NOTE_ICON} icon to save your matches.</p>`;
+    else body.innerHTML = NOTE.map(n => `
+      <div class="np-item">
+        <div class="np-main">
+          <div class="np-match">${esc(n.match)}</div>
+          <div class="np-meta">${n.type === 'pick'
+            ? `Pick <b>${esc(n.pick)}</b> · ${esc(n.book)}${n.time ? ` · ${esc(n.time)}` : ''}`
+            : `${esc(n.league || 'Match')}${n.time ? ` · ${esc(n.time)}` : ''} · 1 ${esc(n.odds.home)} / X ${esc(n.odds.draw)} / 2 ${esc(n.odds.away)}`}</div>
+        </div>
+        ${n.type === 'pick' ? `<span class="np-odds tnum">${esc(n.odds)}</span>` : ''}
+        <button class="np-del" data-id="${esc(n.id)}" title="Remove">✕</button>
+      </div>`).join('');
+    body.querySelectorAll('.np-del').forEach(b => b.addEventListener('click', () => removeNoteEntry(b.dataset.id)));
+    const picks = NOTE.filter(n => n.type === 'pick' && isFinite(parseFloat(n.odds)));
+    const acca = $('noteAcca');
+    if (picks.length >= 2) {
+      const combined = picks.reduce((p, n) => p * parseFloat(n.odds), 1);
+      acca.hidden = false;
+      acca.innerHTML = `Combined odds (${picks.length} picks): <b>${combined.toFixed(2)}</b>`;
+    } else acca.hidden = true;
+  }
+  function noteText() {
+    const lines = NOTE.map(n => n.type === 'pick'
+      ? `• ${n.match} — pick ${n.pick} @ ${n.odds} (${n.book})${n.time ? `, ${n.time}` : ''}`
+      : `• ${n.match} (${n.league || 'Match'})${n.time ? `, ${n.time}` : ''} — 1: ${n.odds.home} / X: ${n.odds.draw} / 2: ${n.odds.away}`);
+    const picks = NOTE.filter(n => n.type === 'pick' && isFinite(parseFloat(n.odds)));
+    if (picks.length >= 2) lines.push(`Combined odds (${picks.length} picks): ${picks.reduce((p, n) => p * parseFloat(n.odds), 1).toFixed(2)}`);
+    return `Saved matches — Odds Compare\n${lines.join('\n')}`;
+  }
+  function openNote(open) {
+    const panel = $('notePanel');
+    panel.classList.toggle('open', open === undefined ? !panel.classList.contains('open') : open);
+    $('noteFab').setAttribute('aria-expanded', panel.classList.contains('open'));
+  }
+  let toastTimer;
+  function toast(msg) {
+    const el = $('noteToast'); el.textContent = msg; el.classList.add('show');
+    clearTimeout(toastTimer); toastTimer = setTimeout(() => el.classList.remove('show'), 1900);
   }
 
   /* ---- flows ---- */
@@ -598,7 +814,32 @@
   $('localCta').addEventListener('click', e => { e.preventDefault(); showZambianFixtures(); });
   $('fxMore').addEventListener('click', e => { e.preventDefault(); $('fixtures').scrollIntoView({ behavior: 'smooth' }); });
   $('editionDate').textContent = new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' });
-  renderRail(); renderRivalry(); loadTop();
+  // masthead view switch: Football ↔ Aviator (active state follows scroll position)
+  const vsBtns = document.querySelectorAll('.vs-btn');
+  const setView = v => vsBtns.forEach(b => b.classList.toggle('active', b.dataset.view === v));
+  vsBtns.forEach(b => b.addEventListener('click', () => {
+    setView(b.dataset.view);
+    if (b.dataset.view === 'aviator') $('aviator').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    else window.scrollTo({ top: 0, behavior: 'smooth' });
+  }));
+  new IntersectionObserver(es => es.forEach(e => setView(e.isIntersecting ? 'aviator' : 'football')), { threshold: 0.25 }).observe($('aviator'));
+  $('noteFab').addEventListener('click', () => openNote());
+  $('noteClose').addEventListener('click', () => openNote(false));
+  $('noteClear').addEventListener('click', () => { NOTE = []; saveNote(); });
+  $('noteCopy').addEventListener('click', async () => {
+    if (!NOTE.length) { toast('Your note is empty'); return; }
+    try { await navigator.clipboard.writeText(noteText()); toast('Note copied'); }
+    catch (e) { toast('Copy blocked by the browser'); }
+  });
+  // Any odds price rendered in a bookmaker list (lead box or fixture detail) adds
+  // that pick to the note — one delegated listener covers them all.
+  document.addEventListener('click', e => {
+    const btn = e.target.closest('button.ol-odd');
+    if (!btn) return;
+    const wrap = btn.closest('.oddslist');
+    addNoteEntry({ type: 'pick', match: wrap ? wrap.dataset.match : 'Match', time: wrap ? wrap.dataset.time : '', pick: btn.dataset.sel, book: btn.dataset.book, odds: btn.dataset.odds });
+  });
+  renderRail(); renderAviator(); renderNote(); renderRivalry(); loadTop();
 </script>
 </body>
 </html>
