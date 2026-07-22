@@ -186,6 +186,25 @@
     .edition { display: none; }
     .local .wrap { grid-template-columns: 1fr; }
   }
+  @media (max-width: 640px) {
+    .wrap { padding: 0 16px; }
+    .masthead .wrap { padding: var(--sp-4) 16px; }
+    .hero-search { padding: var(--sp-6) 0; }
+    .lead { padding: var(--sp-6) 0 var(--sp-5); }
+    /* fixtures: drop the League column and let content wrap so nothing overflows */
+    .fx .lgcol { display: none; }
+    table.fx td { padding: 11px 5px; }
+    .fx .match { font-size: 0.95rem; gap: 5px; }
+    .fx .match .v { padding: 0 3px; }
+    .fx .ko { white-space: normal; font-size: 0.75rem; }
+    .fx .odd { width: 40px; font-size: 1.05rem; }
+    table.fx thead th { padding: 8px 5px; font-size: 0.62rem; }
+    /* tighten the bookmaker list so it fits a phone */
+    .ol-head, .olrow { grid-template-columns: minmax(0,1fr) repeat(3, 42px) 38px; gap: 6px; }
+    .olrow.bwana { margin: 2px -6px; padding: 11px 6px; }
+    .section-title h2 { font-size: 1.35rem; }
+    .local .wrap { padding: var(--sp-7) 16px; }
+  }
 </style>
 </head>
 <body>
@@ -230,7 +249,7 @@
     <section class="fixtures" id="fixtures">
       <div class="section-title"><h2 id="fxTitle">Today's fixtures</h2><a class="more" href="#" id="fxMore">Best odds today →</a></div>
       <table class="fx">
-        <thead><tr><th>League</th><th>Match</th><th>Kickoff</th><th class="num">1</th><th class="num">X</th><th class="num">2</th></tr></thead>
+        <thead><tr><th class="lgcol">League</th><th>Match</th><th>Kickoff</th><th class="num">1</th><th class="num">X</th><th class="num">2</th></tr></thead>
         <tbody id="fxBody"><tr class="loadrow"><td colspan="6"><span class="spinner"></span>Loading top matches…</td></tr></tbody>
       </table>
     </section>
@@ -273,7 +292,7 @@
     FEED_CACHE_TTL_MS: 60 * 1000, SEARCH_MAX_PAGES: 6, PAGE_LIMIT: 100, MAX_RESULTS: 8,
     PROXY_URL: 'https://oddszone-odds-proxy.oddszone.workers.dev', PROXY_CACHE_TTL_MS: 45 * 1000
   };
-  const BWANABET = { key: 'bwanabet', name: 'BwanaBet', url: 'https://bwanabet.co.zm/', color: '#c9a227', logoText: 'BW', logo: 'assets/logos/bwanabet.png' };
+  const BWANABET = { key: 'bwanabet', name: 'BwanaBet', url: 'https://bwanabet.co.zm/', color: '#111', logoText: 'BW', logo: 'assets/logos/bwanabet.png' };
   const COMPETITORS = [
     { key: 'sportybet', name: 'SportyBet', url: 'https://www.sportybet.com/zm/', color: '#d0021b', logoText: 'SB', logo: 'assets/logos/sportybet.png' },
     { key: 'onexbet', name: '1xBet', url: 'https://1xbet.com.zm/', color: '#1a5cff', logoText: '1X', logo: 'assets/logos/1xbet.jpg' },
@@ -405,10 +424,7 @@
   }
   function bookRow(meta, odds, cta) {
     const feat = meta.key === 'bwanabet';
-    const book = feat
-      ? `<span class="ol-book"><span class="bw-lockup"><img src="${BWANABET.logo}" alt="BwanaBet" onerror="this.replaceWith(Object.assign(document.createElement('b'),{textContent:'BWANABET',style:'color:#fff;font-family:var(--font-display);font-weight:700'}))"></span><span class="ol-name" style="flex:0"><em>Featured</em></span></span>`
-      : `<span class="ol-book">${bookLogo(meta)}<span class="ol-name">${esc(meta.name)}</span></span>`;
-    return `<div class="olrow ${feat ? 'bwana' : ''}">${book}<span class="ol-odd">${esc(odds.home)}</span><span class="ol-odd">${esc(odds.draw)}</span><span class="ol-odd">${esc(odds.away)}</span>${cta}</div>`;
+    return `<div class="olrow ${feat ? 'bwana' : ''}"><span class="ol-book">${bookLogo(meta)}<span class="ol-name">${esc(meta.name)}${feat ? '<em>Featured</em>' : ''}</span></span><span class="ol-odd">${esc(odds.home)}</span><span class="ol-odd">${esc(odds.draw)}</span><span class="ol-odd">${esc(odds.away)}</span>${cta}</div>`;
   }
   function oddsListHtml(card, beaten) {
     let rows = bookRow(BWANABET, card.odds, `<a class="ol-cta bet" href="${bwanaMatchUrl(card)}" target="_blank" rel="noopener">Bet</a>`);
@@ -459,7 +475,7 @@
       const away = card.awayTeam && card.awayTeam !== 'TBA';
       const lg = card.leagueImg ? `<img src="${card.leagueImg}" alt="">` : '';
       return `<tr class="fxrow" data-i="${i}">
-        <td><span class="lgc">${lg}<span>${esc(card.league)}</span></span></td>
+        <td class="lgcol"><span class="lgc">${lg}<span>${esc(card.league)}</span></span></td>
         <td><span class="match"><span class="chev">▸</span>${esc(card.homeTeam)}${away ? `<span class="v">v</span>${esc(card.awayTeam)}` : ''}</span></td>
         <td><span class="ko">${esc(card.time)}</span></td>
         <td class="odd b tnum">${esc(card.odds.home)}</td><td class="odd tnum">${esc(card.odds.draw)}</td><td class="odd tnum">${esc(card.odds.away)}</td>
@@ -548,9 +564,31 @@
     } catch (e) { console.error(e); $('fxTitle').textContent = `Results for “${term}”`; fixturesMessage('⚠️ Could not reach the live odds feed. Please try again.'); }
   }
 
+  // Scan the feed for every fixture whose country/competition matches a pattern
+  // (used for "Find Zambian fixtures" — a whole league, not one team).
+  async function findEventsByLeague(re) {
+    const out = [], seen = new Set();
+    for (let page = 1; page <= CONFIG.SEARCH_MAX_PAGES; page++) {
+      let events; try { events = await getMainEvents(page); } catch (e) { break; }
+      if (!events.length) break;
+      for (const e of events) { const hay = `${e.country || ''} ${e.competitionName || ''}`; if (re.test(hay) && !seen.has(e.eventId)) { seen.add(e.eventId); out.push(e); } }
+    }
+    return out.sort((a, b) => new Date(a.eventStartTime) - new Date(b.eventStartTime)).slice(0, CONFIG.MAX_RESULTS);
+  }
+  async function showZambianFixtures() {
+    currentLeague = 'all';
+    $('fixtures').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    $('fxTitle').textContent = 'Zambian fixtures'; fixturesMessage('<span class="spinner"></span>Loading Zambian fixtures…');
+    try {
+      const events = await findEventsByLeague(/zambia/i); const cards = events.length ? await buildMatchCards(events) : [];
+      if (!cards.length) { $('fxTitle').textContent = 'Zambian fixtures'; fixturesMessage('No Zambian league fixtures on the coupon right now — check back on a match day, or search a Zambian team.'); ALL_CARDS = []; renderRail(); return; }
+      ALL_CARDS = cards; renderRail(); renderFixtures(cards, 'Zambian fixtures');
+    } catch (e) { console.error(e); $('fxTitle').textContent = 'Zambian fixtures'; fixturesMessage('⚠️ Could not reach the live odds feed. Please try again.'); }
+  }
+
   /* ---- wire ---- */
   $('searchForm').addEventListener('submit', e => { e.preventDefault(); doSearch($('searchInput').value); });
-  $('localCta').addEventListener('click', e => { e.preventDefault(); $('searchInput').value = 'Zesco'; doSearch('Zesco'); });
+  $('localCta').addEventListener('click', e => { e.preventDefault(); showZambianFixtures(); });
   $('fxMore').addEventListener('click', e => { e.preventDefault(); $('fixtures').scrollIntoView({ behavior: 'smooth' }); });
   $('editionDate').textContent = new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' });
   renderRail(); renderRivalry(); loadTop();
