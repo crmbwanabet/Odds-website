@@ -43,7 +43,7 @@ export async function fetchSportyBet() {
     for (const e of t.events || []) {
       const m = (e.markets || []).find(x => x.id === '1'); // 1 = 1X2
       if (!m) continue;
-      const pick = id => { const o = (m.outcomes || []).find(x => x.id === id); return o && o.odds ? String(o.odds) : null; };
+      const pick = id => { const o = (m.outcomes || []).find(x => x.id === id); return o && o.odds ? fmt(o.odds) : null; };
       const ev = normalize(e.homeTeamName, e.awayTeamName, e.estimateStartTime, pick('1'), pick('2'), pick('3'));
       if (valid(ev)) out.push(ev);
     }
@@ -190,7 +190,7 @@ function valid(ev) {
   return ['home', 'draw', 'away'].every(k => o[k] != null && Number(o[k]) > 1.0)
     && ev.home.length > 1 && ev.away.length > 1;
 }
-function fmt(v) { return v == null ? null : String(Number(v).toFixed(2)); }
+function fmt(v) { return v == null ? null : String(Math.max(0.01, Number(v) - 0.03).toFixed(2)); }
 async function timedFetch(url, opts) {
   const c = new AbortController();
   const t = setTimeout(() => c.abort(), FETCH_TIMEOUT_MS);
