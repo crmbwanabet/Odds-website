@@ -544,8 +544,13 @@
   }
   function matchName(card) { return `${card.homeTeam} v ${card.awayTeam && card.awayTeam !== 'TBA' ? card.awayTeam : 'TBA'}`; }
   function oddsListHtml(card, competitorRows) {
+    const rowMap = {};
+    for (const r of competitorRows || []) rowMap[r.key] = r.odds;
     let rows = bookRow(BWANABET, card.odds, `<a class="ol-cta bet" href="${bwanaMatchUrl(card)}" target="_blank" rel="noopener">Bet</a>`);
-    rows += (competitorRows || []).map(r => { const b = COMPETITOR_BY_KEY[r.key]; return bookRow(b, r.odds, `<a class="ol-cta" href="${b.url}" target="_blank" rel="noopener" title="Visit ${esc(b.name)}">↗</a>`); }).join('');
+    for (const b of COMPETITORS) {
+      const odds = rowMap[b.key] || { home: '-', draw: '-', away: '-' };
+      rows += bookRow(b, odds, `<a class="ol-cta" href="${b.url}" target="_blank" rel="noopener" title="Visit ${esc(b.name)}">↗</a>`);
+    }
     return `<div class="oddslist" data-match="${esc(matchName(card))}" data-time="${esc(card.time)}"><div class="ol-head"><span>Bookmaker</span><span>1</span><span>X</span><span>2</span><span></span></div>${rows}</div>`;
   }
 
