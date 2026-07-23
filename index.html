@@ -844,7 +844,7 @@
 
   /* ---- wire ---- */
   $('searchForm').addEventListener('submit', e => { e.preventDefault(); doSearch($('searchInput').value); });
-  $('localCta').addEventListener('click', e => { e.preventDefault(); showZambianFixtures(); });
+  $('localCta').addEventListener('click', e => { e.preventDefault(); applyLeague('today', true); });
   $('fxMore').addEventListener('click', e => { e.preventDefault(); $('fixtures').scrollIntoView({ behavior: 'smooth' }); });
   $('editionDate').textContent = new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' });
   // masthead view switch: Football ↔ Aviator (active state follows scroll position)
