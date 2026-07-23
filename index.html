@@ -543,11 +543,10 @@
     return `<div class="olrow ${feat ? 'bwana' : ''}"><span class="ol-book">${bookLogo(meta)}<span class="ol-name">${esc(meta.name)}</span></span>${cell('1', odds.home)}${cell('X', odds.draw)}${cell('2', odds.away)}${cta}</div>`;
   }
   function matchName(card) { return `${card.homeTeam} v ${card.awayTeam && card.awayTeam !== 'TBA' ? card.awayTeam : 'TBA'}`; }
-  function oddsListHtml(card, beaten) {
+  function oddsListHtml(card, competitorRows) {
     let rows = bookRow(BWANABET, card.odds, `<a class="ol-cta bet" href="${bwanaMatchUrl(card)}" target="_blank" rel="noopener">Bet</a>`);
-    rows += (beaten || []).map(r => { const b = COMPETITOR_BY_KEY[r.key]; return bookRow(b, r.odds, `<a class="ol-cta" href="${b.url}" target="_blank" rel="noopener" title="Visit ${esc(b.name)}">↗</a>`); }).join('');
-    const note = (beaten && beaten.length) ? '' : `<p class="muted-note" style="padding-top:10px">No other listed bookmaker is priced higher on this match.</p>`;
-    return `<div class="oddslist" data-match="${esc(matchName(card))}" data-time="${esc(card.time)}"><div class="ol-head"><span>Bookmaker</span><span>1</span><span>X</span><span>2</span><span></span></div>${rows}</div>${note}`;
+    rows += (competitorRows || []).map(r => { const b = COMPETITOR_BY_KEY[r.key]; return bookRow(b, r.odds, `<a class="ol-cta" href="${b.url}" target="_blank" rel="noopener" title="Visit ${esc(b.name)}">↗</a>`); }).join('');
+    return `<div class="oddslist" data-match="${esc(matchName(card))}" data-time="${esc(card.time)}"><div class="ol-head"><span>Bookmaker</span><span>1</span><span>X</span><span>2</span><span></span></div>${rows}</div>`;
   }
 
   /* ---- matchday poster ---- */
@@ -578,8 +577,8 @@
       <a class="betnow" href="${bwanaMatchUrl(card)}" target="_blank" rel="noopener">Bet with BwanaBet →</a>`;
   }
   function fillLead(card, index) {
-    card.beaten = beatenBooks(card.odds, matchCompetitors(card.homeTeam, card.awayTeam, index, COMP_KEYS));
-    const el = $('leadList'); if (el) el.innerHTML = oddsListHtml(card, card.beaten);
+    card.matchedRows = matchCompetitors(card.homeTeam, card.awayTeam, index, COMP_KEYS, card.odds);
+    const el = $('leadList'); if (el) el.innerHTML = oddsListHtml(card, card.matchedRows);
   }
 
   /* ---- fixtures ---- */
@@ -614,8 +613,8 @@
     row.after(detail);
     let index = {}; try { index = await getCompetitorIndex(); } catch (e) {}
     if (openIndex !== i) return;
-    if (card.beaten === undefined) card.beaten = beatenBooks(card.odds, matchCompetitors(card.homeTeam, card.awayTeam, index, COMP_KEYS));
-    detail.querySelector('.dp').outerHTML = `<div class="dp">${oddsListHtml(card, card.beaten)}</div>`;
+    if (card.matchedRows === undefined) card.matchedRows = matchCompetitors(card.homeTeam, card.awayTeam, index, COMP_KEYS, card.odds);
+    detail.querySelector('.dp').outerHTML = `<div class="dp">${oddsListHtml(card, card.matchedRows)}</div>`;
   }
   function fixturesMessage(html) { $('fxBody').innerHTML = `<tr class="loadrow"><td colspan="7">${html}</td></tr>`; }
 
