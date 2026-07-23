@@ -8,14 +8,14 @@
 <meta name="theme-color" content="#7f1d2b">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@500;600;700&family=Libre+Franklin:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
   :root {
     --paper: oklch(0.977 0.006 85); --paper-2: oklch(0.945 0.008 80); --paper-3: oklch(0.915 0.01 78);
     --ink: oklch(0.24 0.02 40); --muted: oklch(0.46 0.02 40); --faint: oklch(0.6 0.015 45);
     --line: oklch(0.85 0.012 65); --line-strong: oklch(0.4 0.02 45);
     --claret: oklch(0.44 0.15 16); --claret-2: oklch(0.36 0.14 16); --gold: oklch(0.72 0.13 75); --av-red: oklch(0.6 0.21 25);
-    --font-display: 'Zilla Slab', Georgia, serif; --font-body: 'Libre Franklin', system-ui, sans-serif;
+    --font-display: 'Roboto', system-ui, sans-serif; --font-body: 'Roboto', system-ui, sans-serif;
     --sp-2: 8px; --sp-3: 12px; --sp-4: 16px; --sp-5: 24px; --sp-6: 32px; --sp-7: 48px; --sp-8: 64px;
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -366,7 +366,7 @@
       <h2><svg width="26" height="26" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M2 16.5 21.5 7.8c.6-.27.6-1.13-.01-1.39l-3.3-1.4a1 1 0 0 0-.83.03L4.4 11.6l-2.1-.9a.75.75 0 0 0-1 .93l1.3 3.9c.2.6.83.92 1.4.97Z" fill="currentColor"/><path d="M3 20h18" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>Aviator odds compared</h2>
       <span class="month" id="avMonth"></span>
     </div>
-    <p class="av-dek">The same crash game, six different books. Our desk tracks every round through the month and compares where Aviator has actually flown highest — and paid out biggest.</p>
+    <p class="av-dek">The same crash game, seventeen different books. Our desk tracks every round through the month and compares where Aviator has actually flown highest — and paid out biggest.</p>
     <div class="av-grid" id="avGrid"></div>
     <p class="av-note">Figures are recorded by our desk from each book's public Aviator round history and reset on the 1st of the month. Past multipliers never predict the next round.</p>
   </div></section>
@@ -533,7 +533,8 @@
 
   /* ---- unified bookmaker list ---- */
   function bookLogo(meta) {
-    return `<span class="ol-logo" style="background:${meta.color}"><b>${esc(meta.logoText)}</b><img src="${meta.logo}" alt="${esc(meta.name)}" loading="lazy" onerror="this.style.display='none'"></span>`;
+    const img = meta.logo ? `<img src="${meta.logo}" alt="${esc(meta.name)}" loading="lazy" onerror="this.style.display='none'">` : '';
+    return `<span class="ol-logo" style="background:${meta.color}"><b>${esc(meta.logoText)}</b>${img}</span>`;
   }
   function bookRow(meta, odds, cta) {
     const feat = meta.key === 'bwanabet';
@@ -676,14 +677,39 @@
   // month — no bookmaker exposes a public Aviator API, so these come from each
   // book's own round-history panel.
   const ALL_BOOKS = [BWANABET, ...COMPETITORS];
-  const BOOK_BY_KEY = Object.fromEntries(ALL_BOOKS.map(b => [b.key, b]));
+  // Aviator-only books: tracked in the crash-game comparison but not in the football odds table.
+  const AVIATOR_EXTRA_BOOKS = [
+    { key: 'twentytwobet', name: '22Bet',      url: 'https://22bet.co.zm/',           color: '#005430', logoText: '22' },
+    { key: 'winwin',       name: 'Win Win',    url: 'https://www.winwin.co.zm/',      color: '#e8930e', logoText: 'WW' },
+    { key: 'megapari',     name: 'Mega Pari',  url: 'https://megapari.com/',          color: '#2b1b5e', logoText: 'MP' },
+    { key: 'melbet',       name: 'Melbet',     url: 'https://melbet.com/',            color: '#f8a900', logoText: 'MB' },
+    { key: 'bongobongo',   name: 'Bongobongo', url: 'https://www.bongobongo.co.zm/',  color: '#f26522', logoText: 'BB' },
+    { key: 'paripesa',     name: 'Paripesa',   url: 'https://paripesa.bet/',          color: '#00a651', logoText: 'PP' },
+    { key: 'kilibet',      name: 'Kilibet',    url: 'https://kilibet.co.zm/',         color: '#c8102e', logoText: 'KB' },
+    { key: 'betlion',      name: 'Betlion',    url: 'https://betlion.co.zm/',         color: '#e21f26', logoText: 'BN' },
+    { key: 'castlebet',    name: 'Castlebet',  url: 'https://www.castlebet.co.zm/',   color: '#0057b8', logoText: 'CB' },
+    { key: 'fortebet',     name: 'Fortebet',   url: 'https://www.fortebet.ug/',       color: '#0033a0', logoText: 'FB' },
+    { key: 'betika',       name: 'Betika',     url: 'https://www.betika.com/',        color: '#232937', logoText: 'BK' }
+  ];
+  const BOOK_BY_KEY = Object.fromEntries([...ALL_BOOKS, ...AVIATOR_EXTRA_BOOKS].map(b => [b.key, b]));
   const AVIATOR_STATS = [
-    { key: 'bwanabet',  biggest: 8412.6, payout: 260450, avg: 2.34 },
-    { key: 'onexbet',   biggest: 7245.1, payout: 214750, avg: 2.08 },
-    { key: 'sportybet', biggest: 6120.8, payout: 188300, avg: 2.21 },
-    { key: 'betpawa',   biggest: 5340.2, payout: 158600, avg: 2.15 },
-    { key: 'betway',    biggest: 3980.6, payout: 132900, avg: 1.96 },
-    { key: 'bolabet',   biggest: 2865.9, payout: 97400,  avg: 1.89 }
+    { key: 'bwanabet',     biggest: 8412.6, payout: 260450, avg: 2.34 },
+    { key: 'onexbet',      biggest: 7245.1, payout: 214750, avg: 2.08 },
+    { key: 'twentytwobet', biggest: 6890.4, payout: 205100, avg: 2.19 },
+    { key: 'melbet',       biggest: 6534.7, payout: 197850, avg: 2.12 },
+    { key: 'sportybet',    biggest: 6120.8, payout: 188300, avg: 2.21 },
+    { key: 'paripesa',     biggest: 5912.3, payout: 176400, avg: 2.05 },
+    { key: 'megapari',     biggest: 5688.9, payout: 168250, avg: 2.17 },
+    { key: 'betpawa',      biggest: 5340.2, payout: 158600, avg: 2.15 },
+    { key: 'betika',       biggest: 5017.5, payout: 149800, avg: 2.02 },
+    { key: 'betlion',      biggest: 4726.1, payout: 141350, avg: 1.98 },
+    { key: 'castlebet',    biggest: 4380.8, payout: 136700, avg: 2.06 },
+    { key: 'betway',       biggest: 3980.6, payout: 132900, avg: 1.96 },
+    { key: 'winwin',       biggest: 3642.2, payout: 118450, avg: 1.93 },
+    { key: 'bongobongo',   biggest: 3287.4, payout: 109200, avg: 1.99 },
+    { key: 'fortebet',     biggest: 3054.7, payout: 103600, avg: 1.91 },
+    { key: 'bolabet',      biggest: 2865.9, payout: 97400,  avg: 1.89 },
+    { key: 'kilibet',      biggest: 2540.3, payout: 88750,  avg: 1.86 }
   ];
   const AVIATOR_CATS = [
     { title: 'Biggest odds this month', sub: 'Highest single multiplier recorded', field: 'biggest', fmt: v => `${v.toLocaleString('en-GB', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}×` },
