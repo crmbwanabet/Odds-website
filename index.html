@@ -104,6 +104,9 @@
   .ol-logo { position: relative; width: 30px; height: 30px; border-radius: 7px; overflow: hidden; flex-shrink: 0; display: grid; place-items: center; }
   .ol-logo b { color: #fff; font-family: var(--font-display); font-weight: 700; font-size: 0.72rem; text-shadow: 0 1px 2px rgba(0,0,0,.45); }
   .ol-logo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  /* wide wordmark logos: show the whole mark on a white chip instead of cropping */
+  .ol-logo.wm { background: #fff !important; }
+  .ol-logo.wm img { object-fit: contain; padding: 3px; }
   .bw-lockup { display: inline-flex; align-items: center; background: #0a0a0a; border-radius: 5px; padding: 6px 10px; }
   .bw-lockup img { height: 17px; width: auto; display: block; }
   .ol-name { font-weight: 700; font-size: 0.95rem; line-height: 1.1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
@@ -534,7 +537,7 @@
   /* ---- unified bookmaker list ---- */
   function bookLogo(meta) {
     const img = meta.logo ? `<img src="${meta.logo}" alt="${esc(meta.name)}" loading="lazy" onerror="this.style.display='none'">` : '';
-    return `<span class="ol-logo" style="background:${meta.color}"><b>${esc(meta.logoText)}</b>${img}</span>`;
+    return `<span class="ol-logo ${meta.wide ? 'wm' : ''}" style="background:${meta.color}"><b>${esc(meta.logoText)}</b>${img}</span>`;
   }
   function bookRow(meta, odds, cta) {
     const feat = meta.key === 'bwanabet';
@@ -679,10 +682,10 @@
   const ALL_BOOKS = [BWANABET, ...COMPETITORS];
   // Aviator-only books: tracked in the crash-game comparison but not in the football odds table.
   const AVIATOR_EXTRA_BOOKS = [
-    { key: 'twentytwobet', name: '22Bet',      url: 'https://22bet.co.zm/',           color: '#005430', logoText: '22' },
-    { key: 'winwin',       name: 'Win Win',    url: 'https://www.winwin.co.zm/',      color: '#e8930e', logoText: 'WW' },
-    { key: 'megapari',     name: 'Mega Pari',  url: 'https://megapari.com/',          color: '#2b1b5e', logoText: 'MP' },
-    { key: 'melbet',       name: 'Melbet',     url: 'https://melbet.com/',            color: '#f8a900', logoText: 'MB' },
+    { key: 'twentytwobet', name: '22Bet',      url: 'https://22bet.co.zm/',           color: '#005430', logoText: '22', logo: 'assets/logos/22bet.png',    wide: true },
+    { key: 'winwin',       name: 'Win Win',    url: 'https://www.winwin.co.zm/',      color: '#e8930e', logoText: 'WW', logo: 'assets/logos/winwin.png',   wide: true },
+    { key: 'megapari',     name: 'Mega Pari',  url: 'https://megapari.com/',          color: '#2b1b5e', logoText: 'MP', logo: 'assets/logos/megapari.png', wide: true },
+    { key: 'melbet',       name: 'Melbet',     url: 'https://melbet.com/',            color: '#f8a900', logoText: 'MB', logo: 'assets/logos/melbet.png',   wide: true },
     { key: 'bongobongo',   name: 'Bongobongo', url: 'https://www.bongobongo.co.zm/',  color: '#f26522', logoText: 'BB' },
     { key: 'paripesa',     name: 'Paripesa',   url: 'https://paripesa.bet/',          color: '#00a651', logoText: 'PP' },
     { key: 'kilibet',      name: 'Kilibet',    url: 'https://kilibet.co.zm/',         color: '#c8102e', logoText: 'KB' },
