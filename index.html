@@ -160,13 +160,14 @@
   /* local Zambia */
   .local { position: relative; color: var(--paper); overflow: hidden; }
   .local .bg { position: absolute; inset: 0; background: linear-gradient(120deg, oklch(0.2 0.03 150 / 0.95) 0%, oklch(0.2 0.03 150 / 0.7) 55%, oklch(0.2 0.03 150 / 0.4) 100%), url('assets/stadiums/soccer-city.jpg') center/cover; z-index: 0; }
-  .local .wrap { position: relative; z-index: 1; padding: var(--sp-8) var(--sp-5); display: grid; grid-template-columns: 1.4fr 1fr; gap: var(--sp-6); align-items: center; }
-  .local .badge { height: 64px; width: auto; margin-bottom: var(--sp-4); }
+  .local .wrap { position: relative; z-index: 1; padding: var(--sp-8) var(--sp-5); max-width: 820px; margin: 0 auto; text-align: center; }
+  .local .kick { font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.14em; color: var(--gold); margin-bottom: var(--sp-3); }
   .local h2 { font-family: var(--font-display); font-weight: 700; font-size: clamp(1.8rem, 3.5vw, 2.6rem); line-height: 1.05; }
-  .local p { color: var(--paper-3); max-width: 46ch; margin-top: var(--sp-3); }
+  .local p { color: var(--paper-3); max-width: 56ch; margin: var(--sp-3) auto 0; }
+  .local .closer { font-family: var(--font-display); font-weight: 700; font-size: clamp(1.15rem, 2.2vw, 1.45rem); color: var(--paper); margin-top: var(--sp-5); }
+  .local .closer span { color: var(--gold); }
   .local .lbtn { display: inline-block; margin-top: var(--sp-5); background: var(--gold); color: var(--ink); font-weight: 700; padding: 12px 22px; border-radius: 5px; }
   .local .lbtn:hover { filter: brightness(1.06); }
-  .local .derby { background: #fff center/contain no-repeat; aspect-ratio: 16/10; border-radius: 8px; box-shadow: 0 16px 40px rgba(0,0,0,.4); }
 
   /* how it works */
   .more-sec { padding: var(--sp-7) 0; }
@@ -262,7 +263,6 @@
     .hs-form { flex-direction: column; }
     .hs-form button { padding: 14px; }
     .edition { display: none; }
-    .local .wrap { grid-template-columns: 1fr; }
   }
   @media (max-width: 640px) {
     .wrap { padding: 0 16px; }
@@ -354,13 +354,12 @@
   <section class="local">
     <div class="bg"></div>
     <div class="wrap">
-      <div>
-        <img class="badge" src="assets/leagues/zambia-super-league.jpg" alt="Zambia Super League">
-        <h2>Zambian football, best local odds</h2>
-        <p>From the Super League to the derbies — compare every Zambian book and back the top price on the games closest to home.</p>
-        <a class="lbtn" href="#" id="localCta">Find Zambian fixtures →</a>
-      </div>
-      <div class="derby" style="background-image:url('assets/matchups/zesco-power.jpg')" role="img" aria-label="Zesco United vs Power Dynamos"></div>
+      <p class="kick">Zambia's №1</p>
+      <h2>The undisputed home of odds comparison in Zambia</h2>
+      <p>Every kwacha counts — so we hunt down every single one. Seventeen bookmakers dragged onto one screen. Football and Aviator, live, with the biggest payout blazing at the top. No book pays us to look good. No price can hide from us. If a better number exists anywhere in Zambia, it's already on this page.</p>
+      <p>From Lusaka to the Copperbelt, smart money checks here first — because betting without comparing is leaving money on the table.</p>
+      <p class="closer">One country. Every book. The best odds. <span>Always.</span></p>
+      <a class="lbtn" href="#" id="localCta">Compare today's fixtures →</a>
     </div>
   </section>
 
