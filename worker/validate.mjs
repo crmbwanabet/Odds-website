@@ -23,6 +23,7 @@ import {
 import { BOOK_NAMES, COMP_KEYS as REGISTRY_COMP_KEYS, bookName } from '../lib/books.mjs';
 import { extractMarkets, OU_HANDICAP } from '../lib/markets.mjs';
 import { multiQuery, getMainEvents, getEventDetail, findEventsByTeams, isToday } from '../lib/altenar.mjs';
+import { rankBooks, buildMatchView } from '../lib/display.mjs';
 import { readFileSync } from 'node:fs';
 
 const FIXTURE_EVENT = () =>
@@ -400,6 +401,59 @@ async function altenarTests() {
         isToday('2026-08-06T23:00:00.000Z', new Date('2026-08-07T06:00:00.000Z')) === true);
 }
 
+// ---------- 5. DISPLAY ASSEMBLY ----------
+function displayTests() {
+    section('5. Display assembly');
+
+    // rankBooks: BwanaBet plus beaten competitors, sorted by total payout desc.
+    const bw = { home: '3.65', draw: '3.84', away: '2.04' };   // total 9.53
+    const rows = [
+        { key: 'sportybet', odds: { home: '3.62', draw: '3.79', away: '2.00' } },  // 9.41
+        { key: 'bolabet', odds: { home: '3.55', draw: '3.70', away: '2.05' } },    // 9.30
+    ];
+    const ranked = rankBooks(bw, rows);
+    check('ranked list is BwanaBet + competitors', ranked.length === 3);
+    check('BwanaBet ranks first', ranked[0].book === 'bwanabet');
+    check('BwanaBet is the only placeable row',
+        ranked.filter(r => r.placeable).length === 1 && ranked[0].placeable === true);
+    check('competitors sort by total payout desc',
+        ranked[1].book === 'sportybet' && ranked[2].book === 'bolabet');
+    check('rows carry display names', ranked[0].name === 'BwanaBet' && ranked[1].name === 'SportyBet');
+    check('rows carry totals', Math.abs(ranked[0].total - 9.53) < 1e-9);
+    check('rankBooks with no competitors returns just BwanaBet', rankBooks(bw, []).length === 1);
+
+    // buildMatchView: full markets + comparison, wired to the real matcher.
+    const ev = FIXTURE_EVENT();
+    const index = buildIndex({
+        sportybet: [{ home: 'KuPS', away: 'CS U Craiova', odds: { home: '3.70', draw: '3.30', away: '2.15' } }],
+        betway: [{ home: 'Nowhere FC', away: 'Elsewhere United', odds: { home: '2.00', draw: '3.00', away: '4.00' } }],
+    });
+    const evMeta = {
+        eventId: ev.eventId, eventName: ev.eventName, eventStartTime: ev.eventStartTime,
+        competitionName: ev.competitionName, country: ev.country,
+    };
+    const view = buildMatchView({ event: evMeta, collections: ev.collections, competitorIndex: index });
+
+    check('view carries the eventId', view.eventId === '43540311');
+    check('view splits teams', view.homeTeam === 'KuPS' && view.awayTeam === 'CS U Craiova');
+    check('view carries all five markets', view.markets.length === 5);
+    check('view exposes 1x2 for comparison', view.odds1x2.home === '3.72');
+    check('unmatched books are absent', !view.comparison.some(r => r.book === 'betway'));
+    check('matched competitor appears', view.comparison.some(r => r.book === 'sportybet'));
+    check('BwanaBet heads the comparison', view.comparison[0].book === 'bwanabet');
+    check('competitor prices are capped below BwanaBet',
+        view.comparison.slice(1).every(r =>
+            ['home', 'draw', 'away'].every(k =>
+                parseFloat(r.odds[k]) <= parseFloat(view.odds1x2[k]) - 0.03 + 1e-9)));
+    check('comparisonAvailable is true when a book matched', view.comparisonAvailable === true);
+
+    // No competitor data at all -> markets still returned, comparison just BwanaBet.
+    const bare = buildMatchView({ event: evMeta, collections: ev.collections, competitorIndex: {} });
+    check('no competitors still returns markets', bare.markets.length === 5);
+    check('no competitors leaves BwanaBet alone in the ranking', bare.comparison.length === 1);
+    check('comparisonAvailable is false with no matches', bare.comparisonAvailable === false);
+}
+
 // Do the card and matched event share at least one real 4+ char token (either side,
 // allowing swap)? A pure prefix-noise match would fail this.
 function sharesRealToken(cardNorm, ev) {
@@ -418,6 +472,7 @@ function sharesRealToken(cardNorm, ev) {
     bookRegistryTests();
     marketTests();
     await altenarTests();
+    displayTests();
     if (!OFFLINE) await liveChecks();
     console.log(`\n${failed === 0 ? '✅ PASS' : '❌ FAIL'} — ${passed} passed, ${failed} failed`);
     if (failed) { console.log('failed:'); fails.forEach(f => console.log('  - ' + f)); process.exit(1); }
