@@ -20,6 +20,7 @@ import {
     normTeam, tokensMatch, tokenOverlap, isSameFixture, MATCH_THRESHOLD,
     totalPayout, buildIndex, matchCompetitors, beatenBooks, extract1x2, splitTeams
 } from '../lib/odds-match.mjs';
+import { BOOK_NAMES, COMP_KEYS as REGISTRY_COMP_KEYS, bookName } from '../lib/books.mjs';
 
 // `node worker/validate.mjs --offline` runs ONLY the deterministic checks. The
 // live sections hit BwanaBet + the proxy, which is too slow and too flaky to sit
@@ -255,6 +256,21 @@ async function liveChecks() {
     check('all matches are genuine same-fixture pairs', fixtureViolations === 0, fixtureViolations + ' suspicious');
 }
 
+// ---------- 2. BOOK REGISTRY ----------
+function bookRegistryTests() {
+    section('2. Book registry');
+    check('COMP_KEYS has the five competitors',
+        REGISTRY_COMP_KEYS.length === 5 && REGISTRY_COMP_KEYS.includes('sportybet'));
+    check('bwanabet is NOT a competitor', REGISTRY_COMP_KEYS.includes('bwanabet') === false);
+    check('bookName maps keys to display names', bookName('onexbet') === '1xBet');
+    check('bookName falls back to the key', bookName('unknownbook') === 'unknownbook');
+    check('every competitor key has a name',
+        REGISTRY_COMP_KEYS.every(k => typeof BOOK_NAMES[k] === 'string' && BOOK_NAMES[k].length > 0));
+    // The registry must stay in step with the proxy's own book list.
+    check('registry matches the harness COMP_KEYS',
+        REGISTRY_COMP_KEYS.slice().sort().join(',') === COMP_KEYS.slice().sort().join(','));
+}
+
 // Do the card and matched event share at least one real 4+ char token (either side,
 // allowing swap)? A pure prefix-noise match would fail this.
 function sharesRealToken(cardNorm, ev) {
@@ -270,6 +286,7 @@ function sharesRealToken(cardNorm, ev) {
 (async () => {
     console.log('OddsZone accuracy validation' + (OFFLINE ? ' (offline)' : ''));
     unitTests();
+    bookRegistryTests();
     if (!OFFLINE) await liveChecks();
     console.log(`\n${failed === 0 ? '✅ PASS' : '❌ FAIL'} — ${passed} passed, ${failed} failed`);
     if (failed) { console.log('failed:'); fails.forEach(f => console.log('  - ' + f)); process.exit(1); }
