@@ -9,6 +9,9 @@
  */
 import { createServer } from 'node:http';
 import { collectAll } from './adapters.mjs';
+import { handleV1 } from './v1.mjs';
+import { buildIndex } from '../lib/odds-match.mjs';
+import { getEventDetail, findEventsByTeams, getTodayEvents } from '../lib/altenar.mjs';
 
 const PORT = process.env.PORT || 8787;
 const CACHE_TTL_MS = 45 * 1000;
@@ -38,6 +41,26 @@ createServer(async (req, res) => {
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', '*');
   if (req.method === 'OPTIONS') { res.writeHead(204); return res.end(); }
+  if (url.pathname.startsWith('/v1/')) {
+    const deps = {
+      // NOTE: getData() here returns the books map directly, whereas the Worker's
+      // getDoc() returns { updatedAt, books }. Passing the wrong shape to
+      // buildIndex yields an index that silently matches nothing.
+      getCompetitorIndex: async () => buildIndex(await getData()),
+      getEventDetail,
+      findEventsByTeams,
+      getTodayEvents,
+    };
+    let result;
+    try {
+      result = await handleV1(url.pathname, url.searchParams, deps);
+    } catch (e) {
+      result = { status: 502, body: { error: 'upstream odds feed unavailable', detail: String(e && e.message || e) } };
+    }
+    res.writeHead(result.status, { 'Content-Type': 'application/json' });
+    return res.end(JSON.stringify(result.body));
+  }
+
   if (url.pathname !== '/odds' && url.pathname !== '/') { res.writeHead(404); return res.end('{"error":"not found"}'); }
 
   const data = await getData();
