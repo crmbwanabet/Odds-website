@@ -22,6 +22,7 @@ import {
 } from '../lib/odds-match.mjs';
 import { BOOK_NAMES, COMP_KEYS as REGISTRY_COMP_KEYS, bookName } from '../lib/books.mjs';
 import { extractMarkets, OU_HANDICAP } from '../lib/markets.mjs';
+import { multiQuery, getMainEvents, getEventDetail, findEventsByTeams, isToday } from '../lib/altenar.mjs';
 import { readFileSync } from 'node:fs';
 
 const FIXTURE_EVENT = () =>
@@ -32,7 +33,6 @@ const FIXTURE_EVENT = () =>
 // inside a red-green-refactor loop. CI and pre-deploy runs use the full suite.
 const OFFLINE = process.argv.includes('--offline');
 
-const ALTENAR_API = 'https://api.bwanabet.co.zm/api/v2/multi';
 const PROXY_URL = process.env.PROXY_URL || 'https://oddszone-odds-proxy.oddszone.workers.dev';
 const SPORT_FOOTBALL = 501;
 const COMP_KEYS = ['sportybet', 'onexbet', 'betway', 'betpawa', 'bolabet'];
@@ -112,18 +112,10 @@ function setEq(a, b) {
     return true;
 }
 
-// ---------- BwanaBet (Altenar) minimal client ----------
-async function multiQuery(query) {
-    const res = await fetch(ALTENAR_API, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify([{ module: 'graphs', method: 'makeQuery', options: { query } }]),
-    });
-    if (!res.ok) throw new Error('Altenar ' + res.status);
-    const data = await res.json();
-    if (!Array.isArray(data) || !data[0] || data[0].error) throw new Error('Altenar bad response');
-    return data[0].data;
-}
+// The local Altenar client that used to live here was deleted in favour of
+// ../lib/altenar.mjs — the same module the Worker ships. Same reasoning as
+// odds-match.mjs: one copy means these checks exercise the real client and it
+// cannot silently drift from what production runs.
 async function getTopBwanaEvents(limit = 12) {
     const out = [];
     const seen = new Set();
@@ -323,6 +315,91 @@ function marketTests() {
         extractMarkets([ev.collections[0]]).length === 4);
 }
 
+// ---------- 4. ALTENAR CLIENT (stubbed transport) ----------
+async function altenarTests() {
+    section('4. Altenar client (stubbed transport)');
+
+    const okResponse = (data) => ({
+        ok: true,
+        json: async () => [{ error: false, message: 'Success', data }],
+    });
+
+    // multiQuery unwraps the [{ error, data }] envelope.
+    let sentBody = null;
+    const spyFetch = async (url, opts) => { sentBody = JSON.parse(opts.body); return okResponse({ hello: 'world' }); };
+    const d0 = await multiQuery('mutation { x }', { fetchImpl: spyFetch });
+    check('multiQuery unwraps data', d0 && d0.hello === 'world');
+    check('multiQuery sends the graphs/makeQuery envelope',
+        Array.isArray(sentBody) && sentBody[0].module === 'graphs' && sentBody[0].method === 'makeQuery');
+    check('multiQuery passes the query through', sentBody[0].options.query === 'mutation { x }');
+
+    // A non-ok HTTP response must throw, not return undefined.
+    let threw = false;
+    try { await multiQuery('mutation { x }', { fetchImpl: async () => ({ ok: false, status: 503 }) }); }
+    catch { threw = true; }
+    check('multiQuery throws on HTTP error', threw === true);
+
+    // An error envelope must throw too.
+    threw = false;
+    try {
+        await multiQuery('mutation { x }', {
+            fetchImpl: async () => ({ ok: true, json: async () => [{ error: true, message: 'nope' }] }),
+        });
+    } catch { threw = true; }
+    check('multiQuery throws on error envelope', threw === true);
+
+    // getMainEvents flattens competitions into events carrying their competition.
+    const feed = { mainEventList: [{ competitions: [
+        { country: 'England', competitionName: 'Premier League', events: [
+            { eventId: '1', eventName: 'Arsenal V Chelsea', eventStartTime: '2026-08-06T15:00:00.000Z', top: true },
+            { eventId: '2', eventName: 'Everton V Fulham', eventStartTime: '2026-08-06T17:00:00.000Z', top: false },
+        ] },
+    ] }] };
+    const feedFetch = { fetchImpl: async () => okResponse(feed) };
+    const evs = await getMainEvents(1, feedFetch);
+    check('getMainEvents flattens to 2 events', evs.length === 2);
+    check('getMainEvents attaches competition', evs[0].competitionName === 'Premier League');
+    check('getMainEvents attaches country', evs[0].country === 'England');
+    check('getMainEvents preserves top flag', evs[0].top === true && evs[1].top === false);
+
+    // getEventDetail returns the event AND its collections.
+    const detail = { eventList: [{ competitions: [{ country: 'Europe', competitionName: 'UEFA Europa League', events: [
+        { eventId: '43540311', eventName: 'KuPS V CS U Craiova', eventStartTime: '2026-08-06T15:00:00.000Z',
+          collections: [{ collectionName: 'Main', markets: [] }] },
+    ] }] }] };
+    const d1 = await getEventDetail('43540311', { fetchImpl: async () => okResponse(detail) });
+    check('getEventDetail returns the event', d1.event.eventId === '43540311');
+    check('getEventDetail returns collections', Array.isArray(d1.collections) && d1.collections.length === 1);
+    check('getEventDetail returns competition', d1.event.competitionName === 'UEFA Europa League');
+
+    const d2 = await getEventDetail('999', { fetchImpl: async () => okResponse({ eventList: [] }) });
+    check('getEventDetail returns null for a missing event', d2 === null);
+
+    const d3 = await getEventDetail('not-a-number', { fetchImpl: async () => okResponse(detail) });
+    check('getEventDetail returns null for a non-numeric id', d3 === null);
+
+    // findEventsByTeams matches on both tokens for "A vs B".
+    const m1 = await findEventsByTeams('arsenal vs chelsea', feedFetch);
+    check('findEventsByTeams finds the fixture', m1.length === 1 && m1[0].eventId === '1');
+
+    const m2 = await findEventsByTeams('everton', feedFetch);
+    check('findEventsByTeams matches a single team', m2.length === 1 && m2[0].eventId === '2');
+
+    const m3 = await findEventsByTeams('', feedFetch);
+    check('findEventsByTeams returns [] for an empty query', m3.length === 0);
+
+    const m4 = await findEventsByTeams('nothing here at all', feedFetch);
+    check('findEventsByTeams returns [] when nothing matches', m4.length === 0);
+
+    // isToday works in Africa/Lusaka (UTC+2, no DST).
+    check('isToday true for same Lusaka day',
+        isToday('2026-08-06T15:00:00.000Z', new Date('2026-08-06T06:00:00.000Z')) === true);
+    check('isToday false for tomorrow',
+        isToday('2026-08-07T15:00:00.000Z', new Date('2026-08-06T06:00:00.000Z')) === false);
+    check('isToday handles the UTC+2 boundary (23:00Z is already tomorrow in Lusaka)',
+        isToday('2026-08-06T23:00:00.000Z', new Date('2026-08-07T06:00:00.000Z')) === true);
+}
+
 // Do the card and matched event share at least one real 4+ char token (either side,
 // allowing swap)? A pure prefix-noise match would fail this.
 function sharesRealToken(cardNorm, ev) {
@@ -340,6 +417,7 @@ function sharesRealToken(cardNorm, ev) {
     unitTests();
     bookRegistryTests();
     marketTests();
+    await altenarTests();
     if (!OFFLINE) await liveChecks();
     console.log(`\n${failed === 0 ? '✅ PASS' : '❌ FAIL'} — ${passed} passed, ${failed} failed`);
     if (failed) { console.log('failed:'); fails.forEach(f => console.log('  - ' + f)); process.exit(1); }
