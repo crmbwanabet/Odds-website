@@ -21,6 +21,11 @@ import {
     totalPayout, buildIndex, matchCompetitors, beatenBooks, extract1x2, splitTeams
 } from '../lib/odds-match.mjs';
 
+// `node worker/validate.mjs --offline` runs ONLY the deterministic checks. The
+// live sections hit BwanaBet + the proxy, which is too slow and too flaky to sit
+// inside a red-green-refactor loop. CI and pre-deploy runs use the full suite.
+const OFFLINE = process.argv.includes('--offline');
+
 const ALTENAR_API = 'https://api.bwanabet.co.zm/api/v2/multi';
 const PROXY_URL = process.env.PROXY_URL || 'https://oddszone-odds-proxy.oddszone.workers.dev';
 const SPORT_FOOTBALL = 501;
@@ -170,7 +175,7 @@ function matchedEvent(homeTeam, awayTeam, events) {
 
 // ---------- 2. LIVE INVARIANT CHECKS ----------
 async function liveChecks() {
-    section('2. Live invariant checks (real fixtures)');
+    section('7. Live invariant checks (real fixtures)');
 
     let books, cards;
     try {
@@ -263,9 +268,9 @@ function sharesRealToken(cardNorm, ev) {
 
 // ---------- run ----------
 (async () => {
-    console.log('OddsZone accuracy validation');
+    console.log('OddsZone accuracy validation' + (OFFLINE ? ' (offline)' : ''));
     unitTests();
-    await liveChecks();
+    if (!OFFLINE) await liveChecks();
     console.log(`\n${failed === 0 ? '✅ PASS' : '❌ FAIL'} — ${passed} passed, ${failed} failed`);
     if (failed) { console.log('failed:'); fails.forEach(f => console.log('  - ' + f)); process.exit(1); }
 })();
