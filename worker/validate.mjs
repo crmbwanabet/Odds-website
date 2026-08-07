@@ -24,6 +24,7 @@ import { BOOK_NAMES, COMP_KEYS as REGISTRY_COMP_KEYS, bookName } from '../lib/bo
 import { extractMarkets, OU_HANDICAP } from '../lib/markets.mjs';
 import { multiQuery, getMainEvents, getEventDetail, findEventsByTeams, isToday } from '../lib/altenar.mjs';
 import { rankBooks, buildMatchView } from '../lib/display.mjs';
+import { handleV1 } from './v1.mjs';
 import { readFileSync } from 'node:fs';
 
 const FIXTURE_EVENT = () =>
@@ -454,6 +455,75 @@ function displayTests() {
     check('comparisonAvailable is false with no matches', bare.comparisonAvailable === false);
 }
 
+// ---------- 6. /v1 ROUTER ----------
+async function routerTests() {
+    section('6. /v1 router');
+
+    const ev = FIXTURE_EVENT();
+    const deps = {
+        getCompetitorIndex: async () => buildIndex({
+            sportybet: [{ home: 'KuPS', away: 'CS U Craiova', odds: { home: '3.70', draw: '3.30', away: '2.15' } }],
+        }),
+        getEventDetail: async (id) => (String(id) === '43540311'
+            ? { event: { eventId: ev.eventId, eventName: ev.eventName, eventStartTime: ev.eventStartTime,
+                         competitionName: ev.competitionName, country: ev.country },
+                collections: ev.collections }
+            : null),
+        findEventsByTeams: async (q) => (String(q).includes('kups')
+            ? [{ eventId: '43540311', eventName: 'KuPS V CS U Craiova',
+                 eventStartTime: ev.eventStartTime, competitionName: ev.competitionName, country: ev.country }]
+            : []),
+        getTodayEvents: async () => ([
+            { eventId: '43540311', eventName: 'KuPS V CS U Craiova',
+              eventStartTime: ev.eventStartTime, competitionName: ev.competitionName, country: ev.country },
+        ]),
+    };
+    const call = (path, qs = '') => handleV1(path, new URLSearchParams(qs), deps);
+
+    let r = await call('/v1/match/43540311');
+    check('GET /v1/match/:id is 200', r.status === 200);
+    check('match payload has markets', r.body.markets.length === 5);
+    check('match payload has a ranked comparison', r.body.comparison[0].book === 'bwanabet');
+    check('match payload exposes refs',
+        r.body.markets.every(m => m.selections.every(s => !!s.ref)));
+
+    r = await call('/v1/match/99999999');
+    check('unknown event is 404', r.status === 404);
+    check('unknown event has an error message', typeof r.body.error === 'string');
+
+    r = await call('/v1/match/not-a-number');
+    check('non-numeric event id is 400', r.status === 400);
+
+    r = await call('/v1/matches', 'q=kups');
+    check('GET /v1/matches?q= is 200', r.status === 200);
+    check('search returns candidates', r.body.matches.length === 1);
+    check('search results carry eventId + kickoff',
+        !!r.body.matches[0].eventId && !!r.body.matches[0].kickoffUtc);
+    check('search results do NOT carry odds (use /v1/match/:id)',
+        r.body.matches[0].markets === undefined);
+
+    r = await call('/v1/matches', 'q=');
+    check('empty q is 400', r.status === 400);
+
+    r = await call('/v1/matches', 'q=nothinghere');
+    check('no results is still 200 with an empty list',
+        r.status === 200 && r.body.matches.length === 0);
+
+    r = await call('/v1/matches/today');
+    check('GET /v1/matches/today is 200', r.status === 200);
+    check('today returns the card', r.body.matches.length === 1);
+
+    r = await call('/v1/nonsense');
+    check('unknown /v1 route is 404', r.status === 404);
+
+    // A competitor-feed outage must degrade, not fail the fixture.
+    const broken = { ...deps, getCompetitorIndex: async () => { throw new Error('proxy down'); } };
+    r = await handleV1('/v1/match/43540311', new URLSearchParams(''), broken);
+    check('competitor outage still returns 200', r.status === 200);
+    check('competitor outage still returns markets', r.body.markets.length === 5);
+    check('competitor outage leaves comparison unavailable', r.body.comparisonAvailable === false);
+}
+
 // Do the card and matched event share at least one real 4+ char token (either side,
 // allowing swap)? A pure prefix-noise match would fail this.
 function sharesRealToken(cardNorm, ev) {
@@ -473,6 +543,7 @@ function sharesRealToken(cardNorm, ev) {
     marketTests();
     await altenarTests();
     displayTests();
+    await routerTests();
     if (!OFFLINE) await liveChecks();
     console.log(`\n${failed === 0 ? '✅ PASS' : '❌ FAIL'} — ${passed} passed, ${failed} failed`);
     if (failed) { console.log('failed:'); fails.forEach(f => console.log('  - ' + f)); process.exit(1); }
