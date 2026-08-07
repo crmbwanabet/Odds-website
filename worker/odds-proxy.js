@@ -24,6 +24,9 @@
  */
 
 import { collectAll } from './adapters.mjs';
+import { handleV1 } from './v1.mjs';
+import { buildIndex } from '../lib/odds-match.mjs';
+import { getEventDetail, findEventsByTeams, getTodayEvents } from '../lib/altenar.mjs';
 
 const TTL_MS = 45 * 1000;
 let MEM = { at: 0, doc: null };   // L1 (per-isolate)
@@ -33,6 +36,24 @@ export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
     if (request.method === 'OPTIONS') return cors(new Response(null, { status: 204 }));
+    if (url.pathname.startsWith('/v1/')) {
+      const deps = {
+        // Reuses the same three-layer cached competitor doc as /odds, so the
+        // chatbot's traffic never adds upstream fan-out of its own.
+        getCompetitorIndex: async () => buildIndex((await getDoc(ctx, url.origin)).books),
+        getEventDetail,
+        findEventsByTeams,
+        getTodayEvents,
+      };
+      let result;
+      try {
+        result = await handleV1(url.pathname, url.searchParams, deps);
+      } catch (e) {
+        result = { status: 502, body: { error: 'upstream odds feed unavailable', detail: String(e && e.message || e) } };
+      }
+      return cors(json(result.body, result.status));
+    }
+
     if (url.pathname !== '/odds' && url.pathname !== '/') return cors(json({ error: 'not found' }, 404));
 
     const doc = await getDoc(ctx, url.origin);
