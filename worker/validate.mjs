@@ -524,6 +524,69 @@ async function routerTests() {
     check('competitor outage leaves comparison unavailable', r.body.comparisonAvailable === false);
 }
 
+// ---------- 8. LIVE PARITY: /v1 output === site pipeline output ----------
+async function parityChecks() {
+    section('8. Live parity: /v1 output === site pipeline output');
+
+    const base = process.env.V1_URL || PROXY_URL;
+
+    // Pick a real fixture from today's card.
+    let today;
+    try {
+        const r = await fetch(`${base}/v1/matches/today`);
+        today = (await r.json()).matches || [];
+    } catch (e) {
+        check('/v1/matches/today reachable', false, e.message);
+        return;
+    }
+    check('/v1/matches/today returned fixtures', today.length > 0);
+    if (!today.length) return;
+
+    const target = today[0];
+    const apiRes = await fetch(`${base}/v1/match/${target.eventId}`);
+    check('/v1/match/:id is 200', apiRes.status === 200);
+    const api = await apiRes.json();
+
+    // Rebuild the same view locally, the way the SITE does it: Altenar direct +
+    // the proxy's competitor doc + odds-match.mjs. If these disagree, the chatbot
+    // and the website are showing users different numbers.
+    const detail = await getEventDetail(target.eventId);
+    check('local Altenar fetch resolved the event', !!detail);
+    if (!detail) return;
+
+    const proxyDoc = await (await fetch(`${base}/odds`)).json();
+    const local = buildMatchView({
+        event: detail.event,
+        collections: detail.collections,
+        competitorIndex: buildIndex(proxyDoc.books),
+    });
+
+    check('parity: same 1X2 home', api.odds1x2?.home === local.odds1x2?.home,
+        `api=${api.odds1x2?.home} local=${local.odds1x2?.home}`);
+    check('parity: same market codes',
+        api.markets.map(m => m.marketCode).join(',') === local.markets.map(m => m.marketCode).join(','));
+    check('parity: same comparison books',
+        api.comparison.map(r => r.book).join(',') === local.comparison.map(r => r.book).join(','),
+        `api=[${api.comparison.map(r => r.book)}] local=[${local.comparison.map(r => r.book)}]`);
+    check('parity: comparisonAvailable agrees', api.comparisonAvailable === local.comparisonAvailable);
+
+    // Invariants that must hold no matter which fixture was picked.
+    check('invariant: BwanaBet heads the ranking',
+        api.comparison.length === 0 || api.comparison[0].book === 'bwanabet');
+    check('invariant: only BwanaBet is placeable',
+        api.comparison.filter(r => r.placeable).length <= 1);
+    check('invariant: every selection has a ref',
+        api.markets.every(m => m.selections.every(s => typeof s.ref === 'string' && s.ref.length > 0)));
+    check('invariant: no competitor price meets or beats BwanaBet',
+        api.comparison.slice(1).every(r =>
+            ['home', 'draw', 'away'].every(k => {
+                const c = parseFloat(r.odds[k]), b = parseFloat(api.odds1x2[k]);
+                return isNaN(c) || isNaN(b) || c <= b - 0.03 + 1e-9;
+            })));
+
+    console.log(`  parity fixture: ${api.eventName} (${api.comparison.length - 1} competitor row(s))`);
+}
+
 // Do the card and matched event share at least one real 4+ char token (either side,
 // allowing swap)? A pure prefix-noise match would fail this.
 function sharesRealToken(cardNorm, ev) {
@@ -545,6 +608,7 @@ function sharesRealToken(cardNorm, ev) {
     displayTests();
     await routerTests();
     if (!OFFLINE) await liveChecks();
+    if (!OFFLINE) await parityChecks();
     console.log(`\n${failed === 0 ? '✅ PASS' : '❌ FAIL'} — ${passed} passed, ${failed} failed`);
     if (failed) { console.log('failed:'); fails.forEach(f => console.log('  - ' + f)); process.exit(1); }
 })();
