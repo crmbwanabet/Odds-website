@@ -21,6 +21,11 @@ import {
     totalPayout, buildIndex, matchCompetitors, beatenBooks, extract1x2, splitTeams
 } from '../lib/odds-match.mjs';
 import { BOOK_NAMES, COMP_KEYS as REGISTRY_COMP_KEYS, bookName } from '../lib/books.mjs';
+import { extractMarkets, OU_HANDICAP } from '../lib/markets.mjs';
+import { readFileSync } from 'node:fs';
+
+const FIXTURE_EVENT = () =>
+    JSON.parse(readFileSync(new URL('../test/fixtures/altenar-event.json', import.meta.url)));
 
 // `node worker/validate.mjs --offline` runs ONLY the deterministic checks. The
 // live sections hit BwanaBet + the proxy, which is too slow and too flaky to sit
@@ -271,6 +276,53 @@ function bookRegistryTests() {
         REGISTRY_COMP_KEYS.slice().sort().join(',') === COMP_KEYS.slice().sort().join(','));
 }
 
+// ---------- 3. MARKET EXTRACTION ----------
+function marketTests() {
+    section('3. Market extraction');
+    const ev = FIXTURE_EVENT();
+    const markets = extractMarkets(ev.collections);
+    const byCode = Object.fromEntries(markets.map(m => [m.marketCode, m]));
+
+    check('returns exactly the five surfaced markets', markets.length === 5,
+        'got ' + markets.map(m => m.marketCode).join(','));
+    check('includes 1x2', !!byCode['1x2']);
+    check('includes DC', !!byCode['DC']);
+    check('includes BTS', !!byCode['BTS']);
+    check('includes OE', !!byCode['OE']);
+    check('includes OU_2.5', !!byCode['OU_2.5']);
+    check('excludes To Qualify', !byCode['TQ']);
+    check('excludes Draw No Bet', !byCode['DNB']);
+    check('excludes team totals (IOU_T1)', !byCode['IOU_T1']);
+
+    check('1x2 has three selections', byCode['1x2'].selections.length === 3);
+    check('every selection carries a ref',
+        markets.every(m => m.selections.every(s => typeof s.ref === 'string' && s.ref.length > 0)));
+    check('every selection carries numeric odds',
+        markets.every(m => m.selections.every(s => typeof s.odds === 'number' && s.odds > 0)));
+
+    const ou = byCode['OU_2.5'];
+    check('OU_2.5 has exactly two selections', ou.selections.length === 2);
+    check('OU_2.5 takes the 2.5 line only',
+        ou.selections.map(s => s.odds).sort().join(',') === '1.79,2.05');
+    check('OU_2.5 labels include the line', ou.selections.some(s => s.label === 'Over 2.5'));
+    check('OU_2.5 carries hcap', ou.selections.every(s => s.hcap === OU_HANDICAP));
+    check('OU_2.5 comes from Goals, not Corners',
+        ou.selections.every(s => s.ref.startsWith('43540311-6-')));
+    check('main-collection selections have hcap 0',
+        byCode['1x2'].selections.every(s => s.hcap === 0));
+
+    // Blocked / zero-rate prices are dropped.
+    const blocked = JSON.parse(JSON.stringify(ev.collections));
+    blocked[0].markets[1].prices[0].blocked = true;
+    blocked[0].markets[1].prices[1].rate = 0;
+    const m2 = extractMarkets(blocked).find(m => m.marketCode === '1x2');
+    check('drops blocked and zero-rate prices', m2.selections.length === 1);
+
+    check('empty input returns empty array', extractMarkets(null).length === 0);
+    check('missing Goals collection still returns main markets',
+        extractMarkets([ev.collections[0]]).length === 4);
+}
+
 // Do the card and matched event share at least one real 4+ char token (either side,
 // allowing swap)? A pure prefix-noise match would fail this.
 function sharesRealToken(cardNorm, ev) {
@@ -287,6 +339,7 @@ function sharesRealToken(cardNorm, ev) {
     console.log('OddsZone accuracy validation' + (OFFLINE ? ' (offline)' : ''));
     unitTests();
     bookRegistryTests();
+    marketTests();
     if (!OFFLINE) await liveChecks();
     console.log(`\n${failed === 0 ? '✅ PASS' : '❌ FAIL'} — ${passed} passed, ${failed} failed`);
     if (failed) { console.log('failed:'); fails.forEach(f => console.log('  - ' + f)); process.exit(1); }
